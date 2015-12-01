@@ -1,0 +1,17 @@
+{
+  "name": "primeui",
+  "description": "jQuery Plugins",
+  "dependencies": {
+    "jquery": ">=1.11.0",
+    "jqueryui": ">1.11.0”,
+    “fontawesome”: “>4.3.0”
+  },
+  "keywords": [
+    "jquery",
+    "ui”
+  ],
+  "authors": [
+    "PrimeTek"
+  ],
+  "license": "Apache*"
+}
