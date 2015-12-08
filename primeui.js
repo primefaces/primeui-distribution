@@ -1,6 +1,6 @@
 /*
- * PrimeUI v2.2.0-rc.1
- *
+ * PrimeUI 2.2
+ * 
  * Copyright 2009-2015 PrimeTek.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1737,20 +1737,20 @@ PUI.resolveUserAgent();/**
                     result = null;
                     
                     if (typeof value1 == 'string' || value1 instanceof String) {
-                    	if ( value1.localeCompare ) {
-                    		return (order * value1.localeCompare(value2));
-                    	}
-                    	else {
-                        	if (value1.toLowerCase) {
-                            	value1 = value1.toLowerCase();
+                        if ( value1.localeCompare ) {
+                            return (order * value1.localeCompare(value2));
+                        }
+                        else {
+                            if (value1.toLowerCase) {
+                                value1 = value1.toLowerCase();
                             }
                             if (value2.toLowerCase) {
-                            	value2 = value2.toLowerCase();
+                                value2 = value2.toLowerCase();
                             }
                             result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
                             
                             
-                    	}
+                        }
                     }
                     else {
                         result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
@@ -1791,16 +1791,20 @@ PUI.resolveUserAgent();/**
                     
                     if(rowData) {
                         var row = $('<tr class="ui-widget-content" />').appendTo(this.tbody),
-                            zebraStyle = (i%2 === 0) ? 'pui-datatable-even' : 'pui-datatable-odd',
-                            rowIndex = i;
+                        zebraStyle = (i%2 === 0) ? 'pui-datatable-even' : 'pui-datatable-odd',
+                        rowIndex = i;
 
                         row.addClass(zebraStyle);
+                        
                         if(this.options.lazy) {
                             rowIndex += firstNonLazy; // Selection is kept as it is non lazy data
                         }
+
                         if(this.options.selectionMode && PUI.inArray(this.selection, rowIndex)) {
                             row.addClass("ui-state-highlight");
                         }
+                        
+                        row.data('rowindex', rowIndex);
 
                         for(var j = 0; j < this.options.columns.length; j++) {
                             var column = $('<td />').appendTo(row),
@@ -1816,16 +1820,13 @@ PUI.resolveUserAgent();/**
                             
                             if(columnOptions.editor) {
                                 column.addClass('pui-editable-column').data({
-                                    'editor': columnOptions.editor,
+                                    'editor': columnOptions.editor, 
                                     'rowdata': rowData,
                                     'field': columnOptions.field
                                 });
                             }
                             
-                            if(columnOptions.field) {
-                                column.text(rowData[columnOptions.field]);
-                            }
-                            else if(columnOptions.content) {
+                            if(columnOptions.content) {
                                 var content = columnOptions.content.call(this, rowData);
                                 if($.type(content) === 'string')
                                     column.html(content);
@@ -1833,7 +1834,10 @@ PUI.resolveUserAgent();/**
                                     column.append(content);
                             }
                             else if(columnOptions.rowToggler) {
-                                column.append('<div class="pui-row-toggler fa fa-fw fa-chevron-circle-right"></div>');
+                                column.append('<div class="pui-row-toggler fa fa-fw fa-chevron-circle-right pui-c"></div>');
+                            }
+                            else if(columnOptions.field) {
+                                column.text(rowData[columnOptions.field]);
                             }
                             
                             if(this.options.responsive && columnOptions.headerText) {
@@ -1877,7 +1881,7 @@ PUI.resolveUserAgent();/**
         _initSelection: function() {
             var $this = this;
             this.selection = [];
-            this.rowSelector = '> tr.ui-widget-content:not(.ui-datatable-empty-message)';
+            this.rowSelector = '> tr.ui-widget-content:not(.pui-datatable-empty-message,.pui-datatable-unselectable)';
             
             //shift key based range selection
             if(this._isMultipleSelection()) {
@@ -2054,6 +2058,7 @@ PUI.resolveUserAgent();/**
                 if (this.options.lazy) {
                     selectedData = this.data[rowIndex - this._getFirst()];
                 }
+                
                 this._trigger('rowSelect', event, selectedData);
             }
         },
@@ -2086,9 +2091,7 @@ PUI.resolveUserAgent();/**
         },
                 
         _getRowIndex: function(row) {
-            var index = row.index();
-            
-            return this.options.paginator ? this._getFirst() + index : index;
+            return row.data('rowindex');
         },
         
         _initExpandableRows: function() {
@@ -2133,7 +2136,7 @@ PUI.resolveUserAgent();/**
         
         loadExpandedRowContent: function(row) {
             var rowIndex = this._getRowIndex(row),
-            expandedRow = $('<tr class="pui-expanded-row-content ui-widget-content"><td colspan="' + this.options.columns.length + '"></td></tr>');
+            expandedRow = $('<tr class="pui-expanded-row-content pui-datatable-unselectable ui-widget-content"><td colspan="' + this.options.columns.length + '"></td></tr>');
             expandedRow.children('td').append(this.options.expandedRowContent.call(this, this.data[rowIndex]));
 
             row.addClass('pui-expanded-row').after(expandedRow);
@@ -2700,13 +2703,13 @@ PUI.resolveUserAgent();/**
                 update: function(event, ui) {
                     $this.syncRowParity();
 
-                    this._trigger('rowReorder', null, {
+                    $this._trigger('rowReorder', null, {
                         fromIndex: ui.item.data('ri'),
                         toIndex: $this._getFirst() + ui.item.index()
                     });
                 },
                 change: function(event, ui) {
-                    if($this.cfg.scrollable) {
+                    if($this.options.scrollable) {
                         PUI.scrollInView($this.scrollBody, ui.placeholder);
                     }
                 }
@@ -4257,11 +4260,14 @@ PUI.resolveUserAgent();/**
             this._selectItem(this.items.eq(option.index()), true);
         },
 
-        addOption: function(label, value) {
-            var item = $('<li data-label="' + label + '" class="pui-dropdown-item pui-dropdown-list-item ui-corner-all">' + label + '</li>'),
-            choice = $('<option value="' + value + '">' + label + '</option>');
-    
-            choice.appendTo(this.element);
+        addOption: function(option) {
+            var value = option.value ? option.value : option,
+            label = option.label ? option.label : option,
+            content = this.options.content ? this.options.content.call(this, option) : label,
+            item = $('<li data-label="' + label + '" class="pui-dropdown-item pui-dropdown-list-item ui-corner-all">' + content + '</li>'),
+            optionElement = $('<option value="' + value + '">' + label + '</option>');
+
+            optionElement.appendTo(this.element);
             this._bindItemEvents(item);
             item.appendTo(this.itemsContainer);
             this.items.push(item[0]);
@@ -4288,14 +4294,11 @@ PUI.resolveUserAgent();/**
             $.Widget.prototype._setOption.apply(this, arguments);
             if (key === 'data') {
                 this.removeAllOptions();
+                
                 for(var i = 0; i < this.options.data.length; i++) {
-                    var choice = this.options.data[i];
-                    if(choice.label)  {
-                        this.addOption(choice.label, choice.value);
-                    } else {
-                        this.addOption(choice, choice);
-                    }
+                    this.addOption(this.options.data[i]);
                 }
+                
                 if(this.options.scrollHeight && this.panel.outerHeight() > this.options.scrollHeight) {
                     this.itemsWrapper.height(this.options.scrollHeight);
                 }
@@ -4643,7 +4646,7 @@ PUI.resolveUserAgent();/**
             var markup = '<div class="pui-growl-item-container ui-state-highlight ui-corner-all ui-helper-hidden" aria-live="polite">';
             markup += '<div class="pui-growl-item pui-shadow">';
             markup += '<div class="pui-growl-icon-close fa fa-close" style="display:none"></div>';
-            markup += '<span class="pui-growl-image fa fa-info-circle fa-2x" />';
+            markup += '<span class="pui-growl-image fa fa-2x ' + this._getIcon(msg.severity) + '" />';
             markup += '<div class="pui-growl-message">';
             markup += '<span class="pui-growl-title">' + msg.summary + '</span>';
             markup += '<p>' + (msg.detail||'') + '</p>';
@@ -4700,6 +4703,26 @@ PUI.resolveUserAgent();/**
             }, this.options.life);
 
             message.data('timeout', timeout);
+        },
+        
+        _getIcon: function(severity) {
+            switch(severity) {
+                case 'info':
+                    return 'fa-info-circle';
+                break;
+                
+                case 'warn':
+                    return 'fa-warning';
+                break;
+                
+                case 'error':
+                    return 'fa-close';
+                break;
+                
+                default:
+                    return 'fa-info-circle';
+                break;
+            }
         }
     });
 })();/**
@@ -6234,21 +6257,25 @@ PUI.resolveUserAgent();/**
        },
 
        _back: function() {
-            var $this = this,
-            last = this._pop(),
-            depth = this._depth();
+            if(!this.rootList.is(':animated')) {
+                var $this = this,
+                last = this._pop(),
+                depth = this._depth();
 
-            var rootLeft = -1 * (depth * this.jqWidth);
+                var rootLeft = -1 * (depth * this.jqWidth);
 
-            this.rootList.animate({
-                left: rootLeft
-            }, 500, 'easeInOutCirc', function() {
-                last.hide();
+                this.rootList.animate({
+                    left: rootLeft
+                }, 500, 'easeInOutCirc', function() {
+                    if(last) {
+                        last.hide();
+                    }
 
-                if(depth === 0) {
-                    $this.backward.fadeOut('fast');
-                }
-            });
+                    if(depth === 0) {
+                        $this.backward.fadeOut('fast');
+                    }
+                });
+            }
        },
 
        _push: function(submenu) {
@@ -6428,7 +6455,7 @@ PUI.resolveUserAgent();/**
             if(this.options.closable) {
                 this.closer = $('<a href="#" class="pui-messages-close"><i class="fa fa-close"></i></a>').appendTo(this.element);
             }
-            this.element.append('<span class="pui-messages-icon fa fa-info-circle fa-2x"></span>');
+            this.element.append('<span class="pui-messages-icon fa fa-2x"></span>');
             
             this.msgContainer = $('<ul></ul>').appendTo(this.element);
             
@@ -6449,6 +6476,8 @@ PUI.resolveUserAgent();/**
             this.clear();
             this.element.removeClass('pui-messages-info pui-messages-warn pui-messages-error').addClass('pui-messages-' + severity);
             
+            this.element.children('.pui-messages-icon').removeClass('fa-info-circle fa-close fa-warning').addClass(this._getIcon(severity));
+            
             if($.isArray(msgs)) {
                 for(var i = 0; i < msgs.length; i++) {
                     this._showMessage(msgs[i]);
@@ -6468,6 +6497,26 @@ PUI.resolveUserAgent();/**
         clear: function() {
             this.msgContainer.children().remove();
             this.element.hide();
+        },
+        
+        _getIcon: function(severity) {
+            switch(severity) {
+                case 'info':
+                    return 'fa-info-circle';
+                break;
+                
+                case 'warn':
+                    return 'fa-warning';
+                break;
+                
+                case 'error':
+                    return 'fa-close';
+                break;
+                
+                default:
+                    return 'fa-info-circle';
+                break;
+            }
         }
         
     });
@@ -7726,8 +7775,7 @@ PUI.resolveUserAgent();/**
                 this.element.find('> .pui-picklist-listwrapper > ul.pui-picklist-list').sortable({
                     cancel: '.ui-state-disabled',
                     connectWith: '#' + this.element.attr('id') + ' .pui-picklist-list',
-                    revert: true,
-                    containment: this.element,
+                    revert: 1,
                     update: function(event, ui) {
                         $this.unselectItem(ui.item);
 
@@ -9740,7 +9788,7 @@ PUI.resolveUserAgent();/**
                     }
                     
                     if(j === 0) {
-                        var toggler = $('<span class="pui-treetable-toggler pui-icon fa fa-fw fa-caret-right"></span>');
+                        var toggler = $('<span class="pui-treetable-toggler pui-icon fa fa-fw fa-caret-right pui-c"></span>');
                         
                         toggler.css('margin-left', depth * 16 + 'px');
                         if(leaf) {
@@ -9886,7 +9934,7 @@ PUI.resolveUserAgent();/**
         },
         
         onRowClick: function(event, row) {
-            if($(event.target).is('td,span:not(.ui-c)')) {
+            if(!$(event.target).is(':input,:button,a,.pui-c')) {
                 var selected = row.hasClass('ui-state-highlight'),
                 metaKey = event.metaKey||event.ctrlKey;
 

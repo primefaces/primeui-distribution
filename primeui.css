@@ -1,6 +1,6 @@
 /*
- * PrimeUI v2.2.0-rc.1
- *
+ * PrimeUI 2.2
+ * 
  * Copyright 2009-2015 PrimeTek.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,12 +20,6 @@
     -webkit-box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
     box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
 }
-
-.pui-fluid * {
-    box-sizing: border-box;
-    -webkit-box-sizing:border-box;
-    -moz-box-sizing: border-box;
-} 
 
 /* FontAwesome Support */
 .ui-widget .ui-icon.fa, 
@@ -255,12 +249,12 @@ button.pui-button::-moz-focus-inner {
     border: 0; padding: 0; /* reset extra padding in Firefox */
 }
 
-.pui-fluid .pui-button {
-    width: 100%;
-}
-
+.pui-fluid .pui-button,
 .pui-fluid .ui-buttonset {
     width: 100%;
+    box-sizing: border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing: border-box;
 }.pui-carousel {
     position: relative;
     padding: 1px;
@@ -381,7 +375,7 @@ button.pui-button::-moz-focus-inner {
 }
 
 .pui-datatable table {
-	border-collapse:collapse;
+    border-collapse:collapse;
     width: 100%;
     table-layout: fixed;
 }
@@ -529,7 +523,6 @@ button.pui-button::-moz-focus-inner {
     height:20px;
     padding:0px;
     cursor:col-resize;
-    background-image: url("#{resource['primefaces:spacer/dot_clear.gif']}");
     border: 1px solid transparent;
 }
 
@@ -591,11 +584,11 @@ button.pui-button::-moz-focus-inner {
         display: block;
         border: 0px none;
         width: 100%;
-		-webkit-box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		box-sizing: border-box;
-		float: left;
-		clear: left;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        float: left;
+        clear: left;
     }
     
     .pui-datatable-reflow .pui-datatable-data.ui-widget-content {
@@ -614,12 +607,12 @@ button.pui-button::-moz-focus-inner {
         margin: -.4em 1em -.4em -.4em;
     }
 }.pui-datagrid .pui-paginator {
-	text-align: center;
+    text-align: center;
     border-top: 0px none;
 }
 
 .pui-datagrid-column {
-	padding: 3px;
+    padding: 3px;
 }
 
 .pui-datagrid-content-empty {
@@ -788,10 +781,16 @@ button.pui-button::-moz-focus-inner {
 /** Dropdown **/
 .pui-fluid .pui-dropdown {
     width: 100%;
+    box-sizing: border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing: border-box;
 }
 .pui-fluid .pui-dropdown .pui-dropdown-trigger {
     width: 32px;
     padding: 0 6px;
+    box-sizing: border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing: border-box;
 }.pui-fieldset, .pui-fieldset .pui-fieldset-legend {
     padding:0.6em 1em;
 }
@@ -859,11 +858,11 @@ button.pui-button::-moz-focus-inner {
 }
 
 .pui-galleria-nav-next, .pui-galleria-nav-prev {
-	cursor: pointer;
+    cursor: pointer;
     position: absolute;
 }
 
-.pui-galleria-nav-prev {	
+.pui-galleria-nav-prev {    
     left: 5px;
 }
 
@@ -884,62 +883,62 @@ button.pui-button::-moz-focus-inner {
     padding: 1em 1.4em;
 }/* ie6 */
 * html .pui-growl {
-	position:absolute; 
+    position:absolute; 
 }
 * html .pui-growl-item {
-	padding-bottom:0;
+    padding-bottom:0;
 }
 * html .pui-growl-icon-close {
-	top:7px;
-	right:7px;
+    top:7px;
+    right:7px;
 }
 
 .pui-growl {
-	position:fixed;
-	top:20px;
-	right:20px;
-	width:301px;
+    position:fixed;
+    top:20px;
+    right:20px;
+    width:301px;
 }
 .pui-growl-item-container {
-	position:relative;
-	margin:0 0 10px 0;
-	opacity:0.85;
-	filter:alpha(opacity=85);
+    position:relative;
+    margin:0 0 10px 0;
+    opacity:0.85;
+    filter:alpha(opacity=85);
 }
 .pui-growl-item {
-	display:block;
-	padding:10px 15px;
+    display:block;
+    padding:10px 15px;
 }
 .pui-growl-item p {
-	padding:0;
-	margin:0;
+    padding:0;
+    margin:0;
 }
 .pui-growl-icon-close {
-	position:absolute;
-	top:5px;
-	right:3px;
-	cursor:pointer;
+    position:absolute;
+    top:5px;
+    right:3px;
+    cursor:pointer;
 }
 .pui-growl-title {
-	font-weight:bold;
-	padding:0 0 7px 0;
-	display:block;
+    font-weight:bold;
+    padding:0 0 7px 0;
+    display:block;
 }
 .pui-growl-image {
-	float:left;
+    float:left;
     margin-left: 5px;
     padding:0;
     display: block;
 }
 
 .pui-growl-message {
-	padding:0 0 5px 0;
-	width:220px;
-	float:right;
+    padding:0 0 5px 0;
+    width:220px;
+    float:right;
 }
 
 .pui-growl-message p {
-	font-weight: normal;
+    font-weight: normal;
 }/* Grid CSS */
 .pui-grid {
     clear: both;
@@ -1095,6 +1094,9 @@ button.pui-button::-moz-focus-inner {
 
 .pui-fluid .pui-inputtext {
     width: 100%;
+    box-sizing: border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing: border-box;
 }.pui-inputtextarea-resizable {
     overflow: hidden;
     resize:none;
@@ -1498,11 +1500,11 @@ button.pui-button::-moz-focus-inner {
     top: 5px;
     right: 5px;
 }.pui-notify {
-	position: fixed;
-	width: 100%;
-	height: 100px;
-	display: none;
-	padding: 10px;
+    position: fixed;
+    width: 100%;
+    height: 100px;
+    display: none;
+    padding: 10px;
 }
 
 .pui-notify-top {
@@ -1514,10 +1516,10 @@ button.pui-button::-moz-focus-inner {
 }
  
 .pui-notify-close {
-	position: absolute;
-	right: 3em;
-	top: 1em;
-	cursor: pointer;
+    position: absolute;
+    right: 3em;
+    top: 1em;
+    cursor: pointer;
     opacity: 0.5;
 }
 
@@ -1629,13 +1631,13 @@ button.pui-button::-moz-focus-inner {
 .pui-paginator .pui-paginator-first,
 .pui-paginator .pui-paginator-prev,
 .pui-paginator .pui-paginator-current {
-	display: inline-block;
-	padding: 2px 6px;
-	zoom: 1;
-	margin-left: 1px;
-	margin-right: 1px;
-	text-decoration: none;
-	outline: none;
+    display: inline-block;
+    padding: 2px 6px;
+    zoom: 1;
+    margin-left: 1px;
+    margin-right: 1px;
+    text-decoration: none;
+    outline: none;
 }
 
 .pui-paginator .pui-paginator-page,
@@ -1648,8 +1650,8 @@ button.pui-button::-moz-focus-inner {
 
 .pui-paginator .pui-paginator-current,
 .pui-paginator .pui-paginator-rpp-options {
-	margin-left: 1em;
-	margin-right: 1em;
+    margin-left: 1em;
+    margin-right: 1em;
     background-image: none;
 }
 
@@ -1657,8 +1659,8 @@ button.pui-button::-moz-focus-inner {
 .pui-paginator .pui-paginator-prev .ui-icon,
 .pui-paginator .pui-paginator-first .ui-icon,
 .pui-paginator .pui-paginator-last .ui-icon {
-	height: auto;
-	overflow: inherit;
+    height: auto;
+    overflow: inherit;
 }
 
 .pui-paginator .pui-paginator-jtp-select option,
@@ -1669,41 +1671,41 @@ button.pui-button::-moz-focus-inner {
     -moz-box-shadow: none;
     -webkit-box-shadow: none;
 }.pui-panel {
-	padding: 0.2em;
+    padding: 0.2em;
 }
 
 .pui-panel .pui-panel-titlebar {
-	padding: 0.5em 1em 0.3em;
+    padding: 0.5em 1em 0.3em;
 }
 
 .pui-panel .pui-panel-title {
-	margin: 0.1em 16px 0.2em 0;
+    margin: 0.1em 16px 0.2em 0;
 }
 
 .pui-panel .pui-panel-titlebar-icon {
-	float: right;
+    float: right;
     cursor: pointer;
 }
 
 .pui-panel .pui-panel-titlebar-icon,
 .pui-panel .pui-panel-titlebar-icon:hover,
 .pui-panel .pui-panel-titlebar-icon:focus {
-	margin-left:0.2em;
+    margin-left:0.2em;
     margin-top:-0.1em;
     *margin:-1.5em 0em 0em 0.2em;
 }
 
 .pui-panel .pui-panel-content {
-	border: 0;
+    border: 0;
     background: none;
-	padding: 0.5em 1em;
+    padding: 0.5em 1em;
 }
 
 .pui-panel .pui-panel-footer {
-	border-width:1px 0 0;
-	margin:0.5em 0 0;
-	padding:0.5em 1em;
-	text-align:left;
+    border-width:1px 0 0;
+    margin:0.5em 0 0;
+    padding:0.5em 1em;
+    text-align:left;
 }
 
 .pui-panel-collapsed-h .pui-panel-titlebar-icon,
@@ -2159,7 +2161,7 @@ button.pui-button::-moz-focus-inner {
     display: inline-block;
     zoom: 1;
 }.pui-treetable table {
-	border-collapse:collapse;
+    border-collapse:collapse;
     width: 100%;
     table-layout: fixed;
 }
