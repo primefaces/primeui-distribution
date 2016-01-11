@@ -1,7 +1,7 @@
 /*
- * PrimeUI 2.2
+ * PrimeUI 3.0.0
  * 
- * Copyright 2009-2015 PrimeTek.
+ * Copyright 2009-2016 PrimeTek.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,11 +77,8 @@
 
 .pui-autocomplete .pui-autocomplete-dropdown {
     position: absolute;
-    top: 0;
-    bottom: 0;
     height: 100%;
     width: 2.4em;
-    right: -2.4em;
 }
 
 .pui-autocomplete-query {
@@ -132,7 +129,10 @@
     min-height: 1px;
     overflow: hidden;
     width: 400px;
-    padding: 0px;
+}
+
+.pui-autocomplete-multiple-container.pui-inputfield {
+    padding:0;
 }
 
 .pui-autocomplete-token {
@@ -170,9 +170,38 @@
     width: 140px;
     outline: medium none;
     background-color: transparent;
-    margin: 0px;
-    padding: 4px;
+    margin: 0;
+    padding: 0;
     box-shadow: none;
+}
+
+.pui-autocomplete-itemtip-content {
+    display:none;
+}
+
+.pui-autocomplete-itemtip {
+    position: absolute;
+    display: none;
+    padding: 0.4em;
+}
+
+.pui-autocomplete-emptyMessage {
+    padding:3px 5px;
+}
+
+.pui-autocomplete-panel .pui-autocomplete-group {
+    font-weight: bold;
+    cursor: default;
+}
+
+/** AutoComplete **/
+.pui-fluid .pui-autocomplete,
+.pui-fluid .pui-autocomplete-input {
+    width: 100%;
+}
+
+.pui-fluid .pui-autocomplete .pui-autocomplete-dropdown.pui-button {
+    width: 2.4em;
 }/* Button */
 .pui-button { 
     display: inline-block; 
@@ -249,12 +278,35 @@ button.pui-button::-moz-focus-inner {
     border: 0; padding: 0; /* reset extra padding in Firefox */
 }
 
-.pui-fluid .pui-button,
-.pui-fluid .ui-buttonset {
+/** Fluid **/
+.pui-fluid .pui-button {
     width: 100%;
     box-sizing: border-box;
     -webkit-box-sizing:border-box;
     -moz-box-sizing: border-box;
+}
+
+/** ButtonSet **/
+.pui-fluid .pui-buttonset {
+    width: 100%;
+}
+
+.pui-fluid .pui-buttonset.pui-buttonset-1 .pui-button {width: 100%;}
+.pui-fluid .pui-buttonset.pui-buttonset-2 .pui-button {width: 50%;}
+.pui-fluid .pui-buttonset.pui-buttonset-3 .pui-button {width: 33.3%;}
+.pui-fluid .pui-buttonset.pui-buttonset-4 .pui-button {width: 25%;}
+.pui-fluid .pui-buttonset.pui-buttonset-5 .pui-button {width: 20%;}
+.pui-fluid .pui-buttonset.pui-buttonset-6 .pui-button {width: 16.6%;}
+
+@media (max-width: 640px) {
+    .pui-fluid .pui-buttonset.pui-buttonset-1 .pui-button,
+    .pui-fluid .pui-buttonset.pui-buttonset-2 .pui-button,
+    .pui-fluid .pui-buttonset.pui-buttonset-3 .pui-button,
+    .pui-fluid .pui-buttonset.pui-buttonset-4 .pui-button,
+    .pui-fluid .pui-buttonset.pui-buttonset-5 .pui-button,
+    .pui-fluid .pui-buttonset.pui-buttonset-6 .pui-button {
+        width: 100%;
+    }
 }.pui-carousel {
     position: relative;
     padding: 1px;
@@ -639,6 +691,45 @@ button.pui-button::-moz-focus-inner {
 
 .pui-datagrid .pui-paginator-bottom {
     border-top: 0px none;
+}.pui-datascroller {
+}
+
+.pui-datascroller .pui-datascroller-header {
+    text-align: center;
+    padding: 4px 10px;
+    border-bottom: 0px none;
+}
+
+.pui-datascroller .pui-datascroller-content {
+    padding:4px 10px;
+}
+
+.pui-datascroller-inline .pui-datascroller-content {
+    overflow: auto;
+}
+
+.pui-datascroller .pui-datascroller-list {
+    list-style-type: none; 
+    margin: 0;
+    padding: 0;
+}
+
+.pui-datascroller .pui-datascroller-item {
+    border: 0 none;
+}
+
+.pui-datascroller .pui-datascroller-loader {
+    text-align: center;
+    padding: 4px 10px;
+}
+
+.pui-datascroller .pui-datascroller-loading {
+    background: url("./images/loadingbar.gif") center center no-repeat;
+    width: 220px;
+    height: 19px;
+    padding: 0;
+    margin: 0;
+    display: inline-block;
 }.pui-dialog { position: fixed; padding: 0; overflow: hidden; }
 .pui-dialog .pui-dialog-titlebar { padding: .4em .4em .4em 1em; position: relative; border:0px; }
 .pui-dialog .pui-dialog-title { float: left; margin: .3em 16px .1em 0; } 
@@ -1060,7 +1151,7 @@ button.pui-button::-moz-focus-inner {
 }
 
 /* Responsive */
-@media (max-width: 35em) {
+@media (max-width: 640px) {
     .pui-grid-responsive .pui-grid-row {
         display: block;
     }
@@ -1134,7 +1225,7 @@ button.pui-button::-moz-focus-inner {
 }
 
 .pui-lightbox-loading {
-    background: url("loading.gif") #000000 center center no-repeat;
+    background: url("./images/loading.gif") #000000 center center no-repeat;
 }
 
 .pui-lightbox-caption {
@@ -1499,6 +1590,102 @@ button.pui-button::-moz-focus-inner {
     position: absolute;
     top: 5px;
     right: 5px;
+}.pui-inputfield {
+    margin: 0;
+    outline: medium none;
+    padding: 4px;
+    font-weight: normal;
+}
+
+.ui-widget-header .pui-inputfield,
+.ui-widget-content .pui-inputfield {
+    font-weight: normal;
+}
+
+.pui-inputtextarea-resizable {
+    overflow: hidden;
+    resize:none;
+}
+
+.pui-selectonelistbox, 
+.pui-selectmanymenu,
+.pui-multiselectlistbox-listcontainer {
+    padding: 2px;
+    width: 150px;
+}
+
+.pui-selectonelistbox .pui-selectlistbox-listcontainer, 
+.pui-selectmanymenu .pui-selectlistbox-listcontainer,
+.pui-multiselectlistbox-listcontainer {
+    overflow:auto;
+}
+
+.pui-selectonelistbox.pui-state-disabled .pui-selectlistbox-listcontainer, 
+.pui-selectmanymenu.pui-state-disabled .pui-selectlistbox-listcontainer {
+    overflow:hidden;
+}
+
+.pui-selectonelistbox .pui-selectlistbox-list,
+.pui-selectmanymenu .pui-selectlistbox-list,
+.pui-multiselectlistbox .pui-multiselectlistbox-list {
+    list-style-type: none; 
+    margin: 0;
+    padding: 0;
+}
+
+.pui-selectonelistbox .pui-selectlistbox-item,
+.pui-selectmanymenu .pui-selectlistbox-item,
+.pui-multiselectlistbox .pui-multiselectlistbox-item {
+    margin: 2px;
+    border: 0 none;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.pui-selectonelistbox table.pui-selectlistbox-list,
+.pui-selectmanymenu table.pui-selectlistbox-list {
+    border-collapse:collapse;
+    width:100%;
+}
+
+.pui-selectlistbox-filter.pui-inputfield {
+    padding-right: 12%;
+    padding-left: 2%;
+    width: 85%;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.pui-selectlistbox-filter-container {
+    position: relative;
+    margin: 0.1em 0 0.1em 0;
+    padding: 0;
+}
+
+.pui-selectlistbox-filter-container .pui-icon {
+    position: absolute;
+    top: 5px;
+    right: 2px;
+}
+
+.pui-multiselectlistbox .pui-multiselectlistbox-listcontainer {
+    float: left;
+    margin-right: 4px;
+}
+
+.pui-multiselectlistbox .pui-multiselectlistbox-item {
+    white-space: nowrap;
+}
+
+.pui-multiselectlistbox.pui-state-disabled .pui-multiselectlistbox-item {
+    cursor: default;
+}
+
+.pui-multiselectlistbox .pui-multiselectlistbox-header {
+    text-align: center;
+    padding: 2px 10px;
+    border-bottom: 0px none;
 }.pui-notify {
     position: fixed;
     width: 100%;
@@ -1728,7 +1915,7 @@ button.pui-button::-moz-focus-inner {
 
 .pui-password-panel .pui-password-meter { 
     height: 10px; 
-    background:transparent url("password-meter.png") no-repeat left top; 
+    background:transparent url("./images/password-meter.png") no-repeat left top; 
     padding: 0;
     margin: 0;
 }
@@ -1739,9 +1926,13 @@ button.pui-button::-moz-focus-inner {
 
 .pui-password-panel-overlay { 
     position: absolute; 
-}.pui-picklist .pui-picklist-listwrapper {
+}.pui-picklist > div {
     float: left;
-    width: 150px;
+}
+
+.pui-picklist .pui-picklist-buttons {
+    height: 200px;
+    padding: 0px 5px;
 }
 
 .pui-picklist .pui-picklist-list {
@@ -1750,12 +1941,7 @@ button.pui-button::-moz-focus-inner {
     padding: 0;
     overflow:auto;
     height:200px;
-}
-
-.pui-picklist .pui-picklist-buttons {
-    float: left;
-    margin: 48px 10px 0 10px;
-    padding: 0;
+    width:200px;
 }
 
 .pui-picklist .pui-picklist-list li {
@@ -1768,6 +1954,10 @@ button.pui-button::-moz-focus-inner {
     margin-bottom:0.3em;
 }
 
+.pui-picklist .pui-button-text-icon-left {
+    width: 100%;
+}
+
 .pui-picklist .pui-picklist-item {
     cursor:pointer;
     border:0px none;
@@ -1776,7 +1966,7 @@ button.pui-button::-moz-focus-inner {
 
 .pui-picklist .pui-picklist-caption {
     text-align: center;
-    padding:4px 10px 4px 10px;
+    padding: 4px 0px;
     border-bottom:0px none;
 }
 
@@ -1787,7 +1977,8 @@ button.pui-button::-moz-focus-inner {
 
 .pui-picklist .pui-picklist-filter {
     padding-right: 15px;
-    width: 86%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .pui-picklist .pui-picklist-filter-container {
@@ -1800,7 +1991,133 @@ button.pui-button::-moz-focus-inner {
     position: absolute;
     top: 5px;
     right: 2px;
-}.pui-progressbar { 
+}
+
+.pui-picklist {
+    display: table;
+}
+
+.pui-picklist > div {
+    float: none;
+    display: table-cell;
+    vertical-align: top;
+}
+
+.pui-picklist .pui-picklist-buttons {
+    vertical-align: middle;
+}
+
+/* Vertical */
+.pui-picklist.pui-picklist-vertical {
+    display: table;
+}
+
+.pui-picklist.pui-picklist-vertical > div {
+    float: none;
+    display: table-row;
+    vertical-align: top;
+}
+
+.pui-picklist.pui-picklist-vertical .pui-picklist-buttons {
+    text-align:center;
+    height: auto;
+}
+
+.pui-picklist.pui-picklist-vertical .pui-picklist-buttons .pui-button {
+    display: inline-block;
+}
+
+.pui-picklist.pui-picklist-vertical .pui-button {
+    margin-top: 0.3em;
+}
+
+.pui-picklist-outline {
+    outline: 1px dotted black;
+    z-index: 1;
+}
+
+.pui-picklist-list.pui-picklist-source,
+.pui-picklist-list.pui-picklist-target {
+    outline: none;
+}
+
+/* Responsive */
+.pui-picklist.pui-picklist-responsive * {
+    box-sizing: border-box;
+}
+
+.pui-picklist.pui-picklist-responsive {
+    width: 100%;
+}
+
+.pui-picklist.pui-picklist-responsive .pui-picklist-list-wrapper {
+    width: 35%;
+}
+
+.pui-picklist.pui-picklist-responsive .pui-picklist-buttons {
+    width: 10%;
+}
+
+.pui-picklist.pui-picklist-responsive .pui-picklist-buttons button {
+    width: 100%;
+}
+
+.pui-picklist.pui-picklist-responsive .pui-picklist-list {
+    width: auto;
+}
+
+.pui-picklist.pui-picklist-responsive .ui-chkbox-box {
+    width: 18px;
+    height: 18px;
+}
+        
+/* Responsive */
+@media (max-width: 640px) {
+    .pui-picklist.pui-picklist-responsive {
+        display: block;
+    }
+    
+    .pui-picklist.pui-picklist-responsive > div {
+        display: block;
+        width: 100% !important;
+    }
+    
+    .pui-picklist.pui-picklist-responsive .pui-picklist-buttons {
+        text-align: center;
+        height: auto;
+        padding: 5px 0px;
+    }
+    
+    .pui-picklist.pui-picklist-responsive .pui-picklist-buttons button {
+        display: inline;
+        width: 20%;
+    }
+    
+    .pui-picklist.pui-picklist-responsive .pui-picklist-source-controls.pui-picklist-buttons {
+        padding-bottom: 5px;
+    }
+    
+    .pui-picklist.pui-picklist-responsive .pui-picklist-target-controls.pui-picklist-buttons {
+        padding-top: 5px;
+    }
+    
+    .pui-picklist.pui-picklist-responsive .pui-picklist-buttons .fa-angle-right:before {
+        content: "\f107";
+    }
+    
+    .pui-picklist.pui-picklist-responsive .pui-picklist-buttons .fa-angle-double-right:before {
+        content: "\f103";
+    }
+    
+    .pui-picklist.pui-picklist-responsive .pui-picklist-buttons .fa-angle-left:before {
+        content: "\f106";
+    }
+    
+    .pui-picklist.pui-picklist-responsive .pui-picklist-buttons .fa-angle-double-left:before {
+        content: "\f102";
+    }
+}
+.pui-progressbar { 
     height: 1.2em; 
     text-align: left; 
     position: relative;
@@ -1880,6 +2197,17 @@ button.pui-button::-moz-focus-inner {
 .pui-rating.ui-state-disabled .pui-rating-star,
 .pui-rating.ui-state-disabled .pui-rating-cancel {
     cursor: default;    
+}.pui-selectbutton{
+    display: inline-block;
+    padding:1px;
+}
+            
+.pui-selectbutton.ui-state-error{
+    padding:0px;
+}
+
+.pui-selectbutton .pui-button.ui-state-focus{
+    outline: none;
 }.pui-spinner {
     display: inline-block;
     overflow: visible;
@@ -1908,7 +2236,7 @@ button.pui-button::-moz-focus-inner {
     z-index: 100;
 }
 .pui-spinner .pui-icon {
-    left: 0;
+    left: -1px;
     margin-top: -8px;
     position: absolute;
     top: 50%;
@@ -1918,20 +2246,119 @@ button.pui-button::-moz-focus-inner {
 }
 .pui-spinner-down {
     bottom: 0;
-}.pui-fluid .pui-splitbutton .pui-button {
-    width: 96%;
-}
-.pui-fluid .pui-splitbutton .pui-button.pui-splitbutton-menubutton {
-    width: 4%;
 }
 
-@media (max-width: 35em) {
-    .pui-fluid .pui-splitbutton .pui-button {
-        width: 90%;
-    }
-    .pui-fluid .pui-splitbutton .pui-button.pui-splitbutton-menubutton {
-        width: 10%;
-    }
+/* Fluid */
+.pui-fluid .pui-spinner {
+    width: 100%;
+}
+.pui-fluid .pui-spinner .pui-spinner-input {
+    padding-right: 36px;
+    width: 100%;
+}
+.pui-fluid .pui-spinner .pui-spinner-button {
+    width: auto;
+}
+.pui-fluid .pui-spinner .pui-spinner-button .pui-icon {
+    left: 6px;
+}.pui-splitbutton {
+    position: relative;
+    padding-right: 2em;
+}
+
+.pui-splitbutton .pui-button.pui-splitbutton-menubutton {
+    width: 32px;
+    position: absolute;
+    top: 0px;
+    margin-left: -1px;
+    right: 0px;
+}
+
+.pui-splitbutton {
+    display: inline-block;
+    zoom: 1;
+}
+
+.pui-fluid .pui-splitbutton {
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing: border-box;
+}
+
+.pui-fluid .pui-splitbutton .pui-button {
+    width: 100%;
+}
+
+.pui-fluid .pui-splitbutton .pui-button.pui-splitbutton-menubutton {
+    width: 32px;
+    box-sizing: border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing: border-box;
+}.pui-inputswitch {
+    display: inline-block;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    height: 24px;
+}
+
+.pui-inputswitch .pui-inputswitch-on,
+.pui-inputswitch .pui-inputswitch-off {
+    white-space: nowrap;
+    display: block;
+    position: absolute;
+    top: 0;
+    width: auto;
+    overflow: hidden;
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    font-weight: bold;
+    height: 20px;
+    padding-top: 4px;
+}
+
+.pui-inputswitch .pui-inputswitch-off {
+    right: 0;
+    text-align: right;
+}
+
+.pui-inputswitch .pui-inputswitch-off span {
+    display: inline-block;
+    text-align: center;
+    padding-left: 2px;
+    padding-right: 3px;
+}
+
+.pui-inputswitch .pui-inputswitch-on {
+    left: 0;
+    padding-right: 4px;
+    border: 0 none;
+}
+
+.pui-inputswitch .pui-inputswitch-on span {
+    display: inline-block;
+    text-align: center;
+    padding-left: 3px;
+    padding-right: 2px;
+}
+
+.pui-inputswitch .pui-inputswitch-handle {
+    display: block;
+    width: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 24px;
+    border-top: 0 none;
+    border-bottom: 0 none;
 }.pui-tabview {
     position: relative; 
     padding: .2em; 

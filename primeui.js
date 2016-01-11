@@ -1,7 +1,7 @@
 /*
- * PrimeUI 2.2
+ * PrimeUI 3.0.0
  * 
- * Copyright 2009-2015 PrimeTek.
+ * Copyright 2009-2016 PrimeTek.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,11 @@ var PUI = {
     escapeHTML: function(value) {
         return value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     },
-            
+    
+    escapeClientId: function(id) {
+        return "#" + id.replace(/:/g,"\\:");
+    },
+    
     clearSelection: function() {
         if(window.getSelection) {
             if(window.getSelection().empty) {
@@ -206,6 +210,30 @@ var PUI = {
     
     getGridColumn: function(number) {
         return this.gridColumns[number + ''];
+    },
+    
+    executeFunctionByName: function(functionName /*, args */) {
+        var args = [].slice.call(arguments).splice(1),
+        context = window,
+        namespaces = functionName.split("."),
+        func = namespaces.pop();
+        for(var i = 0; i < namespaces.length; i++) {
+          context = context[namespaces[i]];
+        }
+        return context[func].apply(this, args);
+    },
+    
+    resolveObjectByName: function(name) {
+        if(name) {
+            var parts = name.split(".");
+            for(var i = 0, len = parts.length, obj = window; i < len; ++i) {
+                obj = obj[parts[i]];
+            }
+            return obj;
+        }
+        else {
+            return null;
+        }
     }
 };
 
@@ -908,7 +936,8 @@ PUI.resolveUserAgent();/**
             autoplayInterval: 0,
             easing: 'easeInOutCirc',
             pageLinks: 3,
-            styleClass: null
+            styleClass: null,
+            template: null
         },
        
         _create: function() {
@@ -961,7 +990,7 @@ PUI.resolveUserAgent();/**
             
             if(this.data) {
                 for(var i = 0; i < data.length; i++) {
-                    var itemContent = this.options.itemContent.call(this, data[i]);
+                    var itemContent = this._createItemContent(data[i]);
                     if($.type(itemContent) === 'string')
                         this.element.append('<li>' + itemContent + '</li>');
                     else
@@ -1203,8 +1232,15 @@ PUI.resolveUserAgent();/**
                 $.Widget.prototype._setOption.apply(this, arguments);
         },
         
-        _destroy: function() {
-
+        _createItemContent: function(obj) {
+            if(this.options.template) {
+                var template = this.options.template.html();
+                Mustache.parse(template);
+                return Mustache.render(template, obj);
+            }
+            else {
+                return this.options.itemContent.call(this, obj);
+            }
         }
 
     });
@@ -1358,8 +1394,6 @@ PUI.resolveUserAgent();/**
             datasource: null,
             paginator: null,
             selectionMode: null,
-            rowSelect: null,
-            rowUnselect: null,
             caption: null,
             footer: null,
             sortField: null,
@@ -1379,7 +1413,18 @@ PUI.resolveUserAgent();/**
             filterDelay: 300,
             stickyHeader: false,
             editMode: null,
-            tabindex: 0
+            tabindex: 0,
+            emptyMessage: 'No records found',
+            sort: null,
+            rowSelect: null,
+            rowUnselect: null,
+            rowSelectContextMenu: null,
+            rowCollapse: null,
+            rowExpand: null,
+            colReorder: null,
+            colResize: null,
+            rowReorder: null,
+            cellEdit: null,
         },
         
         _create: function() {
@@ -1404,11 +1449,30 @@ PUI.resolveUserAgent();/**
                 if($.isArray(this.options.datasource)) {
                     this._onDataInit(this.options.datasource);
                 }
-                else if($.type(this.options.datasource) === 'function') {
-                    if(this.options.lazy)
-                        this.options.datasource.call(this, this._onDataInit, {first:0, sortField:this.options.sortField, sortOrder:this.options.sortOrder});
-                    else
-                        this.options.datasource.call(this, this._onDataInit);
+                else {
+                    if($.type(this.options.datasource) === 'string') {
+                        var $this = this,
+                        dataURL = this.options.datasource;
+                
+                        this.options.datasource = function() {
+                            $.ajax({
+                                type: 'GET',
+                                url: dataURL,
+                                dataType: "json",
+                                context: $this,
+                                success: function (response) {
+                                    this._onDataInit(response);
+                                }
+                            });
+                        };
+                    }
+                    
+                    if($.type(this.options.datasource) === 'function') {
+                        if(this.options.lazy)
+                            this.options.datasource.call(this, this._onDataInit, {first:0, sortField:this.options.sortField, sortOrder:this.options.sortOrder});
+                        else
+                            this.options.datasource.call(this, this._onDataInit);
+                    }
                 }
             }
         },
@@ -1507,6 +1571,7 @@ PUI.resolveUserAgent();/**
             if(this.options.editMode) {
                 this._initEditing();
             }
+
         },
         
         _initHeader: function() {
@@ -1685,6 +1750,10 @@ PUI.resolveUserAgent();/**
                     column.removeClass('ui-state-hover');
             })
             .on('click.puidatatable', function(event) {
+                if(!$(event.target).is('th,span')) {
+                    return;
+                }
+                
                 var column = $(this),
                 sortField = column.data('field'),
                 order = column.data('order'),
@@ -1710,7 +1779,7 @@ PUI.resolveUserAgent();/**
                 $this._trigger('sort', event, {'sortOrder' : sortOrder, 'sortField' : sortField});
             });
         },
-                
+        
         paginate: function() {
             if(this.options.lazy) {
                 if(this.options.selectionMode && ! this.options.keepSelectionInLazyMode) {
@@ -1778,10 +1847,10 @@ PUI.resolveUserAgent();/**
         },
                 
         _renderData: function() {
+            this.tbody.html('');
+            
             var dataToRender = this.filteredData||this.data;
-            if(dataToRender) {
-                this.tbody.html('');
-                
+            if(dataToRender && dataToRender.length) {
                 var firstNonLazy = this._getFirst(),
                 first = this.options.lazy ? 0 : firstNonLazy,
                 rows = this._getRows();
@@ -1846,6 +1915,11 @@ PUI.resolveUserAgent();/**
                         }
                     }
                 }
+            }
+            else {
+                var emptyRow = $('<tr class="ui-widget-content"></tr>').appendTo(this.tbody);
+                var emptyColumn = $('<td></td>').attr('colspan',this.options.columns.length).appendTo(emptyRow);
+                emptyColumn.html(this.options.emptyMessage);
             }
         },
                                 
@@ -2276,17 +2350,17 @@ PUI.resolveUserAgent();/**
                 });
 
                 clonedSortableColumns.on('blur.dataTable', function() {
-                    $(PrimeFaces.escapeClientId($(this).data('original'))).removeClass('ui-state-focus');
+                    $(PUI.escapeClientId($(this).data('original'))).removeClass('ui-state-focus');
                 })
                 .on('focus.dataTable', function() {
-                    $(PrimeFaces.escapeClientId($(this).data('original'))).addClass('ui-state-focus');
+                    $(PUI.escapeClientId($(this).data('original'))).addClass('ui-state-focus');
                 })
                 .on('keydown.dataTable', function(e) {
                     var key = e.which,
                     keyCode = $.ui.keyCode;
 
                     if((key === keyCode.ENTER||key === keyCode.NUMPAD_ENTER) && $(e.target).is(':not(:input)')) {
-                        $(PrimeFaces.escapeClientId($(this).data('original'))).trigger('click.dataTable', (e.metaKey||e.ctrlKey));
+                        $(PUI.escapeClientId($(this).data('original'))).trigger('click.dataTable', (e.metaKey||e.ctrlKey));
                         e.preventDefault();
                     }
                 });
@@ -2646,15 +2720,15 @@ PUI.resolveUserAgent();/**
                                 $this.footerTable.find('> tfoot > tr:first').children('th').eq(colIndex).width(newWidth);   //footer
                             }
                             else {
-                                $this.theadClone.find(PrimeFaces.escapeClientId(columnHeader.attr('id') + '_clone')).width(newWidth);   //body
+                                $this.theadClone.find(PUI.escapeClientId(columnHeader.attr('id') + '_clone')).width(newWidth);   //body
                                 $this.footerCols.eq(colIndex).width(newWidth);                                                          //footer
                             }
                         }, 1);
                     }
                     else {
                         //body
-                        this.theadClone.find(PrimeFaces.escapeClientId(columnHeader.attr('id') + '_clone')).width(newWidth);
-                        this.theadClone.find(PrimeFaces.escapeClientId(nextColumnHeader.attr('id') + '_clone')).width(nextColumnWidth);
+                        this.theadClone.find(PUI.escapeClientId(columnHeader.attr('id') + '_clone')).width(newWidth);
+                        this.theadClone.find(PUI.escapeClientId(nextColumnHeader.attr('id') + '_clone')).width(nextColumnWidth);
 
                         //footer
                         /*if(this.footerCols.length > 0) {
@@ -2908,10 +2982,11 @@ PUI.resolveUserAgent();/**
                             var cell = $(this);
                             if(!cell.hasClass('pui-cell-editing')) {
                                 $this._showCellEditor(cell);
+                                e.stopPropagation();
                             }
                         });
         },
-        
+  
         _showCellEditor: function(cell) {
             var editor = this.editors[cell.data('editor')].call(),
             $this = this;
@@ -2958,6 +3033,7 @@ PUI.resolveUserAgent();/**
                 } else if(key === keyCode.ESCAPE) {
                     $this._onCellEditorBlur(cell);
                 }
+                
             });
         },
         
@@ -2989,7 +3065,8 @@ PUI.resolveUserAgent();/**
         }
     
     });
-})();/**
+})();
+/**
  * PrimeUI Datagrid Widget
  */
 (function() {
@@ -3003,7 +3080,8 @@ PUI.resolveUserAgent();/**
             header: null,
             footer: null,
             content: null,
-            lazy: false
+            lazy: false,
+            template: null
         },
         
         _create: function() {
@@ -3094,7 +3172,7 @@ PUI.resolveUserAgent();/**
                         }
                         
                         var gridColumn = $('<div class="pui-datagrid-column ' + PUI.getGridColumn(this.options.columns) + '"></div>').appendTo(gridRow),
-                        markup = this.options.content.call(this, dataValue);
+                        markup = this._createItemContent(dataValue);
                         gridColumn.append(markup);
                     }
                 }
@@ -3145,12 +3223,31 @@ PUI.resolveUserAgent();/**
             if($.isArray(this.options.datasource)) {
                 this._onDataInit(this.options.datasource);
             }
-            else if($.type(this.options.datasource) === 'function') {
-                if(this.options.lazy)
-                    this.options.datasource.call(this, this._onDataInit, {first:0, rows: this._getRows()});
-                else
-                    this.options.datasource.call(this, this._onDataInit);
-            }  
+            else {
+                if($.type(this.options.datasource) === 'string') {
+                    var $this = this,
+                    dataURL = this.options.datasource;
+
+                    this.options.datasource = function() {
+                        $.ajax({
+                            type: 'GET',
+                            url: dataURL,
+                            dataType: "json",
+                            context: $this,
+                            success: function (response) {
+                                this._onDataInit(response);
+                            }
+                        });
+                    };
+                }
+                
+                if($.type(this.options.datasource) === 'function') {
+                    if(this.options.lazy)
+                        this.options.datasource.call(this, this._onDataInit, {first:0, rows: this._getRows()});
+                    else
+                        this.options.datasource.call(this, this._onDataInit);
+                }
+            }
         },
                 
         _updateDatasource: function(datasource) {
@@ -3174,9 +3271,214 @@ PUI.resolveUserAgent();/**
             else {
                 $.Widget.prototype._setOption.apply(this, arguments);
             }
+        },
+        
+        _createItemContent: function(obj) {
+            if(this.options.template) {
+                var template = this.options.template.html();
+                Mustache.parse(template);
+                return Mustache.render(template, obj);
+            }
+            else {
+                return this.options.content.call(this, obj);
+            }
         }
         
     });
+})();/**
+ * PrimeUI Datascroller Widget
+ */
+(function() {
+
+    $.widget("primeui.puidatascroller", {
+       
+        options: {
+            header: null,
+            buffer: 0.9,
+            chunkSize: 10,
+            datasource: null,
+            lazy: false,
+            content: null,
+            template: null,
+            mode: 'document',
+            loader: null,
+            scrollHeight: null,
+            totalSize: null
+        },
+        
+        _create: function() {
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+            
+            this.element.addClass('pui-datascroller ui-widget');
+            if(this.options.header) {
+                this.header = this.element.append('<div class="pui-datascroller-header ui-widget-header ui-corner-top">' + this.options.header + '</div>').children('.pui-datascroller-header');
+            }
+            
+            this.content = this.element.append('<div class="pui-datascroller-content ui-widget-content ui-corner-bottom"></div>').children('.pui-datascroller-content');
+            this.list = this.content.append('<ul class="pui-datascroller-list"></ul>').children('.pui-datascroller-list');
+            this.loaderContainer = this.content.append('<div class="pui-datascroller-loader"></div>').children('.pui-datascroller-loader');
+            this.loadStatus = $('<div class="pui-datascroller-loading"></div>');
+            this.loading = false;
+            this.allLoaded = false;
+            this.offset = 0;
+            
+            if(this.options.mode === 'self') {
+                this.element.addClass('pui-datascroller-inline');
+                
+                if(this.options.scrollHeight) {
+                    this.content.css('height', this.options.scrollHeight);
+                }
+            }
+            
+            if(this.options.loader) {
+                this.bindManualLoader();
+            }
+            else {
+                this.bindScrollListener();
+            }
+
+            if(this.options.datasource) {
+                if($.isArray(this.options.datasource)) {
+                    this._onDataInit(this.options.datasource);
+                }
+                else {
+                    if($.type(this.options.datasource) === 'string') {
+                        var $this = this,
+                        dataURL = this.options.datasource;
+                
+                        this.options.datasource = function() {
+                            $.ajax({
+                                type: 'GET',
+                                url: dataURL,
+                                dataType: "json",
+                                context: $this,
+                                success: function (response) {
+                                    this._onDataInit(response);
+                                }
+                            });
+                        };
+                    }
+                    
+                    if($.type(this.options.datasource) === 'function') {
+                        if(this.options.lazy)
+                            this.options.datasource.call(this, this._onLazyLoad, {first:this.offset});
+                        else
+                            this.options.datasource.call(this, this._onDataInit);
+                    }
+                }
+            }
+        },
+        
+        _onDataInit: function(data) {
+            this.data = data||[];
+            this.options.totalSize = this.data.length;
+            
+            this._load();
+        },
+        
+        _onLazyLoad: function(data) {
+            this._renderData(data, 0, this.options.chunkSize);
+            
+            this._onloadComplete();
+        },
+        
+        bindScrollListener: function() {
+            var $this = this;
+
+            if(this.options.mode === 'document') {
+                var win = $(window),
+                doc = $(document),
+                $this = this,
+                NS = 'scroll.' + this.id;
+
+                win.off(NS).on(NS, function () {
+                    if(win.scrollTop() >= ((doc.height() * $this.options.buffer) - win.height()) && $this.shouldLoad()) {
+                        $this._load();
+                    }
+                });
+            }
+            else {
+                this.content.on('scroll', function () {
+                    var scrollTop = this.scrollTop,
+                    scrollHeight = this.scrollHeight,
+                    viewportHeight = this.clientHeight;
+
+                    if((scrollTop >= ((scrollHeight * $this.options.buffer) - (viewportHeight))) && $this.shouldLoad()) {
+                        $this._load();
+                    }
+                });
+            }
+        },
+
+        bindManualLoader: function() {
+            var $this = this;
+
+            this.options.loader.on('click.dataScroller', function(e) {
+                $this._load();
+                e.preventDefault();
+            });
+        },
+
+        _load: function() {
+            this.loading = true;
+            this.loadStatus.appendTo(this.loaderContainer);
+            if(this.options.loader) {
+                this.options.loader.hide();
+            }
+
+            if(this.options.lazy) {
+                this.options.datasource.call(this, this._onLazyLoad, {first: this.offset});
+            }
+            else {
+               this._renderData(this.data, this.offset, (this.offset + this.options.chunkSize));
+               this._onloadComplete();
+            }
+        },
+        
+        _renderData: function(data, start, end) {
+            if(data && data.length) {
+                for(var i = start; i < end; i++) {
+                    var listItem = $('<li class="pui-datascroller-item"></li>'),
+                    content = this._createItemContent(data[i]);
+                    listItem.append(content);
+                    
+                    this.list.append(listItem); 
+                }
+            }
+        },
+        
+        shouldLoad: function() {
+            return (!this.loading && !this.allLoaded);
+        },
+        
+        _createItemContent: function(obj) {
+            if(this.options.template) {
+                var template = this.options.template.html();
+                Mustache.parse(template);
+                return Mustache.render(template, obj);
+            }
+            else {
+                return this.options.content.call(this, obj);
+            }
+        },
+        
+        _onloadComplete: function() {
+            this.offset += this.options.chunkSize;
+            this.loading = false;
+            this.allLoaded = this.offset >= this.options.totalSize;
+
+            this.loadStatus.remove();
+
+            if(this.options.loader && !this.allLoaded) {
+                this.options.loader.show();
+            }
+        }
+        
+    });
+    
 })();/**
  * PrimeUI Dialog Widget
  */
@@ -3205,7 +3507,8 @@ PUI.resolveUserAgent();/**
             maximizable: false,
             appendTo: null,
             buttons: null,
-            responsive: false
+            responsive: false,
+            title: null
         },
         
         _create: function() {
@@ -3219,8 +3522,9 @@ PUI.resolveUserAgent();/**
                         .contents().wrapAll('<div class="pui-dialog-content ui-widget-content" />');
                     
             //header
+            var title = this.options.title||this.element.attr('title');
             this.element.prepend('<div class="pui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top">' +
-                                '<span id="' + this.element.attr('id') + '_label" class="pui-dialog-title">' + this.element.attr('title') + '</span>')
+                                '<span id="' + this.element.attr('id') + '_label" class="pui-dialog-title">' + title + '</span>')
                                 .removeAttr('title');
             
             //footer
@@ -3713,7 +4017,8 @@ PUI.resolveUserAgent();/**
             data: null,
             content: null,
             scrollHeight: 200,
-            appendTo: 'body'
+            appendTo: 'body',
+            editable:false
         },
 
         _create: function() {
@@ -4261,12 +4566,12 @@ PUI.resolveUserAgent();/**
         },
 
         addOption: function(option) {
-            var value = option.value ? option.value : option,
-            label = option.label ? option.label : option,
+            var value = (option.value !== undefined || option.value !== null) ? option.value : option,
+            label = (option.label !== undefined || option.label !== null) ? option.label : option,
             content = this.options.content ? this.options.content.call(this, option) : label,
             item = $('<li data-label="' + label + '" class="pui-dropdown-item pui-dropdown-list-item ui-corner-all">' + content + '</li>'),
             optionElement = $('<option value="' + value + '">' + label + '</option>');
-
+            
             optionElement.appendTo(this.element);
             this._bindItemEvents(item);
             item.appendTo(this.itemsContainer);
@@ -4315,6 +4620,10 @@ PUI.resolveUserAgent();/**
             this._bindEvents();
             this.label.removeClass('ui-state-disabled');
             this.menuIcon.removeClass('ui-state-disabled');
+        },
+        
+        getEditableText: function() {
+            return this.label.val();
         }
     });
     
@@ -4646,7 +4955,7 @@ PUI.resolveUserAgent();/**
             var markup = '<div class="pui-growl-item-container ui-state-highlight ui-corner-all ui-helper-hidden" aria-live="polite">';
             markup += '<div class="pui-growl-item pui-shadow">';
             markup += '<div class="pui-growl-icon-close fa fa-close" style="display:none"></div>';
-            markup += '<span class="pui-growl-image fa fa-2x ' + this._getIcon(msg.severity) + '" />';
+            markup += '<span class="pui-growl-image fa fa-2x ' + this._getIcon(msg.severity) + ' pui-growl-image-' + msg.severity + '"/>';
             markup += '<div class="pui-growl-message">';
             markup += '<span class="pui-growl-title">' + msg.summary + '</span>';
             markup += '<p>' + (msg.detail||'') + '</p>';
@@ -4804,7 +5113,8 @@ PUI.resolveUserAgent();/**
             counter: null,
             counterTemplate: '{0}',
             minQueryLength: 3,
-            queryDelay: 700
+            queryDelay: 700,
+            completeSource: null
         },
 
         _create: function() {
@@ -5516,7 +5826,12 @@ PUI.resolveUserAgent();/**
     $.widget("primeui.puilistbox", {
        
         options: {
-            scrollHeight: 200
+            scrollHeight: 200,
+            content: null,
+            data: null,
+            template: null,
+            style: null,
+            styleClass: null
         },
 
         _create: function() {
@@ -5524,6 +5839,14 @@ PUI.resolveUserAgent();/**
             this.container = this.element.parent().parent();
             this.listContainer = $('<ul class="pui-listbox-list"></ul>').appendTo(this.container);
             this.options.multiple = this.element.prop("multiple");
+
+            if(this.options.style) {
+                this.container.attr('style', this.options.style);
+            }
+            
+            if(this.options.styleClass) {
+                this.container.addClass(this.options.styleClass);
+            }
 
             if(this.options.data) {
                 this._populateInputFromData();
@@ -5550,9 +5873,8 @@ PUI.resolveUserAgent();/**
         _populateContainerFromOptions: function() {
             this.choices = this.element.children('option');
             for(var i = 0; i < this.choices.length; i++) {
-                var choice = this.choices.eq(i),
-                    content = this.options.content ? this.options.content.call(this, this.options.data[i]) : choice.text();
-                this.listContainer.append('<li class="pui-listbox-item ui-corner-all">' + content + '</li>');
+                var choice = this.choices.eq(i);
+                this.listContainer.append('<li class="pui-listbox-item ui-corner-all">' + this._createItemContent(choice.get(0)) + '</li>');
             }
             this.items = this.listContainer.find('.pui-listbox-item:not(.ui-state-disabled)');
         },
@@ -5724,6 +6046,20 @@ PUI.resolveUserAgent();/**
         enable: function () {
             this._bindEvents();
             this.items.removeClass('ui-state-disabled');
+        },
+        
+        _createItemContent: function(choice) {
+            if(this.options.template) {
+                var template = this.options.template.html();
+                Mustache.parse(template);
+                return Mustache.render(template, choice);
+            }
+            else if(this.options.content) {
+                return this.options.content.call(this, choice);
+            }
+            else {
+                return choice.label;
+            }
         }
     });
         
@@ -5753,12 +6089,16 @@ PUI.resolveUserAgent();/**
 
             this.element.closest('.pui-menu').addClass('pui-menu-dynamic pui-shadow').appendTo(document.body);
 
+            if($.type(this.options.trigger) === 'string') {
+                this.options.trigger =  $(this.options.trigger);
+            }
+            
             this.positionConfig = {
                 my: this.options.my,
                 at: this.options.at,
                 of: this.options.trigger
             };
-
+            
             this.options.trigger.on(this.options.triggerEvent + '.pui-menu', function(e) {
                 if($this.element.is(':visible')) {
                     $this.hide();
@@ -5843,7 +6183,7 @@ PUI.resolveUserAgent();/**
                     var menuitemLink = listItem.children('a'),
                     icon = menuitemLink.data('icon');
                     
-                    menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="ui-menuitem-text" />');
+                    menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="pui-menuitem-text" />');
                     
                     if(icon) {
                         menuitemLink.prepend('<span class="pui-menuitem-icon fa fa-fw ' + icon + '"></span>');
@@ -5892,7 +6232,7 @@ PUI.resolveUserAgent();/**
                 
                 listItem.attr('role', 'menuitem');
                 var menuitemLink = listItem.children('a');
-                menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="ui-menuitem-text" />');
+                menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="pui-menuitem-text" />');
                     
                 if(index > 0) {
                     listItem.before('<li class="pui-breadcrumb-chevron fa fa-chevron-right"></li>');
@@ -5939,10 +6279,10 @@ PUI.resolveUserAgent();/**
                     menuitemLink = listItem.children('a'),
                     icon = menuitemLink.data('icon');
                     
-                    menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="ui-menuitem-text" />');
+                    menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="pui-menuitem-text" />');
                     
                     if(icon) {
-                        menuitemLink.prepend('<span class="fa fa-fw ' + icon + '"></span>');
+                        menuitemLink.prepend('<span class="pui-menuitem-icon fa fa-fw ' + icon + '"></span>');
                     }
                     
                     listItem.addClass('pui-menuitem ui-widget ui-corner-all');
@@ -6198,7 +6538,7 @@ PUI.resolveUserAgent();/**
                     menuitemLink = listItem.children('a'),
                     icon = menuitemLink.data('icon');
                     
-                    menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="ui-menuitem-text" />');
+                    menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="pui-menuitem-text" />');
                     
                     if(icon) {
                         menuitemLink.prepend('<span class="pui-menuitem-icon fa fa-fw ' + icon + '"></span>');
@@ -6332,9 +6672,16 @@ PUI.resolveUserAgent();/**
                     addClass('pui-contextmenu pui-menu-dynamic pui-shadow');
             
             var $this = this;
-
-            this.options.target = this.options.target||$(document);
-
+            
+            if(this.options.target) {
+                if($.type(this.options.trigger) === 'string') {
+                    this.options.trigger =  $(this.options.trigger);
+                }
+            }
+            else {
+                this.options.target = $(document);
+            }
+                
             if(!this.element.parent().parent().is(document.body)) {
                 this.element.parent().appendTo('body');
             }
@@ -6521,7 +6868,177 @@ PUI.resolveUserAgent();/**
         
     });
     
-})();/**
+})();(function() {
+
+    $.widget("primeui.puimultiselectlistbox", {
+       
+       options: {
+            caption: null,
+            choices: null,
+            effect: false||'fade',
+            name: null,
+            value: null
+        },
+        
+        _create: function() {
+            this.element.addClass('pui-multiselectlistbox ui-widget ui-helper-clearfix');
+            this.element.append('<input type="hidden"></input>');
+            this.element.append('<div class="pui-multiselectlistbox-listcontainer"></div>');
+            this.container = this.element.children('div');
+            this.input = this.element.children('input');
+            var choices = this.options.choices;
+            if(this.options.name) {
+                this.input.attr('name', this.options.name);
+            }
+
+            if(choices) {
+                if(this.options.caption) {
+                    this.container.append('<div class="pui-multiselectlistbox-header ui-widget-header ui-corner-top">'+ this.options.caption +'</div>');
+                }
+                
+                this.container.append('<ul class="pui-multiselectlistbox-list pui-inputfield ui-widget-content ui-corner-bottom"></ul>');
+                this.rootList = this.container.children('ul');
+                
+                for(var i = 0; i < choices.length; i++) {
+                    this._createItemNode(choices[i], this.rootList);
+                }
+                
+                this.items = this.element.find('li.pui-multiselectlistbox-item');
+                this._bindEvents();
+                
+                if(this.options.value !== undefined || this.options.value !== null) {
+                    this.preselect(this.options.value);
+                }
+            }
+        },
+        
+        _createItemNode: function(choice, parent) {
+            var listItem = $('<li class="pui-multiselectlistbox-item"><span>'+ choice.label + '</span></li>');
+            listItem.appendTo(parent);
+            
+            if(choice.items) {
+                listItem.append('<ul class="ui-helper-hidden"></ul>');
+                var sublistContainer = listItem.children('ul');
+                for(var i = 0; i < choice.items.length; i++) {
+                    this._createItemNode(choice.items[i], sublistContainer);
+                }
+            }
+            else {
+                listItem.attr('data-value', choice.value);
+            }
+        },
+                
+        _unbindEvents: function() {
+           this.items.off('mouseover.multiSelectListbox mouseout.multiSelectListbox click.multiSelectListbox');
+        },
+        
+        _bindEvents: function() {
+           var $this = this;
+           
+           this.items.on('mouseover.multiSelectListbox', function() {
+               var item = $(this);
+
+               if(!item.hasClass('ui-state-highlight'))
+                   $(this).addClass('ui-state-hover');
+           })
+           .on('mouseout.multiSelectListbox', function() {
+               var item = $(this);
+
+               if(!item.hasClass('ui-state-highlight'))
+                   $(this).removeClass('ui-state-hover');
+           })
+           .on('click.multiSelectListbox', function() {
+               var item = $(this);
+               if(!item.hasClass('ui-state-highlight')) {
+                   $this.showOptionGroup(item);
+               }
+           });
+        },
+        
+        showOptionGroup: function(item) {
+           item.addClass('ui-state-highlight').removeClass('ui-state-hover').siblings().filter('.ui-state-highlight').removeClass('ui-state-highlight');
+           item.closest('.pui-multiselectlistbox-listcontainer').nextAll().remove();
+           var childItemsContainer = item.children('ul'),
+           itemValue = item.attr('data-value');
+   
+           if(itemValue) {
+               this.input.val(itemValue);
+           }
+
+           if(childItemsContainer.length) {
+              var groupContainer = $('<div class="pui-multiselectlistbox-listcontainer" style="display:none"></div>');
+              childItemsContainer.clone(true).appendTo(groupContainer).addClass('pui-multiselectlistbox-list pui-inputfield ui-widget-content').removeClass('ui-helper-hidden');
+
+              groupContainer.prepend('<div class="pui-multiselectlistbox-header ui-widget-header ui-corner-top">' + item.children('span').text() + '</div>')
+                  .children('.pui-multiselectlistbox-list').addClass('ui-corner-bottom');
+
+              this.element.append(groupContainer);
+
+              if (this.options.effect)
+                  groupContainer.show(this.options.effect);
+              else
+                  groupContainer.show();
+            }
+        },
+        
+        disable: function() {
+           if(!this.options.disabled) {
+               this.options.disabled = true;
+               this.element.addClass('ui-state-disabled');
+               this._unbindEvents();
+               this.container.nextAll().remove();
+           }
+        },
+        
+        getValue: function() {
+            return this.input.val();
+        },
+
+        preselect: function(value) {
+            var $this = this,
+            item = this.items.filter('[data-value="' + value + '"]');
+
+            if(item.length === 0) {
+                return;
+            }
+
+            var ancestors = item.parentsUntil('.pui-multiselectlistbox-list'),
+            selectedIndexMap = [];
+
+            for(var i = (ancestors.length - 1); i >= 0; i--) {
+                var ancestor = ancestors.eq(i);
+
+                if(ancestor.is('li')) {
+                    selectedIndexMap.push(ancestor.index());
+                }
+                else if(ancestor.is('ul')) {
+                    var groupContainer = $('<div class="pui-multiselectlistbox-listcontainer" style="display:none"></div>');
+                    ancestor.clone(true).appendTo(groupContainer).addClass('pui-multiselectlistbox-list ui-widget-content ui-corner-all').removeClass('ui-helper-hidden');
+
+                    groupContainer.prepend('<div class="pui-multiselectlistbox-header ui-widget-header ui-corner-top">' + ancestor.prev('span').text() + '</div>')
+                           .children('.pui-multiselectlistbox-list').addClass('ui-corner-bottom').removeClass('ui-corner-all');
+
+                    $this.element.append(groupContainer);
+                }
+            }
+
+            //highlight item
+            var lists = this.element.children('div.pui-multiselectlistbox-listcontainer'),
+            clonedItem = lists.find(' > ul.pui-multiselectlistbox-list > li.pui-multiselectlistbox-item').filter('[data-value="' + value + '"]');
+            clonedItem.addClass('ui-state-highlight');
+
+            //highlight ancestors
+            for(var i = 0; i < selectedIndexMap.length; i++) {
+                lists.eq(i).find('> .pui-multiselectlistbox-list > li.pui-multiselectlistbox-item').eq(selectedIndexMap[i]).addClass('ui-state-highlight');
+            }
+
+            $this.element.children('div.pui-multiselectlistbox-listcontainer:hidden').show();
+        }
+    });
+    
+})();
+
+/**
  * PrimeFaces Notify Widget
  */
 (function() {
@@ -6613,7 +7130,8 @@ PUI.resolveUserAgent();/**
             caption: null,
             responsive: false,
             datasource: null,
-            content: null
+            content: null,
+            template: null
         },
 
         _create: function() {
@@ -6669,7 +7187,7 @@ PUI.resolveUserAgent();/**
                     
             for(var i = 0; i < this.optionElements.length; i++) {
                 var optionElement = this.optionElements.eq(i),
-                itemContent = this.options.content ? this.options.content.call(this, optionElement) : optionElement.text(),
+                itemContent = this._createItemContent(optionElement.get(0)),
                 listItem = $('<li class="pui-orderlist-item ui-corner-all"></li>');
         
                 if($.type(itemContent) === 'string')
@@ -6893,6 +7411,20 @@ PUI.resolveUserAgent();/**
 
                 $this.element.append('<option value="' + itemValue + '" selected="selected">' + itemValue + '</option>');
             });
+        },
+        
+        _createItemContent: function(choice) {
+            if(this.options.template) {
+                var template = this.options.template.html();
+                Mustache.parse(template);
+                return Mustache.render(template, choice);
+            }
+            else if(this.options.content) {
+                return this.options.content.call(this, choice);
+            }
+            else {
+                return choice.label;
+            }
         }
         
     });
@@ -7222,14 +7754,15 @@ PUI.resolveUserAgent();/**
             toggleOrientation : 'vertical',
             collapsed: false,
             closable: false,
-            closeDuration: 'normal'
+            closeDuration: 'slow',
+            title: null
         },
         
         _create: function() {
             this.element.addClass('pui-panel ui-widget ui-widget-content ui-corner-all')
                 .contents().wrapAll('<div class="pui-panel-content ui-widget-content" />');
                 
-            var title = this.element.attr('title');
+            var title = this.element.attr('title')||this.options.title;
             if(title) {
                 this.element.prepend('<div class="pui-panel-titlebar ui-widget-header ui-helper-clearfix ui-corner-all"><span class="ui-panel-title">' +
                         title + "</span></div>").removeAttr('title');
@@ -7572,11 +8105,16 @@ PUI.resolveUserAgent();/**
             dragdrop: true,
             sourceData: null,
             targetData: null,
-            content: null
+            content: null,
+            template: null,
+            responsive: false
         },
 
         _create: function() {
             this.element.uniqueId().addClass('pui-picklist ui-widget ui-helper-clearfix');
+            if(this.options.responsive) {
+                this.element.addClass('pui-picklist-responsive');
+            }
             this.inputs = this.element.children('select');
             this.items = $();
             this.sourceInput = this.inputs.eq(0);
@@ -7590,16 +8128,16 @@ PUI.resolveUserAgent();/**
                 this._populateInputFromData(this.targetInput, this.options.targetData);
             }
                         
-            this.sourceList = this._createList(this.sourceInput, 'pui-picklist-source', this.options.sourceCaption, this.options.sourceData);
+            this.sourceList = this._createList(this.sourceInput, 'pui-picklist-source', this.options.sourceCaption);
             this._createButtons();
-            this.targetList = this._createList(this.targetInput, 'pui-picklist-target', this.options.targetCaption, this.options.targetData);
+            this.targetList = this._createList(this.targetInput, 'pui-picklist-target', this.options.targetCaption);
             
             if(this.options.showSourceControls) {
-                this.element.prepend(this._createListControls(this.sourceList));
+                this.element.prepend(this._createListControls(this.sourceList, 'pui-picklist-source-controls'));
             }
             
             if(this.options.showTargetControls) {
-                this.element.append(this._createListControls(this.targetList));
+                this.element.append(this._createListControls(this.targetList, 'pui-picklist-target-controls'));
             }
             
             this._bindEvents();
@@ -7615,11 +8153,9 @@ PUI.resolveUserAgent();/**
             }
         },
                 
-        _createList: function(input, cssClass, caption, data) {
-            input.wrap('<div class="ui-helper-hidden"></div>');
-                        
-            var listWrapper = $('<div class="pui-picklist-listwrapper ' + cssClass + '"></div>'),
-                listContainer = $('<ul class="ui-widget-content pui-picklist-list pui-inputtext"></ul>');
+        _createList: function(input, cssClass, caption) {                        
+            var listWrapper = $('<div class="pui-picklist-listwrapper ' + cssClass + '-wrapper"></div>'),
+                listContainer = $('<ul class="ui-widget-content pui-picklist-list ' + cssClass + '"></ul>');
 
             if(this.options.filter) {
                 listWrapper.append('<div class="pui-picklist-filter-container"><input type="text" class="pui-picklist-filter" /><span class="pui-icon fa fa-fw fa-search"></span></div>');
@@ -7634,9 +8170,12 @@ PUI.resolveUserAgent();/**
                 listContainer.addClass('ui-corner-all');
             }
 
-            this._populateContainerFromOptions(input, listContainer, data);
+            this._populateContainerFromOptions(input, listContainer);
             
-            listWrapper.append(listContainer).appendTo(this.element);
+            
+            listWrapper.append(listContainer);
+            input.addClass('ui-helper-hidden').appendTo(listWrapper);
+            listWrapper.appendTo(this.element);
             
             return listContainer;
         },
@@ -7645,16 +8184,16 @@ PUI.resolveUserAgent();/**
             var choices = input.children('option');
             for(var i = 0; i < choices.length; i++) {
                 var choice = choices.eq(i),
-                    content = this.options.content ? this.options.content.call(this, data[i]) : choice.text(),
-                    item = $('<li class="pui-picklist-item ui-corner-all"></li>').data({
-                        'item-label': choice.text(),
-                        'item-value': choice.val()
-                    });
-                    
-                    if($.type(content) === 'string')
-                        item.html(content);
-                    else
-                        item.append(content);
+                content = this._createItemContent(choice.get(0)),
+                item = $('<li class="pui-picklist-item ui-corner-all"></li>').data({
+                    'item-label': choice.text(),
+                    'item-value': choice.val()
+                });
+
+                if($.type(content) === 'string')
+                    item.html(content);
+                else
+                    item.append(content);
 
                 this.items = this.items.add(item);
                 listContainer.append(item);
@@ -7663,9 +8202,9 @@ PUI.resolveUserAgent();/**
 
         _createButtons: function() {
             var $this = this,
-            buttonContainer = $('<ul class="pui-picklist-buttons"></ul>');
+            buttonContainer = $('<div class="pui-picklist-buttons"><div class="pui-picklist-buttons-cell"></div>');
             
-            buttonContainer.append(this._createButton('fa-angle-right', 'pui-picklist-button-add', function(){$this._add();}))
+            buttonContainer.children('div').append(this._createButton('fa-angle-right', 'pui-picklist-button-add', function(){$this._add();}))
                             .append(this._createButton('fa-angle-double-right', 'pui-picklist-button-addall', function(){$this._addAll();}))
                             .append(this._createButton('fa-angle-left', 'pui-picklist-button-remove', function(){$this._remove();}))
                             .append(this._createButton('fa-angle-double-left', 'pui-picklist-button-removeall', function(){$this._removeAll();}));
@@ -7673,11 +8212,11 @@ PUI.resolveUserAgent();/**
             this.element.append(buttonContainer);
         },
                 
-        _createListControls: function(list) {
+        _createListControls: function(list, cssClass) {
             var $this = this,
-            buttonContainer = $('<ul class="pui-picklist-buttons"></ul>');
+            buttonContainer = $('<div class="' + cssClass + ' pui-picklist-buttons"><div class="pui-picklist-buttons-cell"></div>');
             
-            buttonContainer.append(this._createButton('fa-angle-up', 'pui-picklist-button-move-up', function(){$this._moveUp(list);}))
+            buttonContainer.children('div').append(this._createButton('fa-angle-up', 'pui-picklist-button-move-up', function(){$this._moveUp(list);}))
                             .append(this._createButton('fa-angle-double-up', 'pui-picklist-button-move-top', function(){$this._moveTop(list);}))
                             .append(this._createButton('fa-angle-down', 'pui-picklist-button-move-down', function(){$this._moveDown(list);}))
                             .append(this._createButton('fa-angle-double-down', 'pui-picklist-button-move-bottom', function(){$this._moveBottom(list);}));
@@ -7762,11 +8301,11 @@ PUI.resolveUserAgent();/**
             if(this.options.filter) {
                 this._setupFilterMatcher();
                 
-                this.element.find('> .pui-picklist-source > .pui-picklist-filter-container > input').on('keyup', function(e) {
+                this.element.find('> .pui-picklist-source-wrapper > .pui-picklist-filter-container > input').on('keyup', function(e) {
                     $this._filter(this.value, $this.sourceList);
                 });
 
-                this.element.find('> .pui-picklist-target > .pui-picklist-filter-container > input').on('keyup', function(e) {
+                this.element.find('> .pui-picklist-target-wrapper > .pui-picklist-filter-container > input').on('keyup', function(e) {
                     $this._filter(this.value, $this.targetList);
                 });
             }
@@ -8101,6 +8640,20 @@ PUI.resolveUserAgent();/**
             this.element.find('.pui-picklist-buttons > button').each(function (idx, btn) {
                 $(btn).puibutton('enable');
             });
+        },
+        
+        _createItemContent: function(choice) {
+            if(this.options.template) {
+                var template = this.options.template.html();
+                Mustache.parse(template);
+                return Mustache.render(template, choice);
+            }
+            else if(this.options.content) {
+                return this.options.content.call(this, choice);
+            }
+            else {
+                return choice.label;
+            }
         }
     });
         
@@ -8315,7 +8868,9 @@ PUI.resolveUserAgent();/**
        
         options: {
             stars: 5,
-            cancel: true
+            cancel: true,
+            readonly: false,
+            disabled: false
         },
         
         _create: function() {
@@ -8340,10 +8895,10 @@ PUI.resolveUserAgent();/**
             
             this.stars = this.container.children('.pui-rating-star');
 
-            if(input.prop('disabled')) {
+            if(input.prop('disabled')||this.options.disabled) {
                 this.container.addClass('ui-state-disabled');
             }
-            else if(!input.prop('readonly')){
+            else if(!input.prop('readonly')&&!this.options.readonly){
                 this._bindEvents();
             }
         },
@@ -8370,7 +8925,7 @@ PUI.resolveUserAgent();/**
         
             this.stars.filter('.pui-rating-star-on').removeClass('pui-rating-star-on');
             
-            this._trigger('cancel', null);
+            this._trigger('oncancel', null);
         },
         
         getValue: function() {
@@ -8408,7 +8963,140 @@ PUI.resolveUserAgent();/**
         }
     });
     
-})();/**
+})();(function() {
+
+    $.widget("primeui.puiselectbutton", {
+       
+       options: {
+            choices: null,
+            formfield: null,
+            unselectable: false,
+            tabindex: '0',
+            multiple: false
+        },
+        
+        _create: function() {
+            this.element.addClass('pui-selectbutton pui-buttonset ui-widget ui-corner-all').attr('tabindex');
+            
+            //create buttons
+            if(this.options.choices) {
+                this.element.addClass('pui-buttonset-' + this.options.choices.length);
+                for(var i = 0; i < this.options.choices.length; i++) {
+                    this.element.append('<div class="pui-button ui-widget ui-state-default pui-button-text-only" tabindex="' + this.options.tabindex + '" data-value="' 
+                                        + this.options.choices[i].value + '">' +
+                                        '<span class="pui-button-text ui-c">' + 
+                                        this.options.choices[i].label + 
+                                        '</span></div>');
+                }
+            }
+            
+            //cornering
+            this.buttons = this.element.children('div.pui-button');
+            this.buttons.filter(':first-child').addClass('ui-corner-left');
+            this.buttons.filter(':last-child').addClass('ui-corner-right');
+            
+            //Single Select Button Or Multiple Select Button Decision
+            if(!this.options.multiple)  {         
+                this.input = $('<input type="hidden"></input>').appendTo(this.element);
+            } 
+            else {
+                this.input = $('<select class="ui-helper-hidden-accessible" multiple></select>').appendTo(this.element);
+                for (var i = 0; i < this.options.choices.length; i++) {
+                    var selectOption = '<option value = "'+ this.options.choices[i].value +'"></option>';
+                    this.input.append(selectOption);
+                }
+                this.selectOptions = this.input.children('option');
+            }
+            
+            if(this.options.formfield) {
+                this.input.attr('name', this.options.formfield);
+            }
+
+            this._bindEvents();
+        },
+        
+        _bindEvents: function() {
+            var $this = this;
+            
+            this.buttons.on('mouseover', function() {
+                var btn = $(this);
+                if(!btn.hasClass('ui-state-active')) {
+                    btn.addClass('ui-state-hover');
+                }
+            })
+            .on('mouseout', function() {
+                $(this).removeClass('ui-state-hover');
+            })
+            .on('click', function(e) {
+                var btn = $(this);
+                if($(this).hasClass("ui-state-active")) {
+                    if($this.options.unselectable) {
+                        $this.unselectOption(btn);
+                        $this._trigger('change', e);
+                    }
+                }
+                else {
+                    if($this.options.multiple) {
+                        $this.selectOption(btn);
+                    }
+                    else {
+                        $this.unselectOption(btn.siblings('.ui-state-active'));
+                        $this.selectOption(btn);
+                    } 
+                    
+                    $this._trigger('change', e);
+                }
+            })
+            .on('focus', function() {            
+                $(this).addClass('ui-state-focus');
+            })
+            .on('blur', function() {            
+                $(this).removeClass('ui-state-focus');
+            })
+            .on('keydown', function(e) {
+                var keyCode = $.ui.keyCode;
+                if(e.which === keyCode.ENTER) {
+                    $this.element.trigger('click');
+                    e.preventDefault();
+                }
+            })
+            .on('keydown', function(e) {
+                var keyCode = $.ui.keyCode;
+                if(e.which === keyCode.SPACE||e.which === keyCode.ENTER||e.which === keyCode.NUMPAD_ENTER) {
+                    $(this).trigger('click');
+                    e.preventDefault();
+                }
+            });
+        },
+        
+        selectOption: function(value) {
+            var btn = $.isNumeric(value) ? this.element.children('.pui-button').eq(value) : value;
+            
+            if(this.options.multiple)
+                this.selectOptions.eq(btn.index()).prop('selected',true);
+            else
+                this.input.val(btn.data('value'));
+            
+            btn.addClass('ui-state-active');
+        },
+        
+        unselectOption: function(value){
+            var btn = $.isNumeric(value) ? this.element.children('.pui-button').eq(value) : value;
+            
+            if(this.options.multiple)
+                this.selectOptions.eq(btn.index()).prop('selected',false);
+            else
+                this.input.val('');
+
+            btn.removeClass('ui-state-active');   
+            btn.removeClass('ui-state-focus');         
+        }
+        
+    });
+    
+})();
+
+/**
  * PrimeUI spinner widget
  */
 (function() {
@@ -8416,7 +9104,11 @@ PUI.resolveUserAgent();/**
     $.widget("primeui.puispinner", {
        
         options: {
-            step: 1.0
+            step: 1.0,
+            min: undefined,
+            max: undefined,
+            prefix: null,
+            suffix: null
         },
         
         _create: function() {
@@ -8425,7 +9117,7 @@ PUI.resolveUserAgent();/**
             
             input.puiinputtext().addClass('pui-spinner-input').wrap('<span class="pui-spinner ui-widget ui-corner-all" />');
             this.wrapper = input.parent();
-            this.wrapper.append('<a class="pui-spinner-button pui-spinner-up ui-corner-tr ui-button ui-widget ui-state-default ui-button-text-only"><span class="ui-button-text"><span class="pui-icon fa fa-fw fa-caret-up"></span></span></a><a class="pui-spinner-button pui-spinner-down ui-corner-br ui-button ui-widget ui-state-default ui-button-text-only"><span class="ui-button-text"><span class="pui-icon fa fa-fw fa-caret-down"></span></span></a>');
+            this.wrapper.append('<a class="pui-spinner-button pui-spinner-up ui-corner-tr pui-button ui-widget ui-state-default pui-button-text-only"><span class="pui-button-text"><span class="pui-icon fa fa-fw fa-caret-up"></span></span></a><a class="pui-spinner-button pui-spinner-down ui-corner-br pui-button ui-widget ui-state-default pui-button-text-only"><span class="pui-button-text"><span class="pui-icon fa fa-fw fa-caret-down"></span></span></a>');
             this.upButton = this.wrapper.children('a.pui-spinner-up');
             this.downButton = this.wrapper.children('a.pui-spinner-down');
             this.options.step = this.options.step||1;
@@ -8713,7 +9405,7 @@ PUI.resolveUserAgent();/**
             for(var i = 0; i < this.options.items.length; i++) {
                 var item = this.options.items[i],
                 menuitem = $('<li class="pui-menuitem ui-widget ui-corner-all" role="menuitem"></li>'),
-                link = $('<a class="pui-menuitem-link ui-corner-all"><span class="pui-menuitem-icon fa fa-fw ' + item.icon +'"></span><span class="ui-menuitem-text">' + item.text +'</span></a>');
+                link = $('<a class="pui-menuitem-link ui-corner-all"><span class="pui-menuitem-icon fa fa-fw ' + item.icon +'"></span><span class="pui-menuitem-text">' + item.text +'</span></a>');
                 
                 if(item.url) {
                     link.attr('href', item.url);
@@ -8731,7 +9423,7 @@ PUI.resolveUserAgent();/**
             this.options.position = {
                 my: 'left top',
                 at: 'left bottom',
-                of: this.element
+                of: this.element.parent()
             };
         },
                 
@@ -8783,9 +9475,9 @@ PUI.resolveUserAgent();/**
         },
                 
         show: function() {
-            this._alignPanel();
             this.menuButton.trigger('focus');
             this.menu.show();
+            this._alignPanel();
             this._trigger('show', null);
         },
 
@@ -8881,7 +9573,142 @@ PUI.resolveUserAgent();/**
         
     });
     
-})();/**
+})();(function() {
+
+    $.widget("primeui.puiswitch", {
+       
+       options: {
+            onLabel: 'On',
+            offLabel: 'Off',
+            change: null
+        },
+        
+        _create: function() {
+            this.element.wrap('<div class="pui-inputswitch ui-widget ui-widget-content ui-corner-all"></div>');
+            this.container = this.element.parent();
+
+            this.element.wrap('<div class="ui-helper-hidden-accessible"></div>');
+            this.container.prepend('<div class="pui-inputswitch-off"></div>' + 
+                                    '<div class="pui-inputswitch-on ui-state-active"></div>' + 
+                                    '<div class="pui-inputswitch-handle ui-state-default"></div>');
+            
+            this.onContainer = this.container.children('.pui-inputswitch-on');
+            this.offContainer = this.container.children('.pui-inputswitch-off');            
+            this.onContainer.append('<span>'+ this.options.onLabel +'</span>');
+            this.offContainer.append('<span>'+ this.options.offLabel +'</span>');
+            this.onLabel = this.onContainer.children('span');
+            this.offLabel = this.offContainer.children('span');
+            this.handle = this.container.children('.pui-inputswitch-handle');
+
+            var onContainerWidth = this.onContainer.width(),
+            offContainerWidth = this.offContainer.width(),
+            spanPadding = this.offLabel.innerWidth() - this.offLabel.width(),
+            handleMargins = this.handle.outerWidth() - this.handle.innerWidth();
+
+            var containerWidth = (onContainerWidth > offContainerWidth) ? onContainerWidth : offContainerWidth,
+            handleWidth = containerWidth;
+
+            this.handle.css({'width':handleWidth});
+            handleWidth = this.handle.width();
+
+            containerWidth = containerWidth + handleWidth + 6;
+
+            var labelWidth = containerWidth - handleWidth - spanPadding - handleMargins;
+
+            this.container.css({'width': containerWidth });
+            this.onLabel.width(labelWidth);
+            this.offLabel.width(labelWidth);
+
+            //position
+            this.offContainer.css({ width: this.container.width() - 5 });
+            this.offset = this.container.width() - this.handle.outerWidth();
+
+            if(this.element.prop('checked')) {
+                this.handle.css({ 'left': this.offset});
+                this.onContainer.css({ 'width': this.offset});
+                this.offLabel.css({ 'margin-right': -this.offset});
+            }
+            else {
+                this.onContainer.css({ 'width': 0 });
+                this.onLabel.css({'margin-left': -this.offset});
+            }
+
+            if(!this.element.prop('disabled')) {
+                this._bindEvents();
+            }
+        },
+        
+        _bindEvents: function() {
+            var $this = this;
+        
+            this.container.on('click.inputSwitch', function(e) {
+                $this.toggle();
+                $this.element.trigger('focus');
+            });
+
+            this.element.on('focus.inputSwitch', function(e) {
+                $this.handle.addClass('ui-state-focus');
+            })
+            .on('blur.inputSwitch', function(e) {
+                $this.handle.removeClass('ui-state-focus');
+            })
+            .on('keydown.inputSwitch', function(e) {
+                var keyCode = $.ui.keyCode;
+                if(e.which === keyCode.SPACE) {
+                    e.preventDefault();
+                }
+            })
+            .on('keyup.inputSwitch', function(e) {
+                var keyCode = $.ui.keyCode;
+                if(e.which === keyCode.SPACE) {
+                    $this.toggle();
+
+                    e.preventDefault();
+                }
+            })
+            .on('change.inputSwitch', function(e) {
+                if($this.element.prop('checked'))
+                    $this._checkUI();
+                else
+                    $this._uncheckUI();
+                
+                $this._trigger('change', e);
+            });
+        },
+        
+        toggle: function() {
+            if(this.element.prop('checked'))
+                this.uncheck();
+            else
+                this.check();
+        },
+
+        check: function() {
+            this.element.prop('checked', true).trigger('change');
+        },
+
+        uncheck: function() {
+            this.element.prop('checked', false).trigger('change');
+        },
+
+        _checkUI: function() {
+            this.onContainer.animate({width:this.offset}, 200);
+            this.onLabel.animate({marginLeft:0}, 200);
+            this.offLabel.animate({marginRight:-this.offset}, 200);
+            this.handle.animate({left:this.offset}, 200);
+        },
+
+        _uncheckUI: function() {
+            this.onContainer.animate({width:0}, 200);
+            this.onLabel.animate({marginLeft:-this.offset}, 200);
+            this.offLabel.animate({marginRight:0}, 200);
+            this.handle.animate({left:0}, 200);
+        }     
+    });
+    
+})();
+
+/**
  * PrimeUI tabview widget
  */
 (function() {
@@ -9096,7 +9923,11 @@ PUI.resolveUserAgent();/**
                         e.preventDefault();
                     break;
                 }
-            });        
+            });
+            
+            this.element.on('click', function() {
+                $this.input.trigger('focus');
+            });
         },
                 
         _processCommand: function() {
@@ -9289,7 +10120,8 @@ PUI.resolveUserAgent();/**
             hideEffectSpeed: 'normal',
             my: 'left top',
             at: 'right bottom',
-            showDelay: 150
+            showDelay: 150,
+            content: null
         },
         
         _create: function() {
@@ -9694,7 +10526,8 @@ PUI.resolveUserAgent();/**
         options: {
              nodes: null,
              lazy: false,
-             selectionMode: null
+             selectionMode: null,
+             header: null
         },
         
         _create: function() {
@@ -9712,8 +10545,10 @@ PUI.resolveUserAgent();/**
             var $this = this;
             
             if(this.options.columns) {
+                var headerRow = $('<tr></tr>').appendTo(this.thead);
+                
                 $.each(this.options.columns, function(i, col) {
-                    var header = $('<th class="ui-state-default"></th>').data('field', col.field).appendTo($this.thead);
+                    var header = $('<th class="ui-state-default"></th>').data('field', col.field).appendTo(headerRow);
                     
                     if(col.headerClass) {
                         header.addClass(col.headerClass);
