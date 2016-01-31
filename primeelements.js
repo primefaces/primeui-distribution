@@ -1,7 +1,7 @@
 /*
- * PrimeUI 3.0.0
+ * PrimeUI 3.0.1
  * 
- * Copyright 2009-2016 PrimeTek.
+ * Copyright 2009-2015 PrimeTek.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -499,10 +499,9 @@ if(!xtag.tags['p-accordion']) {
                     col.rowToggler = columnElement.attr('rowToggler') !== undefined;
 
                     if(columnElement.children('script').length) {
-                        col.content = function(data){
-                            var template =  columnElement.children('script').text();
-                            Mustache.parse(template);
-                            return Mustache.render(template, data);
+                        col.contentTemplate = columnElement.children('script').text();
+                        col.content = function(data, _col) {
+                            return Mustache.render(_col.contentTemplate, data);
                         };
                     }
 
@@ -544,6 +543,15 @@ if(!xtag.tags['p-accordion']) {
                     rowReorder: this.onrowreorder ? function(event, ui) {PUI.executeFunctionByName($this.onrowreorder, event, ui);} : null,
                     cellEdit: this.oncelledit ? function(event, ui) {PUI.executeFunctionByName($this.oncelledit, event, ui);} : null
                 });
+            }
+        },
+
+        methods: {
+            reload: function() {
+                $(this.xtag.container).puidatatable('reload');
+            },
+            setTotalRecords: function(val) {
+                $(this.xtag.container).puidatatable('totalRecords', val);
             }
         }
         
@@ -848,9 +856,14 @@ if(!xtag.tags['p-datagrid']) {
         lifecycle: {
             created: function() {
                 var element = $(this),
+                options = element.children('option'),
                 $this = this;
         
-                element.children('option').wrapAll('<select></select>');
+                if(options.length)        
+                    element.children('option').wrapAll('<select></select>');
+                else
+                    element.append('<select></select>');
+        
                 this.xtag.select = element.children('select');
                 
                 if(this.name) {
@@ -914,8 +927,8 @@ if(!xtag.tags['p-datagrid']) {
                     toggleable: this.toggleable,
                     toggleDuration: this.toggleDuration||'normal',
                     collapsed: this.collapsed,
-                    beforeToggle: this.beforeToggle ? function(event) {PUI.executeFunctionByName($this.beforeToggle, event);} : null,
-                    afterToggle: this.afterToggle ? function(event) {PUI.executeFunctionByName($this.afterToggle, event);} : null
+                    beforeToggle: this.beforeToggle ? function(event, collapsed) {PUI.executeFunctionByName($this.beforeToggle, event, collapsed);} : null,
+                    afterToggle: this.afterToggle ? function(event, collapsed) {PUI.executeFunctionByName($this.afterToggle, event, collapsed);} : null
                 });
             }
         },
@@ -1270,13 +1283,17 @@ if(!xtag.tags['p-datagrid']) {
         else if(childTagname === 'p-menuitem') {
             var menuitemDom = $('<a></a>'),
             icon = childTag.attr('icon'),
-            value = childTag.attr('value');
+            value = childTag.attr('value'),
+            href = childTag.attr('href');
 
             if(icon) 
                 menuitemDom.data('icon', icon);
 
             if(value) 
                 menuitemDom.text(value);
+
+            if(href)
+                menuitemDom.attr('href',href);
 
             element.append($('<li></li').append(menuitemDom));
         }
@@ -2319,6 +2336,107 @@ if(!xtag.tags['p-messages']) {
             },
             unselectOption: function() {
                 $(this).puiselectbutton('unselectOption', value);
+            }
+        }
+        
+    });
+    
+}if(!xtag.tags['p-slider']) {
+ 
+    xtag.register('p-slider', {
+
+        accessors: {
+            animate: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            max: {
+                attribute:{}
+            },
+            min: {
+                attribute:{}
+            },
+            orientation:{
+                attribute:{}
+            },
+            range: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            step: {
+                attribute:{}
+            },
+            value: {
+                attribute:{}
+            },
+            onchange: {
+                attribute:{}
+            },
+            onslide: {
+                attribute:{}
+            },
+            onstart: {
+                attribute:{}
+            },
+            onstop: {
+                attribute:{}
+            },
+            style: {
+                attribute:{}
+            },
+            styleclass: {
+                attribute:{}
+            }
+        },
+
+        lifecycle: {
+
+            created: function() {
+                var $this = this;
+                this.xtag.container = $(this).append('<div></div>').children('div');
+                if(this.style)
+                    this.xtag.container.attr('style', this.style);
+
+                if(this.styleclass)
+                    this.xtag.container.attr('class', this.styleclass);
+
+                var rangeValues;
+                if(this.range && this.value) {
+                    rangeValues = [];
+                    var values = this.value.split(',');
+                    for (var i = 0; i <= 1; i++) {
+                        rangeValues[i] = parseInt(values[i]);
+                    }
+                }
+
+                this.xtag.container.slider({
+                    animate: this.animate,
+                    max: this.max ? parseInt(this.max) : 100,
+                    min: this.min ? parseInt(this.min) : 0,
+                    orientation: this.orientation || 'horizontal',
+                    range: this.range ? true : false,
+                    step: this.step ? parseInt(this.step) : 1,
+                    value: this.value ? parseInt(this.value) : 0,
+                    values: rangeValues,
+                    change: this.onchange ? function(event, value){;PUI.executeFunctionByName($this.onchange, event, value);} : null,
+                    slide: this.onslide ? function(event, value){PUI.executeFunctionByName($this.onslide, event, value);} : null,
+                    start: this.onstart ? function(event, value){PUI.executeFunctionByName($this.onstart, event, value);} : null,
+                    stop: this.onstop ? function(event, value){PUI.executeFunctionByName($this.onstop, event, value);} : null
+                });
+            }
+        },
+
+        methods: {
+            disable: function() {
+                this.xtag.container.slider('disable');
+            },
+            enable: function() {
+                this.xtag.container.slider('enable');
+            },
+            destroy: function() {
+                this.xtag.container.slider('destroy');
             }
         }
         

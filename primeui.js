@@ -1,7 +1,7 @@
 /*
- * PrimeUI 3.0.0
+ * PrimeUI 3.0.1
  * 
- * Copyright 2009-2016 PrimeTek.
+ * Copyright 2009-2015 PrimeTek.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -251,60 +251,84 @@ PUI.resolveUserAgent();/**
         
         _create: function() {
             if(this.options.multiple) {
-                this.options.activeIndex = [];
+                this.options.activeIndex = this.options.activeIndex||[0];
             }
         
             var $this = this;
             this.element.addClass('pui-accordion ui-widget ui-helper-reset');
+
+            var tabContainers = this.element.children();
+
+            //primeui
+            if(tabContainers.is('div')) {
+                this.panelMode = 'native';
+                this.headers = this.element.children('h3');
+                this.panels = this.element.children('div');
+            }
+            //primeng
+            else {
+                this.panelMode = 'wrapped';
+                this.headers = tabContainers.children('h3');
+                this.panels = tabContainers.children('div');
+            }
             
-            this.element.children('h3').addClass('pui-accordion-header ui-helper-reset ui-state-default').each(function(i) {
+            this.headers.addClass('pui-accordion-header ui-helper-reset ui-state-default').each(function(i) {
                 var header = $(this),
                 title = header.html(),
-                headerClass = (i == $this.options.activeIndex) ? 'ui-state-active ui-corner-top' : 'ui-corner-all',
-                iconClass = (i == $this.options.activeIndex) ? 'pui-icon fa fa-fw fa-caret-down' : 'pui-icon fa fa-fw fa-caret-right';
-                                
+                active = $this.options.multiple ? ($.inArray(i, $this.options.activeIndex) !== -1) : (i == $this.options.activeIndex);
+                headerClass = (active) ? 'ui-state-active ui-corner-top' : 'ui-corner-all',
+                iconClass = (active) ? 'pui-icon fa fa-fw fa-caret-down' : 'pui-icon fa fa-fw fa-caret-right';
+
                 header.addClass(headerClass).html('<span class="' + iconClass + '"></span><a href="#">' + title + '</a>');
             });
             
-            this.element.children('div').each(function(i) {
+            this.panels.each(function(i) {
                 var content = $(this);
-                content.addClass('pui-accordion-content ui-helper-reset ui-widget-content');
+                content.addClass('pui-accordion-content ui-helper-reset ui-widget-content'),
+                active = $this.options.multiple ? ($.inArray(i, $this.options.activeIndex) !== -1) : (i == $this.options.activeIndex);
                 
-                if(i != $this.options.activeIndex) {
+                if(!active) {
                     content.addClass('ui-helper-hidden');
                 }
             });
             
-            this.headers = this.element.children('.pui-accordion-header');
-            this.panels = this.element.children('.pui-accordion-content');
             this.headers.children('a').disableSelection();
             
             this._bindEvents();
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+            this.element.removeClass('pui-accordion ui-widget ui-helper-reset');
+            this.headers.removeClass('pui-accordion-header ui-helper-reset ui-state-default ui-state-hover ui-state-active ui-state-disabled ui-corner-all ui-corner-top');
+            this.panels.removeClass('pui-accordion-content ui-helper-reset ui-widget-content ui-helper-hidden');
+            this.headers.children('.pui-icon').remove();
+            this.headers.children('a').contents().unwrap();
         },
         
         _bindEvents: function() {
             var $this = this;
 
-            this.headers.mouseover(function() {
+            this.headers.on('mouseover.puiaccordion', function() {
                 var element = $(this);
                 if(!element.hasClass('ui-state-active')&&!element.hasClass('ui-state-disabled')) {
                     element.addClass('ui-state-hover');
                 }
-            }).mouseout(function() {
+            }).on('mouseout.puiaccordion', function() {
                 var element = $(this);
                 if(!element.hasClass('ui-state-active')&&!element.hasClass('ui-state-disabled')) {
                     element.removeClass('ui-state-hover');
                 }
-            }).click(function(e) {
+            }).on('click.puiaccordion', function(e) {
                 var element = $(this);
                 if(!element.hasClass('ui-state-disabled')) {
-                    var tabIndex = element.index() / 2;
+                    var tabIndex = ($this.panelMode === 'native') ? element.index() / 2 : element.parent().index();
 
                     if(element.hasClass('ui-state-active')) {
                         $this.unselect(tabIndex);
                     }
                     else {
-                        $this.select(tabIndex);
+                        $this.select(tabIndex, false);
                     }
                 }
 
@@ -312,13 +336,19 @@ PUI.resolveUserAgent();/**
             });
         },
 
+        _unbindEvents: function() {
+            this.headers.off('mouseover.puiaccordion mouseout.puiaccordion click.puiaccordion');
+        },
+
         /**
          *  Activates a tab with given index
          */
-        select: function(index) {
+        select: function(index, silent) {
             var panel = this.panels.eq(index);
 
-            this._trigger('change', panel);
+            if(!silent) {
+                this._trigger('change', null, {'index': index});
+            }
             
             //update state
             if(this.options.multiple) {
@@ -368,11 +398,19 @@ PUI.resolveUserAgent();/**
             this.options.activeIndex = $.grep(this.options.activeIndex, function(r) {
                 return r != index;
             });
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'activeIndex') {
+                this.select(value, true);
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
         }
         
     });
-})();
-/**
+})();/**
  * PrimeUI autocomplete widget
  */
 (function() {
@@ -830,9 +868,10 @@ PUI.resolveUserAgent();/**
         },
         
         _create: function() {
-            var element = this.element,
-            elementText = element.text(),
-            value = this.options.value||(elementText === '' ? 'pui-button' : elementText),
+            var element = this.element;
+            this.elementText = this.element.text();
+            
+            var value = this.options.value||(this.elementText === '' ? 'pui-button' : this.elementText),
             disabled = element.prop('disabled'),
             styleClass = null;
             
@@ -854,13 +893,19 @@ PUI.resolveUserAgent();/**
             }
             
             this.element.append('<span class="pui-button-text pui-c">' + value + '</span>');
-            
-            //aria
-            element.attr('role', 'button').attr('aria-disabled', disabled);    
-            
+                        
             if(!disabled) {
                 this._bindEvents();
             }
+        },
+
+        _destroy: function() {
+            this.element.removeClass('pui-button ui-widget ui-state-default ui-state-hover ui-state-active ui-state-disabled ui-state-focus ui-corner-all ' + 
+                                                    'pui-button-text-only pui-button-icon-only pui-button-text-icon-right pui-button-text-icon-left');
+            this._unbindEvents();
+            this.element.children('.pui-icon').remove();
+            this.element.children('.pui-button-text').remove();
+            this.element.text(this.elementText);
         },
         
         _bindEvents: function() {
@@ -902,19 +947,28 @@ PUI.resolveUserAgent();/**
         
         disable: function() {
             this._unbindEvents();
-            
-            this.element.attr({
-                'disabled':'disabled',
-                'aria-disabled': true
-            }).addClass('ui-state-disabled');
+            this.addClass('ui-state-disabled');
         },
         
         enable: function() {
             if(this.element.prop('disabled')) {
                 this._bindEvents();           
-                this.element.removeAttr('disabled').attr('aria-disabled', false).removeClass('ui-state-disabled');
+                this.element.prop('disabled', false).removeClass('ui-state-disabled');
+            }
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'disabled') {
+                if(value)
+                    this.disable();
+                else
+                    this.enable();
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
             }
         }
+        
     });
 })();/**
  * PrimeUI Carousel widget
@@ -1286,27 +1340,27 @@ PUI.resolveUserAgent();/**
                 $this.toggle();
             });
             
-            this.element.focus(function() {
+            this.element.on('focus.puicheckbox', function() {
                 if($this.isChecked()) {
                     $this.box.removeClass('ui-state-active');
                 }
 
                 $this.box.addClass('ui-state-focus');
             })
-            .blur(function() {
+            .on('blur.puicheckbox', function() {
                 if($this.isChecked()) {
                     $this.box.addClass('ui-state-active');
                 }
 
                 $this.box.removeClass('ui-state-focus');
             })
-            .keydown(function(e) {
+            .on('keydown.puicheckbox', function(e) {
                 var keyCode = $.ui.keyCode;
                 if(e.which == keyCode.SPACE) {
                     e.preventDefault();
                 }
             })
-            .keyup(function(e) {
+            .on('keyup.puicheckbox', function(e) {
                 var keyCode = $.ui.keyCode;
                 if(e.which == keyCode.SPACE) {
                     $this.toggle(true);
@@ -1361,14 +1415,16 @@ PUI.resolveUserAgent();/**
         },
 
         _unbindEvents: function() {
-            this.box.off();
-            this.element.off('focus blur keydown keyup');
-            this.label.off();
+            this.box.off('mouseover.puicheckbox mouseout.puicheckbox click.puicheckbox');
+            this.element.off('focus.puicheckbox blur.puicheckbox keydown.puicheckbox keyup.puicheckbox');
+            
+            if (this.label.length) {
+                this.label.off('click.puicheckbox');
+            }
         },
 
         disable: function() {
             this.box.prop('disabled', true);
-
             this.box.attr('aria-disabled', true);
             this.box.addClass('ui-state-disabled').removeClass('ui-state-hover');
             this._unbindEvents();
@@ -1379,7 +1435,15 @@ PUI.resolveUserAgent();/**
             this.box.attr('aria-disabled', false);
             this.box.removeClass('ui-state-disabled');
             this._bindEvents();
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+            this.container.removeClass('pui-chkbox ui-widget');
+            this.box.remove();
+            this.element.unwrap().unwrap();
         }
+
     });
     
 })();/**
@@ -1444,7 +1508,7 @@ PUI.resolveUserAgent();/**
             else {
                 this._createRegularDatatable();
             }
-            
+
             if(this.options.datasource) {
                 if($.isArray(this.options.datasource)) {
                     this._onDataInit(this.options.datasource);
@@ -1469,7 +1533,7 @@ PUI.resolveUserAgent();/**
                     
                     if($.type(this.options.datasource) === 'function') {
                         if(this.options.lazy)
-                            this.options.datasource.call(this, this._onDataInit, {first:0, sortField:this.options.sortField, sortOrder:this.options.sortOrder});
+                            this.options.datasource.call(this, this._onDataInit, {first:0, rows:this._getRows(), sortField:this.options.sortField, sortOrder:this.options.sortOrder, filters: this._createFilterMap()});
                         else
                             this.options.datasource.call(this, this._onDataInit);
                     }
@@ -1728,8 +1792,8 @@ PUI.resolveUserAgent();/**
                     totalRecords: this.options.lazy ? this.options.paginator.totalRecords : this.data.length
                 });
             }
-            
-            this.thead.children('th.pui-sortable-column').data('order', 0).filter('.ui-state-active').removeClass('ui-state-active')
+
+            this.thead.find('> tr > th.pui-sortable-column').data('order', 0).filter('.ui-state-active').removeClass('ui-state-active')
                                 .children('span.pui-sortable-column-icon').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
         },
                 
@@ -1806,20 +1870,20 @@ PUI.resolveUserAgent();/**
                     result = null;
                     
                     if (typeof value1 == 'string' || value1 instanceof String) {
-                        if ( value1.localeCompare ) {
-                            return (order * value1.localeCompare(value2));
-                        }
-                        else {
-                            if (value1.toLowerCase) {
-                                value1 = value1.toLowerCase();
+                    	if ( value1.localeCompare ) {
+                    		return (order * value1.localeCompare(value2));
+                    	}
+                    	else {
+                        	if (value1.toLowerCase) {
+                            	value1 = value1.toLowerCase();
                             }
                             if (value2.toLowerCase) {
-                                value2 = value2.toLowerCase();
+                            	value2 = value2.toLowerCase();
                             }
                             result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
                             
                             
-                        }
+                    	}
                     }
                     else {
                         result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
@@ -1896,7 +1960,7 @@ PUI.resolveUserAgent();/**
                             }
                             
                             if(columnOptions.content) {
-                                var content = columnOptions.content.call(this, rowData);
+                                var content = columnOptions.content.call(this, rowData, columnOptions);
                                 if($.type(content) === 'string')
                                     column.html(content);
                                 else
@@ -1936,7 +2000,7 @@ PUI.resolveUserAgent();/**
         },
         
         _getRows: function() {
-            return this.paginator ? this.paginator.puipaginator('option', 'rows') : this.data.length;
+            return this.paginator ? this.paginator.puipaginator('option', 'rows') : (this.data ? this.data.length : 0);
         },
                 
         _isSortingEnabled: function() {
@@ -2264,7 +2328,7 @@ PUI.resolveUserAgent();/**
             }
             else if($.type(this.options.datasource) === 'function') {
                 if(this.options.lazy)
-                    this.options.datasource.call(this, this._onDataUpdate, {first:0, sortField:this.options.sortField, sortorder:this.options.sortOrder});
+                    this.options.datasource.call(this, this._onDataUpdate, {first:0, rows: this._getRows(), sortField:this.options.sortField, sortorder:this.options.sortOrder, filters: this._createFilterMap()});
                 else
                     this.options.datasource.call(this, this._onDataUpdate);
             }
@@ -2827,7 +2891,7 @@ PUI.resolveUserAgent();/**
                     });
         },
         
-        filter: function() {
+        filter: function() {
             this.filterMetaMap = [];
                 
             for(var i = 0; i < this.filterElements.length; i++) {
@@ -3055,6 +3119,34 @@ PUI.resolveUserAgent();/**
         _onCellEditorBlur: function(cell) {
             cell.removeClass('pui-cell-editing').text(cell.data('rowdata')[cell.data('field')])
                     .children('.pui-cell-editor').remove();
+        },
+
+        reload: function() {
+            this._updateDatasource(this.options.datasource);
+        },
+
+        getPaginator: function() {
+            return this.paginator;
+        },
+
+        setTotalRecords: function(val) {
+            this.paginator.puipaginator('option','totalRecords', 20);
+        },
+
+        _createFilterMap: function() {
+            var filters = null;
+            if(this.filterElements) {
+                filters = {};
+                for(var i = 0; i < this.filterElements.length; i++) {
+                    var filterElement = this.filterElements.eq(i),
+                    value = filterElement.val();
+                    if($.trim(value).length) {
+                        filters[filterElement.data('field')] = value;
+                    }
+                }
+            }
+
+            return filters;
         },
         
         editors: {
@@ -3508,7 +3600,8 @@ PUI.resolveUserAgent();/**
             appendTo: null,
             buttons: null,
             responsive: false,
-            title: null
+            title: null,
+            enhanced: false
         },
         
         _create: function() {
@@ -3518,47 +3611,51 @@ PUI.resolveUserAgent();/**
             }
             
             //container
-            this.element.addClass('pui-dialog ui-widget ui-widget-content ui-helper-hidden ui-corner-all pui-shadow')
+            if(!this.options.enhanced) {
+                this.element.addClass('pui-dialog ui-widget ui-widget-content ui-helper-hidden ui-corner-all pui-shadow')
                         .contents().wrapAll('<div class="pui-dialog-content ui-widget-content" />');
-                    
-            //header
-            var title = this.options.title||this.element.attr('title');
-            this.element.prepend('<div class="pui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top">' +
+
+                //header
+                var title = this.options.title||this.element.attr('title');
+                this.element.prepend('<div class="pui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top">' +
                                 '<span id="' + this.element.attr('id') + '_label" class="pui-dialog-title">' + title + '</span>')
                                 .removeAttr('title');
-            
-            //footer
-            if(this.options.buttons) {
-                this.footer = $('<div class="pui-dialog-buttonpane ui-widget-content ui-helper-clearfix"></div>').appendTo(this.element);
-                for(var i = 0; i < this.options.buttons.length; i++) {
-                    var buttonMeta = this.options.buttons[i],
-                    button = $('<button type="button"></button>').appendTo(this.footer);
-                    if(buttonMeta.text) {
-                        button.text(buttonMeta.text);
-                    }
-                    
-                    button.puibutton(buttonMeta);
-                }  
-            }
-            
-            if(this.options.rtl) {
-                this.element.addClass('pui-dialog-rtl');
+
+                //footer
+                if(this.options.buttons) {
+                    this.footer = $('<div class="pui-dialog-buttonpane ui-widget-content ui-helper-clearfix"></div>').appendTo(this.element);
+                    for(var i = 0; i < this.options.buttons.length; i++) {
+                        var buttonMeta = this.options.buttons[i],
+                        button = $('<button type="button"></button>').appendTo(this.footer);
+                        if(buttonMeta.text) {
+                            button.text(buttonMeta.text);
+                        }
+                        
+                        button.puibutton(buttonMeta);
+                    }  
+                }
+
+                if(this.options.rtl) {
+                    this.element.addClass('pui-dialog-rtl');
+                }
             }
             
             //elements
             this.content = this.element.children('.pui-dialog-content');
             this.titlebar = this.element.children('.pui-dialog-titlebar');
             
-            if(this.options.closable) {
-                this._renderHeaderIcon('pui-dialog-titlebar-close', 'fa-close');
-            }
-            
-            if(this.options.maximizable) {
-                this._renderHeaderIcon('pui-dialog-titlebar-maximize', 'fa-sort');
-            }
-            
-            if(this.options.minimizable) {
-                this._renderHeaderIcon('pui-dialog-titlebar-minimize', 'fa-minus');
+            if(!this.options.enhanced) {
+                if(this.options.closable) {
+                    this._renderHeaderIcon('pui-dialog-titlebar-close', 'fa-close');
+                }
+                
+                if(this.options.maximizable) {
+                    this._renderHeaderIcon('pui-dialog-titlebar-maximize', 'fa-sort');
+                }
+                
+                if(this.options.minimizable) {
+                    this._renderHeaderIcon('pui-dialog-titlebar-minimize', 'fa-minus');
+                }
             }
             
             //icons
@@ -3576,8 +3673,6 @@ PUI.resolveUserAgent();/**
 
             //events
             this._bindEvents();
-            
-            
 
             if(this.options.draggable) {
                 this._setupDraggable();
@@ -3607,6 +3702,57 @@ PUI.resolveUserAgent();/**
                 this.show();
             }
         },
+
+        _destroy: function() {
+            //restore dom
+            if(!this.options.enhanced) {
+                this.element.removeClass('pui-dialog ui-widget ui-widget-content ui-helper-hidden ui-corner-all pui-shadow');
+
+                if(this.options.buttons) {
+                    this.footer.children('button').puibutton('destroy');
+                    this.footer.remove();
+                }
+
+                if(this.options.rtl) {
+                    this.element.removeClass('pui-dialog-rtl');
+                }
+
+                var title = this.titlebar.children('.pui-dialog-title').text()||this.options.title;
+                if(title) {
+                    this.element.attr('title', title);
+                }
+                this.titlebar.remove();
+
+                this.content.contents().unwrap();
+            }
+
+            //remove events
+            this._unbindEvents();
+
+            if(this.options.draggable) {
+                this.element.draggable('destroy');
+            }
+
+            if(this.options.resizable) {
+                this.element.resizable('destroy');
+            }
+
+            if(this.options.appendTo) {
+                this.element.appendTo(this.parent);
+            }
+            
+            this._unbindResizeListener();
+
+            if(this.options.modal) {
+                this._disableModality();
+            }
+
+            this._removeARIA();
+            this.element.css({
+                'width': 'auto',
+                'height': 'auto'
+            });
+        },
         
         _renderHeaderIcon: function(styleClass, icon) {
             this.titlebar.append('<a class="pui-dialog-titlebar-icon ' + styleClass + ' ui-corner-all" href="#" role="button">' +
@@ -3621,7 +3767,7 @@ PUI.resolveUserAgent();/**
                                 .css('z-index', this.element.css('z-index') - 1);
 
             //Disable tabbing out of modal dialog and stop events from targets outside of dialog
-            doc.bind('keydown.puidialog',
+            doc.on('keydown.puidialog',
                     function(event) {
                         if(event.keyCode == $.ui.keyCode.TAB) {
                             var tabbables = $this.content.find(':tabbable'), 
@@ -3645,10 +3791,13 @@ PUI.resolveUserAgent();/**
                     });
         },
 
-        _disableModality: function(){
-            this.modality.remove();
-            this.modality = null;
-            $(document).unbind(this.blockEvents).unbind('keydown.dialog');
+        _disableModality: function() {
+            if(this.modality) {
+                this.modality.remove();
+                this.modality = null;
+            }
+            
+            $(document).off(this.blockEvents).off('keydown.dialog');
         },
 
         show: function() {
@@ -3743,11 +3892,12 @@ PUI.resolveUserAgent();/**
 
         _bindEvents: function() {   
             var $this = this;
-            this.element.mousedown(function(e) {
+            this.element.on('mousedown.puidialog', function(e) {
                 if(!$(e.target).data('ui-widget-overlay')) { 
                   $this._moveToTop();
                 }
              });
+
             this.icons.mouseover(function() {
                 $(this).addClass('ui-state-hover');
             }).mouseout(function() {
@@ -3770,7 +3920,7 @@ PUI.resolveUserAgent();/**
             });
 
             if(this.options.closeOnEscape) {
-                $(document).on('keydown.dialog_' + this.element.attr('id'), function(e) {
+                $(document).on('keydown.dialog_' + this.id, function(e) {
                     var keyCode = $.ui.keyCode,
                     active = parseInt($this.element.css('z-index'), 10) === PUI.zindex;
 
@@ -3779,6 +3929,12 @@ PUI.resolveUserAgent();/**
                     }
                 });
             }
+        },
+
+        _unbindEvents: function() {
+            this.element.off('mousedown.puidialog');
+            this.icons.off();
+            $(document).off('keydown.dialog_' + this.id);
         },
 
         _setupDraggable: function() {    
@@ -3986,6 +4142,11 @@ PUI.resolveUserAgent();/**
 
             this.titlebar.children('a.pui-dialog-titlebar-icon').attr('role', 'button');
         },
+
+        _removeARIA: function() {
+            this.element.removeAttr('role').removeAttr('aria-labelledby').removeAttr('aria-hidden')
+                            .removeAttr('aria-live').removeAttr('aria-hidden');
+        },
         
         _bindResizeListener: function() {
             var $this = this;
@@ -3998,6 +4159,18 @@ PUI.resolveUserAgent();/**
 
         _unbindResizeListener: function() {
             $(window).off(this.resizeNS);
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'visible') {
+                if(value)
+                    this.show();
+                else
+                    this.hide();
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
         }
     });
 })();/**
@@ -4365,9 +4538,15 @@ PUI.resolveUserAgent();/**
         
         _highlightItem: function(item) {
             this.items.filter('.ui-state-highlight').removeClass('ui-state-highlight');
-            item.addClass('ui-state-highlight');
+            
+            if(item.length) {
+                item.addClass('ui-state-highlight');
 
-            this._setLabel(item.data('label'));
+                this._setLabel(item.data('label'));
+            }
+            else {
+                this._setLabel('&nbsp;');
+            }
         },
         
         _triggerChange: function(edited) {
@@ -4565,10 +4744,21 @@ PUI.resolveUserAgent();/**
             this._selectItem(this.items.eq(option.index()), true);
         },
 
-        addOption: function(option) {
-            var value = (option.value !== undefined || option.value !== null) ? option.value : option,
-            label = (option.label !== undefined || option.label !== null) ? option.label : option,
-            content = this.options.content ? this.options.content.call(this, option) : label,
+        addOption: function(option, val) {
+            var value, label;
+            
+            //backward compatibility for key-value parameters
+            if(val !== undefined && val !== null) {
+                value = val;
+                label = option;
+            }
+            //key-value as properties of option object
+            else {
+                value = (option.value !== undefined && option.value !== null) ? option.value : option;
+                label = (option.label !== undefined && option.label !== null) ? option.label : option;
+            }
+            
+            var content = this.options.content ? this.options.content.call(this, option) : label,
             item = $('<li data-label="' + label + '" class="pui-dropdown-item pui-dropdown-list-item ui-corner-all">' + content + '</li>'),
             optionElement = $('<option value="' + value + '">' + label + '</option>');
             
@@ -4576,7 +4766,6 @@ PUI.resolveUserAgent();/**
             this._bindItemEvents(item);
             item.appendTo(this.itemsContainer);
             this.items.push(item[0]);
-            //this.choices.push(choice);  There is an issue when this form is used when selecting an option.
             this.choices = this.element.children('option');
 
             // If this is the first option, it is the default selected one
@@ -4637,29 +4826,40 @@ PUI.resolveUserAgent();/**
         options: {
             toggleable: false,
             toggleDuration: 'normal',
-            collapsed: false
+            collapsed: false,
+            enhanced: false
         },
         
         _create: function() {
-            this.element.addClass('pui-fieldset ui-widget ui-widget-content ui-corner-all').
-                children('legend').addClass('pui-fieldset-legend ui-corner-all ui-state-default');
-            
-            this.element.contents().wrapAll('<div class="pui-fieldset-content" />');            
-            
-            this.content = this.element.children('div.pui-fieldset-content');
-            this.legend = this.content.children('legend.pui-fieldset-legend');
-            this.legend.prependTo(this.element);
+            if(!this.options.enhanced) {
+                this.element.addClass('pui-fieldset ui-widget ui-widget-content ui-corner-all').
+                    children('legend').addClass('pui-fieldset-legend ui-corner-all ui-state-default');
+
+                this.element.contents().wrapAll('<div class="pui-fieldset-content" />');
+                this.content = this.element.children('div.pui-fieldset-content');
+                this.legend = this.content.children('legend.pui-fieldset-legend').prependTo(this.element);
+            }
+            else {
+                this.legend = this.element.children('legend');
+                this.content = this.element.children('div.pui-fieldset-content');
+            }
             
             if(this.options.toggleable) {
-                this.element.addClass('pui-fieldset-toggleable');
-                this.toggler = $('<span class="pui-fieldset-toggler fa fa-fw" />').prependTo(this.legend);
-                
+                if(this.options.enhanced) {
+                    this.toggler = this.legend.children('.pui-fieldset-toggler');
+                }
+                else {
+                    this.element.addClass('pui-fieldset-toggleable');
+                    this.toggler = $('<span class="pui-fieldset-toggler fa fa-fw" />').prependTo(this.legend);
+                }
+
                 this._bindEvents();
                 
                 if(this.options.collapsed) {
                     this.content.hide();
                     this.toggler.addClass('fa-plus');
-                } else {
+                } 
+                else {
                     this.toggler.addClass('fa-minus');
                 }
             }
@@ -4674,11 +4874,15 @@ PUI.resolveUserAgent();/**
                             .on('mousedown.puifieldset', function() {$this.legend.removeClass('ui-state-hover').addClass('ui-state-active');})
                             .on('mouseup.puifieldset', function() {$this.legend.removeClass('ui-state-active').addClass('ui-state-hover');});
         },
+
+        _unbindEvents: function() {
+            this.legend.off('click.puifieldset mouseover.puifieldset mouseout.puifieldset mousedown.puifieldset mouseup.puifieldset');
+        },
         
         toggle: function(e) {
             var $this = this;
 
-            this._trigger('beforeToggle', e);
+            this._trigger('beforeToggle', e, this.options.collapsed);
 
             if(this.options.collapsed) {
                 this.toggler.removeClass('fa-plus').addClass('fa-minus');
@@ -4688,9 +4892,24 @@ PUI.resolveUserAgent();/**
             }
 
             this.content.slideToggle(this.options.toggleSpeed, 'easeInOutCirc', function() {
-                $this._trigger('afterToggle', e);
                 $this.options.collapsed = !$this.options.collapsed;
+                $this._trigger('afterToggle', e, $this.options.collapsed);
             });
+        },
+
+        _destroy: function() {
+            if(!this.options.enhanced) {
+                this.element.removeClass('pui-fieldset ui-widget ui-widget-content ui-corner-all')
+                            .children('legend').removeClass('pui-fieldset-legend ui-corner-all ui-state-default ui-state-hover ui-state-active');
+                this.content.contents().unwrap();
+
+                if(this.options.toggleable) {
+                    this.element.removeClass('pui-fieldset-toggleable');
+                    this.toggler.remove();
+                }
+            }            
+            
+            this._unbindEvents();
         }
         
     });
@@ -4734,7 +4953,7 @@ PUI.resolveUserAgent();/**
             }
             
             if(this.options.customContent) {
-                this.panels.children('img').remove();
+                this.panels.children('img').hide();
                 this.panels.children('div').addClass('pui-galleria-panel-content');
             }
             
@@ -4750,6 +4969,21 @@ PUI.resolveUserAgent();/**
             if(this.options.autoPlay) {
                 this.startSlideshow();
             }
+        },
+
+        _destroy: function() {
+            this.stopSlideshow();
+            this._unbindEvents();
+            this.element.removeClass('pui-galleria ui-widget ui-widget-content ui-corner-all').removeAttr('style');
+            this.panelWrapper.removeClass('pui-galleria-panel-wrapper').removeAttr('style');
+            this.panels.removeClass('pui-galleria-panel ui-helper-hidden').removeAttr('style');
+            this.strip.remove();
+            this.stripWrapper.remove();
+            this.element.children('.fa').remove();
+            if(this.options.showCaption) {
+                this.caption.remove();
+            }
+            this.panels.children('img').show();
         },
         
         _renderStrip: function() {
@@ -4820,6 +5054,12 @@ PUI.resolveUserAgent();/**
             });
         },
 
+        _unbindEvents: function() {
+            this.element.children('div.pui-galleria-nav-prev').off('click.puigalleria');
+            this.element.children('div.pui-galleria-nav-next').off('click.puigalleria');
+            this.strip.children('li.pui-galleria-frame').off('click.puigalleria');
+        },
+
         startSlideshow: function() {
             var $this = this;
 
@@ -4831,7 +5071,9 @@ PUI.resolveUserAgent();/**
         },
 
         stopSlideshow: function() {
-            window.clearInterval(this.interval);
+            if(this.interval) {
+                window.clearInterval(this.interval);
+            }
 
             this.slideshowActive = false;
         },
@@ -5041,6 +5283,10 @@ PUI.resolveUserAgent();/**
 
     $.widget("primeui.puiinputtext", {
        
+        options: {
+            disabled: false
+        },
+       
         _create: function() {
             var input = this.element,
             disabled = input.prop('disabled');
@@ -5048,43 +5294,42 @@ PUI.resolveUserAgent();/**
             //visuals
             input.addClass('pui-inputtext ui-widget ui-state-default ui-corner-all');
             
-            if(disabled) {
+            if(input.prop('disabled'))
                 input.addClass('ui-state-disabled');
-            }
-            else {
+            else if(this.options.disabled)
+                this.disable();
+            else
                 this._enableMouseEffects();
-            }
-
-            //aria
-            input.attr('role', 'textbox').attr('aria-disabled', disabled)
-                                          .attr('aria-readonly', input.prop('readonly'))
-                                          .attr('aria-multiline', input.is('textarea'));
         },
         
         _destroy: function() {
-
+            this.element.removeClass('pui-inputtext ui-widget ui-state-default ui-state-disabled ui-state-hover ui-state-focus ui-corner-all');
+            this._disableMouseEffects();
         },
 
         _enableMouseEffects: function () {
             var input = this.element;
-            input.hover(function () {
-                input.toggleClass('ui-state-hover');
-            }).focus(function () {
-                    input.addClass('ui-state-focus');
-                }).blur(function () {
-                    input.removeClass('ui-state-focus');
-                });
+
+            input.on('mouseover.puiinputtext', function() {
+                input.addClass('ui-state-hover');
+            })
+            .on('mouseout.puiinputtext', function() {
+                input.removeClass('ui-state-hover');
+            })
+            .on('focus.puiinputtext', function() {
+                input.addClass('ui-state-focus');
+            })
+            .on('blur.puiinputtext', function() {
+                input.removeClass('ui-state-focus');
+            });
         },
 
         _disableMouseEffects: function () {
-            var input = this.element;
-            input.off( "mouseenter mouseleave focus blur" );
-
+            this.element.off('mouseover.puiinputtext mouseout.puiinputtext focus.puiinputtext blur.puiinputtext');
         },
 
         disable: function () {
             this.element.prop('disabled', true);
-            this.element.attr('aria-disabled', true);
             this.element.addClass('ui-state-disabled');
             this.element.removeClass('ui-state-focus ui-state-hover');
             this._disableMouseEffects();
@@ -5092,9 +5337,20 @@ PUI.resolveUserAgent();/**
 
         enable: function () {
             this.element.prop('disabled', false);
-            this.element.attr('aria-disabled', false);
             this.element.removeClass('ui-state-disabled');
             this._enableMouseEffects();
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'disabled') {
+                if(value)
+                    this.disable();
+                else
+                    this.enable();
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
         }
         
     });
@@ -5133,17 +5389,17 @@ PUI.resolveUserAgent();/**
         
                 this.element.addClass('pui-inputtextarea-resizable');
                 
-                this.element.keyup(function() {
+                this.element.on('keyup.puiinputtextarea-resize', function() {
                     $this._resize();
-                }).focus(function() {
+                }).on('focus.puiinputtextarea-resize', function() {
                     $this._resize();
-                }).blur(function() {
+                }).on('blur.puiinputtextarea-resize', function() {
                     $this._resize();
                 });
             }
             
             if(this.options.maxlength) {
-                this.element.keyup(function(e) {
+                this.element.on('keyup.puiinputtextarea-maxlength', function(e) {
                     var value = $this.element.val(),
                     length = value.length;
 
@@ -5163,6 +5419,28 @@ PUI.resolveUserAgent();/**
             
             if(this.options.autoComplete) {
                 this._initAutoComplete();
+            }
+        },
+
+        _destroy: function() {
+            this.element.puiinputtext('destroy');
+
+            if(this.options.autoResize) {
+                this.element.removeClass('pui-inputtextarea-resizable').off('keyup.puiinputtextarea-resize focus.puiinputtextarea-resize blur.puiinputtextarea-resize');
+            }
+
+            if(this.options.maxlength) {
+                this.element.off('keyup.puiinputtextarea-maxlength');
+            }
+
+            if(this.options.autoComplete) {
+                this.element.off('keyup.puiinputtextarea-autocomplete keydown.puiinputtextarea-autocomplete');
+                $(document.body).off('mousedown.puiinputtextarea-' + this.id);
+                $(window).off('resize.puiinputtextarea-' + this.id);
+                if(this.items) {
+                    this.items.off();
+                }
+                this.panel.remove();
             }
         },
         
@@ -5198,7 +5476,7 @@ PUI.resolveUserAgent();/**
 
             this.panel = $(panelMarkup).appendTo(document.body);
 
-            this.element.keyup(function(e) {
+            this.element.on('keyup.puiinputtextarea-autocomplete', function(e) {
                 var keyCode = $.ui.keyCode;
 
                 switch(e.which) {
@@ -5235,7 +5513,7 @@ PUI.resolveUserAgent();/**
                     break;
                 }
 
-            }).keydown(function(e) {
+            }).on('keydown.puiinputtextarea-autocomplete', function(e) {
                 var overlayVisible = $this.panel.is(':visible'),
                     keyCode = $.ui.keyCode,
                     highlightedItem;
@@ -5322,7 +5600,7 @@ PUI.resolveUserAgent();/**
             });
 
             //hide panel when outside is clicked
-            $(document.body).bind('mousedown.puiinputtextarea', function (e) {
+            $(document.body).on('mousedown.puiinputtextarea-' + this.id, function (e) {
                 if($this.panel.is(":hidden")) {
                     return;
                 }
@@ -5340,8 +5618,8 @@ PUI.resolveUserAgent();/**
             });
 
             //Hide overlay on resize
-            var resizeNS = 'resize.' + this.id;
-            $(window).unbind(resizeNS).bind(resizeNS, function() {
+            var resizeNS = 'resize.puiinputtextarea-' + this.id;
+            $(window).off(resizeNS).on(resizeNS, function() {
                 if($this.panel.is(':visible')) {
                     $this._hide();
                 }
@@ -5352,7 +5630,7 @@ PUI.resolveUserAgent();/**
             var $this = this;
 
             //visuals and click handler for items
-            this.items.bind('mouseover', function() {
+            this.items.on('mouseover', function() {
                 var item = $(this);
 
                 if(!item.hasClass('ui-state-highlight')) {
@@ -5360,7 +5638,7 @@ PUI.resolveUserAgent();/**
                     item.addClass('ui-state-highlight');
                 }
             })
-            .bind('click', function(event) {
+            .on('click', function(event) {
                 var item = $(this),
                 itemValue = item.attr('data-item-value'),
                 insertValue = itemValue.substring($this.query.length);
@@ -7172,7 +7450,7 @@ PUI.resolveUserAgent();/**
             }
         },
         
-        _generateOptionElements: function(data) {
+        _generateOptionElements: function(data) {
             for(var i = 0; i < data.length; i++) {
                 var choice = data[i];
                 if(choice.label)
@@ -7754,20 +8032,23 @@ PUI.resolveUserAgent();/**
             toggleOrientation : 'vertical',
             collapsed: false,
             closable: false,
-            closeDuration: 'slow',
-            title: null
+            closeDuration: 'normal',
+            title: null,
+            enhanced: false
         },
         
         _create: function() {
-            this.element.addClass('pui-panel ui-widget ui-widget-content ui-corner-all')
-                .contents().wrapAll('<div class="pui-panel-content ui-widget-content" />');
-                
-            var title = this.element.attr('title')||this.options.title;
-            if(title) {
-                this.element.prepend('<div class="pui-panel-titlebar ui-widget-header ui-helper-clearfix ui-corner-all"><span class="ui-panel-title">' +
-                        title + "</span></div>").removeAttr('title');
+            if(!this.options.enhanced) {
+                this.element.addClass('pui-panel ui-widget ui-widget-content ui-corner-all')
+                    .contents().wrapAll('<div class="pui-panel-content ui-widget-content" />');
+
+                var title = this.element.attr('title')||this.options.title;
+                if(title) {
+                    this.element.prepend('<div class="pui-panel-titlebar ui-widget-header ui-helper-clearfix ui-corner-all"><span class="ui-panel-title">' +
+                            title + "</span></div>").removeAttr('title');
+                }
             }
-            
+                
             this.header = this.element.children('div.pui-panel-titlebar');
             this.title = this.header.children('span.ui-panel-title');
             this.content = this.element.children('div.pui-panel-content');
@@ -7775,23 +8056,36 @@ PUI.resolveUserAgent();/**
             var $this = this;
             
             if(this.options.closable) {
-                this.closer = $('<a class="pui-panel-titlebar-icon ui-corner-all ui-state-default" href="#"><span class="pui-icon fa fa-fw fa-close"></span></a>')
-                                .appendTo(this.header)
-                                .on('click.puipanel', function(e) {
-                                    $this.close();
-                                    e.preventDefault();
-                                });
+                if(!this.options.enhanced) {
+                    this.closer = $('<a class="pui-panel-titlebar-icon pui-panel-titlebar-closer ui-corner-all ui-state-default" href="#"><span class="pui-icon fa fa-fw fa-close"></span></a>')
+                                .appendTo(this.header);
+                }
+                else {
+                    this.closer = this.header.children('.pui-panel-titlebar-closer');
+                }
+
+                this.closer.on('click.puipanel', function(e) {
+                    $this.close();
+                    e.preventDefault();
+                });
             }
             
             if(this.options.toggleable) {
                 var icon = this.options.collapsed ? 'fa-plus' : 'fa-minus';
                 
-                this.toggler = $('<a class="pui-panel-titlebar-icon ui-corner-all ui-state-default" href="#"><span class="pui-icon fa fa-fw ' + icon + '"></span></a>')
-                                .appendTo(this.header)
-                                .on('click.puipanel', function(e) {
-                                    $this.toggle();
-                                    e.preventDefault();
-                                });
+                if(!this.options.enhanced) {
+                    this.toggler = $('<a class="pui-panel-titlebar-icon pui-panel-titlebar-toggler ui-corner-all ui-state-default" href="#"><span class="pui-icon fa fa-fw ' + icon + '"></span></a>')
+                                .appendTo(this.header);
+                }
+                else {
+                    this.toggler = this.header.children('.pui-panel-titlebar-toggler');
+                    this.toggler.children('.pui-icon').addClass(icon);
+                }
+                
+                this.toggler.on('click.puipanel', function(e) {
+                    $this.toggle();
+                    e.preventDefault();
+                });
                                 
                 if(this.options.collapsed) {
                     this.content.hide();
@@ -7802,12 +8096,16 @@ PUI.resolveUserAgent();/**
         },
 
         _bindEvents: function() {
-            this.header.find('a.pui-panel-titlebar-icon').on('mouseenter.puipanel', function() {
+            this.header.children('a.pui-panel-titlebar-icon').on('mouseenter.puipanel', function() {
                 $(this).addClass('ui-state-hover');
             })
             .on('mouseleave.puipanel', function() {
                 $(this).removeClass('ui-state-hover');
             });
+        },
+
+        _unbindEvents: function() {
+            this.header.children('a.pui-panel-titlebar-icon').off();
         },
         
         close: function() {
@@ -7913,6 +8211,13 @@ PUI.resolveUserAgent();/**
                     'height': 'auto'
                 });
             });
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+            if(this.toggler) {
+                this.toggler.children('.pui-icon').removeClass('fa-minus fa-plus');
+            }
         }
     });
 })();/**
@@ -7931,6 +8236,11 @@ PUI.resolveUserAgent();/**
         },
        
         _create: function() {
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+
             this.element.puiinputtext().addClass('pui-password');
             
             if(!this.element.prop(':disabled')) {
@@ -7954,7 +8264,10 @@ PUI.resolveUserAgent();/**
         },
         
         _destroy: function() {
+            this.element.puiinputtext('destroy').removeClass('pui-password');
+            this._unbindEvents();
             this.panel.remove();
+            $(window).off('resize.' + this.id);
         },
         
         _bindEvents: function() {
@@ -7997,8 +8310,8 @@ PUI.resolveUserAgent();/**
             });
 
             if(!this.options.inline) {
-                var resizeNS = 'resize.' + this.element.attr('id');
-                $(window).unbind(resizeNS).bind(resizeNS, function() {
+                var resizeNS = 'resize.' + this.id;
+                $(window).off(resizeNS).on(resizeNS, function() {
                     if($this.panel.is(':visible')) {
                         $this.align();
                     }
@@ -8084,7 +8397,20 @@ PUI.resolveUserAgent();/**
         enable: function () {
             this.element.puiinputtext('enable');
             this._bindEvents();
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'disabled') {
+                if(value)
+                    this.disable();
+                else
+                    this.enable();
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
         }
+
     });
     
 })();/**
@@ -8290,7 +8616,7 @@ PUI.resolveUserAgent();/**
             .on('dblclick.pickList', function() {
                 var item = $(this);
 
-                if($(this).closest('.pui-picklist-listwrapper').hasClass('pui-picklist-source'))
+                if($(this).closest('.pui-picklist-listwrapper').hasClass('pui-picklist-source-wrapper'))
                     $this._transfer(item, $this.sourceList, $this.targetList, 'dblclick');
                 else
                     $this._transfer(item, $this.targetList, $this.sourceList, 'dblclick');
@@ -8805,21 +9131,21 @@ PUI.resolveUserAgent();/**
                 });
             }
             
-            this.element.focus(function() {
+            this.element.on('focus.puiradiobutton', function() {
                 if($this._isChecked()) {
                     $this.box.removeClass('ui-state-active');
                 }
 
                 $this.box.addClass('ui-state-focus');
             })
-            .blur(function() {
+            .on('blur.puiradiobutton', function() {
                 if($this._isChecked()) {
                     $this.box.addClass('ui-state-active');
                 }
 
                 $this.box.removeClass('ui-state-focus');
             })
-            .change(function(e) {
+            .on('change.puiradiobutton', function(e) {
                 var name = $this.element.attr('name');
                 if(checkedRadios[name]) {
                     checkedRadios[name].removeClass('ui-state-active ui-state-focus ui-state-hover').children('.pui-radiobutton-icon').removeClass('fa fa-fw fa-circle');
@@ -8841,10 +9167,11 @@ PUI.resolveUserAgent();/**
         },
 
         _unbindEvents: function () {
-            this.box.off();
+            this.box.off('mouseover.puiradiobutton mouseout.puiradiobutton click.puiradiobutton');
+            this.element.off('focus.puiradiobutton blur.puiradiobutton change.puiradiobutton');
 
-            if (this.label.length > 0) {
-                this.label.off();
+            if (this.label.length) {
+                this.label.off('click.puiradiobutton');
             }
         },
 
@@ -8856,6 +9183,13 @@ PUI.resolveUserAgent();/**
         disable: function () {
             this._unbindEvents();
             this.box.addClass('ui-state-disabled');
+        },
+
+        _destroy: function () {
+            this._unbindEvents();
+            this.container.removeClass('pui-radiobutton ui-widget');
+            this.box.remove();
+            this.element.unwrap().unwrap();
         }
     });
     
@@ -8870,7 +9204,8 @@ PUI.resolveUserAgent();/**
             stars: 5,
             cancel: true,
             readonly: false,
-            disabled: false
+            disabled: false,
+            value: 0
         },
         
         _create: function() {
@@ -8881,7 +9216,7 @@ PUI.resolveUserAgent();/**
             this.container.addClass('pui-rating');
             
             var inputVal = input.val(),
-            value = inputVal === '' ? null : parseInt(inputVal, 10);
+            value = inputVal === '' ? this.options.value : parseInt(inputVal, 10);
             
             if(this.options.cancel) {
                 this.container.append('<div class="pui-rating-cancel"><a></a></div>');
@@ -8957,9 +9292,38 @@ PUI.resolveUserAgent();/**
         },
 
         _unbindEvents: function() {
-            this.stars.off('click');
+            this.stars.off();
 
-            this.container.children('.pui-rating-cancel').off('hover click');
+            this.container.children('.pui-rating-cancel').off();
+        },
+
+        _updateValue: function(value) {
+            var stars = this.container.children('div.pui-rating-star');
+            stars.removeClass('pui-rating-star-on');
+            for(var i = 0; i < stars.length; i++) {
+                if(i < value) {
+                    stars.eq(i).addClass('pui-rating-star-on');
+                }
+            }
+
+            this.element.val(value);
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'value') {
+                this.options.value = value;
+                this._updateValue(value);
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+            this.stars.remove();
+            this.container.children('.pui-rating-cancel').remove();
+            this.element.unwrap();
         }
     });
     
@@ -9135,13 +9499,6 @@ PUI.resolveUserAgent();/**
             if(disabled) {
                 this.wrapper.addClass('ui-state-disabled');
             }
-
-            //aria
-            input.attr({
-                'role': 'spinner',
-                'aria-multiline': false,
-                'aria-valuenow': this.value
-            });
             
             if(this.options.min !== undefined) {
                 input.attr('aria-valuemin', this.options.min);
@@ -9149,14 +9506,13 @@ PUI.resolveUserAgent();/**
             if(this.options.max !== undefined){
                 input.attr('aria-valuemax', this.options.max);
             }
-            if(input.prop('disabled')) {
-                input.attr('aria-disabled', true);
-            }
-            if(input.prop('readonly')) {
-                input.attr('aria-readonly', true);
-            }
         },
-        
+
+        _destroy: function() {
+            this.element.puiinputtext('destroy').removeClass('pui-spinner-input').off('keydown.puispinner keyup.puispinner blur.puispinner focus.puispinner mousewheel.puispinner');
+            this.wrapper.children('.pui-spinner-button').off().remove();
+            this.element.unwrap();
+        },
 
         _bindEvents: function() {
             var $this = this;
@@ -9190,7 +9546,7 @@ PUI.resolveUserAgent();/**
                     e.preventDefault();
             });
 
-            this.element.keydown(function (e) {        
+            this.element.on('keydown.puispinner', function (e) {        
                 var keyCode = $.ui.keyCode;
 
                 switch(e.which) {            
@@ -9207,19 +9563,19 @@ PUI.resolveUserAgent();/**
                     break;
                 }
             })
-            .keyup(function () { 
+            .on('keyup.puispinner', function () { 
                 $this._updateValue();
             })
-            .blur(function () { 
+            .on('blur.puispinner', function () { 
                 $this._format();
             })
-            .focus(function () {
+            .on('focus.puispinner', function () {
                 //remove formatting
                 $this.element.val($this.value);
             });
 
             //mousewheel
-            this.element.bind('mousewheel', function(event, delta) {
+            this.element.on('mousewheel.puispinner', function(event, delta) {
                 if($this.element.is(':focus')) {
                     if(delta > 0) {
                         $this._spin($this.options.step);
@@ -9347,7 +9703,6 @@ PUI.resolveUserAgent();/**
             this.wrapper.children('.pui-spinner-button').off();
 
             this.element.off();
-
         },
 
         enable: function() {
@@ -9360,6 +9715,18 @@ PUI.resolveUserAgent();/**
             this.wrapper.addClass('ui-state-disabled');
             this.element.puiinputtext('disable');
             this._unbindEvents();
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'disabled') {
+                if(value)
+                    this.disable();
+                else
+                    this.enable();
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
         }
     });
 })();/**
@@ -9600,9 +9967,9 @@ PUI.resolveUserAgent();/**
             this.offLabel = this.offContainer.children('span');
             this.handle = this.container.children('.pui-inputswitch-handle');
 
-            var onContainerWidth = this.onContainer.width(),
+            var	onContainerWidth = this.onContainer.width(),
             offContainerWidth = this.offContainer.width(),
-            spanPadding = this.offLabel.innerWidth() - this.offLabel.width(),
+            spanPadding	= this.offLabel.innerWidth() - this.offLabel.width(),
             handleMargins = this.handle.outerWidth() - this.handle.innerWidth();
 
             var containerWidth = (onContainerWidth > offContainerWidth) ? onContainerWidth : offContainerWidth,
@@ -9716,54 +10083,63 @@ PUI.resolveUserAgent();/**
     $.widget("primeui.puitabview", {
        
         options: {
-            activeIndex:0,
+            activeIndex: 0,
             orientation:'top'
         },
         
         _create: function() {
             var element = this.element;
+            this.navContainer = element.children('ul');
+            this.tabHeaders = this.navContainer.children('li');
+            this.panelContainer = element.children('div');
+            this._resolvePanelMode();
+            this.panels = this._findPanels();
+
+            element.addClass('pui-tabview ui-widget ui-widget-content ui-corner-all ui-hidden-container pui-tabview-' + this.options.orientation);
+            this.navContainer.addClass('pui-tabview-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all');
+            this.tabHeaders.addClass('ui-state-default ui-corner-top');
+            this.panelContainer.addClass('pui-tabview-panels');
+            this.panels.addClass('pui-tabview-panel ui-widget-content ui-corner-bottom');
+
+            this.tabHeaders.eq(this.options.activeIndex).addClass('pui-tabview-selected ui-state-active');
+            this.panels.filter(':not(:eq(' + this.options.activeIndex + '))').addClass('ui-helper-hidden');
             
-            element.addClass('pui-tabview ui-widget ui-widget-content ui-corner-all ui-hidden-container')
-                .children('ul').addClass('pui-tabview-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all')
-                .children('li').addClass('ui-state-default ui-corner-top');
-                
-            element.addClass('pui-tabview-' + this.options.orientation);
-
-            element.children('div').addClass('pui-tabview-panels').children().addClass('pui-tabview-panel ui-widget-content ui-corner-bottom');
-
-            element.find('> ul.pui-tabview-nav > li').eq(this.options.activeIndex).addClass('pui-tabview-selected ui-state-active');
-            element.find('> div.pui-tabview-panels > div.pui-tabview-panel:not(:eq(' + this.options.activeIndex + '))').addClass('ui-helper-hidden');
-            
-            this.navContainer = element.children('.pui-tabview-nav');
-            this.panelContainer = element.children('.pui-tabview-panels');
-
             this._bindEvents();
+        },
+
+        _destroy: function() {
+            this.element.removeClass('pui-tabview ui-widget ui-widget-content ui-corner-all ui-hidden-container pui-tabview-' + this.options.orientation);
+            this.navContainer.removeClass('pui-tabview-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all');
+            this.tabHeaders.removeClass('ui-state-default ui-corner-top pui-tabview-selected ui-state-active');
+            this.panelContainer.removeClass('pui-tabview-panels');
+            this.panels.removeClass('pui-tabview-panel ui-widget-content ui-corner-bottom ui-helper-hidden').removeData('loaded');
+
+            this._unbindEvents();
         },
         
         _bindEvents: function() {
             var $this = this;
 
             //Tab header events
-            this.navContainer.children('li')
-                    .on('mouseover.tabview', function(e) {
+            this.tabHeaders.on('mouseover.puitabview', function(e) {
                         var element = $(this);
                         if(!element.hasClass('ui-state-disabled')&&!element.hasClass('ui-state-active')) {
                             element.addClass('ui-state-hover');
                         }
                     })
-                    .on('mouseout.tabview', function(e) {
+                    .on('mouseout.puitabview', function(e) {
                         var element = $(this);
                         if(!element.hasClass('ui-state-disabled')&&!element.hasClass('ui-state-active')) {
                             element.removeClass('ui-state-hover');
                         }
                     })
-                    .on('click.tabview', function(e) {
+                    .on('click.puitabview', function(e) {
                         var element = $(this);
 
                         if($(e.target).is(':not(.fa-close)')) {
                             var index = element.index();
 
-                            if(!element.hasClass('ui-state-disabled') && index != $this.options.selected) {
+                            if(!element.hasClass('ui-state-disabled') && !element.hasClass('ui-state-active')) {
                                 $this.select(index);
                             }
                         }
@@ -9773,7 +10149,7 @@ PUI.resolveUserAgent();/**
 
             //Closable tabs
             this.navContainer.find('li .fa-close')
-                .on('click.tabview', function(e) {
+                .on('click.puitabview', function(e) {
                     var index = $(this).parent().index();
 
                     $this.remove(index);
@@ -9781,15 +10157,19 @@ PUI.resolveUserAgent();/**
                     e.preventDefault();
                 });
         },
+
+        _unbindEvents: function() {
+            this.tabHeaders.off('mouseover.puitabview mouseout.puitabview click.puitabview');
+            this.navContainer.find('li .fa-close').off('click.puitabview');
+        },
         
         select: function(index) {
-           this.options.selected = index;
+           this.options.activeIndex = index;
 
-           var newPanel = this.panelContainer.children().eq(index),
-           headers = this.navContainer.children(),
-           oldHeader = headers.filter('.ui-state-active'),
-           newHeader = headers.eq(newPanel.index()),
-           oldPanel = this.panelContainer.children('.pui-tabview-panel:visible'),
+           var newPanel = this.panels.eq(index),
+           oldHeader = this.tabHeaders.filter('.ui-state-active'),
+           newHeader = this._getHeaderOfPanel(newPanel),
+           oldPanel = this.panels.filter('.pui-tabview-panel:visible'),
            $this = this;
 
            //aria
@@ -9820,27 +10200,36 @@ PUI.resolveUserAgent();/**
        },
 
        remove: function(index) {    
-           var header = this.navContainer.children().eq(index),
-           panel = this.panelContainer.children().eq(index);
+           var header = this.tabHeaders.eq(index),
+           panel = this.panels.eq(index);
 
            this._trigger('close', null, {'index':index});
 
            header.remove();
            panel.remove();
 
-           //active next tab if active tab is removed
-           if(index == this.options.selected) {
-               var newIndex = this.options.selected == this.getLength() ? this.options.selected - 1: this.options.selected;
-               this.select(newIndex);
+           this.tabHeaders = this.navContainer.children('li');
+           this.panels = this._findPanels();
+
+           if(index < this.options.activeIndex) {
+                this.options.activeIndex--;
+           }
+           else if(index == this.options.activeIndex) {
+               var newIndex = (this.options.activeIndex == this.getLength()) ? this.options.activeIndex - 1: this.options.activeIndex,
+               newHeader = this.tabHeaders.eq(newIndex),
+               newPanel = this.panels.eq(newIndex);
+               
+               newHeader.removeClass('ui-state-hover').addClass('pui-tabview-selected ui-state-active');
+               newPanel.show(); 
            }
        },
 
        getLength: function() {
-           return this.navContainer.children().length;
+           return this.tabHeaders.length;
        },
 
        getActiveIndex: function() {
-           return this.options.selected;
+           return this.options.activeIndex;
        },
 
        _markAsLoaded: function(panel) {
@@ -9852,12 +10241,46 @@ PUI.resolveUserAgent();/**
        },
 
        disable: function(index) {
-           this.navContainer.children().eq(index).addClass('ui-state-disabled');
+           this.tabHeaders.eq(index).addClass('ui-state-disabled');
        },
 
        enable: function(index) {
-           this.navContainer.children().eq(index).removeClass('ui-state-disabled');
-       }
+           this.tabHeaders.eq(index).removeClass('ui-state-disabled');
+       },
+
+       _findPanels: function() {
+            var containers = this.panelContainer.children();
+
+            //primeui
+            if(this.panelMode === 'native') {
+                return containers;
+            }
+            //primeng
+            else if(this.panelMode === 'wrapped') {
+                return containers.children(':first-child');
+            }
+       },
+
+       _resolvePanelMode: function() {
+            var containers = this.panelContainer.children();
+            this.panelMode = containers.is('div') ? 'native' : 'wrapped';
+       },
+
+       _getHeaderOfPanel: function(panel) {
+            if(this.panelMode === 'native')
+                return this.tabHeaders.eq(panel.index());
+            else if(this.panelMode === 'wrapped')
+                return this.tabHeaders.eq(panel.parent().index());
+       },
+
+      _setOption: function(key, value) {
+            if(key === 'activeIndex') {
+                this.select(value);
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
+        }
 
     });
 })();/**
@@ -9965,7 +10388,8 @@ PUI.resolveUserAgent();/**
             onLabel: 'Yes',
             offLabel: 'No',
             onIcon: null,
-            offIcon: null
+            offIcon: null,
+            checked: false
         },
        
         _create: function() {
@@ -9994,7 +10418,7 @@ PUI.resolveUserAgent();/**
             this.icon = this.container.children('.pui-icon');
             
             //initial state
-            if(this.element.prop('checked')) {
+            if(this.element.prop('checked')||this.options.checked) {
                 this.check(true);
             } else {
                 this.uncheck(true);
@@ -10008,31 +10432,31 @@ PUI.resolveUserAgent();/**
         _bindEvents: function() {
             var $this = this;
             
-            this.container.on('mouseover', function() {
+            this.container.on('mouseover.puitogglebutton', function() {
                 if(!$this.container.hasClass('ui-state-active')) {
                     $this.container.addClass('ui-state-hover');
                 }
-            }).on('mouseout', function() {
+            }).on('mouseout.puitogglebutton', function() {
                 $this.container.removeClass('ui-state-hover');
             })
-            .on('click', function() {
+            .on('click.puitogglebutton', function() {
                 $this.toggle();
                 $this.element.trigger('focus');
             });
             
-            this.element.on('focus', function() {            
+            this.element.on('focus.puitogglebutton', function() {            
                 $this.container.addClass('ui-state-focus');
             })
-            .on('blur', function() {            
+            .on('blur.puitogglebutton', function() {            
                 $this.container.removeClass('ui-state-focus');
             })
-            .on('keydown', function(e) {
+            .on('keydown.puitogglebutton', function(e) {
                 var keyCode = $.ui.keyCode;
                 if(e.which === keyCode.SPACE) {
                     e.preventDefault();
                 }
             })
-            .on('keyup', function(e) {
+            .on('keyup.puitogglebutton', function(e) {
                 var keyCode = $.ui.keyCode;
                 if(e.which === keyCode.SPACE) {
                     $this.toggle();
@@ -10043,8 +10467,8 @@ PUI.resolveUserAgent();/**
         },
         
         _unbindEvents: function() {
-            this.container.off('mouseover mouseout click');
-            this.element.off('focus blur keydown keyup');
+            this.container.off('mouseover.puitogglebutton mouseout.puitogglebutton click.puitogglebutton');
+            this.element.off('focus.puitogglebutton blur.puitogglebutton keydown.puitogglebutton keyup.puitogglebutton');
         },
         
         toggle: function() {
@@ -10052,8 +10476,6 @@ PUI.resolveUserAgent();/**
                 this.uncheck();
             else
                 this.check();
-            
-            this._trigger('change', null, this.element.prop('checked'));
         },
 
         check: function(silent) {
@@ -10066,7 +10488,7 @@ PUI.resolveUserAgent();/**
             }
 
             if(!silent) {
-                this.element.trigger('change');
+                this._trigger('change', null, {checked: true});
             }
         },
 
@@ -10080,7 +10502,7 @@ PUI.resolveUserAgent();/**
             }
 
             if(!silent) {
-                this.element.trigger('change');
+                this._trigger('change', null, {checked: false});
             }
         },
         
@@ -10100,6 +10522,31 @@ PUI.resolveUserAgent();/**
         
         isChecked: function() {
             return this.element.prop('checked');
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'checked') {
+                this.options.checked = value;
+                if(value)
+                    this.check(true);
+                else
+                    this.uncheck(true);
+            }
+            else if(key === 'disabled') {
+                if(value)
+                    this.disable();
+                else
+                    this.enable();
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+            this.container.children('span').remove();
+            this.element.removeClass('ui-helper-hidden-accessible').unwrap();
         }
         
     });

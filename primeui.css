@@ -1,7 +1,7 @@
 /*
- * PrimeUI 3.0.0
+ * PrimeUI 3.0.1
  * 
- * Copyright 2009-2016 PrimeTek.
+ * Copyright 2009-2015 PrimeTek.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,65 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ */
+/* Commonly used style classes */
+
+/*! jQuery UI - v1.9.2 - 2012-11-23
+* Copyright (c) 2012 jQuery Foundation and other contributors Licensed MIT */
+
+/* Layout helpers
+----------------------------------*/
+.ui-helper-hidden { display: none; }
+.ui-helper-hidden-accessible { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; }
+.ui-helper-reset { margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none; }
+.ui-helper-clearfix:before, .ui-helper-clearfix:after { content: ""; display: table; }
+.ui-helper-clearfix:after { clear: both; }
+.ui-helper-clearfix { zoom: 1; }
+.ui-helper-zfix { width: 100%; height: 100%; top: 0; left: 0; position: absolute; opacity: 0; filter:Alpha(Opacity=0); }
+
+
+/* Interaction Cues
+----------------------------------*/
+.ui-state-disabled { cursor: default !important; }
+
+
+/* Icons
+----------------------------------*/
+
+/* states and images */
+.ui-icon { display: block; text-indent: -99999px; overflow: hidden; background-repeat: no-repeat; }
+
+
+/* Misc visuals
+----------------------------------*/
+
+/* Overlays */
+.ui-widget-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+/*!
+ * jQuery UI Resizable 1.9.2
+ * http://jqueryui.com
+ *
+ * Copyright 2012 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://docs.jquery.com/UI/Resizable#theming
+ */
+.ui-resizable { position: relative;}
+.ui-resizable-handle { position: absolute;font-size: 0.1px; display: block; }
+.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none; }
+.ui-resizable-n { cursor: n-resize; height: 7px; width: 100%; top: -5px; left: 0; }
+.ui-resizable-s { cursor: s-resize; height: 7px; width: 100%; bottom: -5px; left: 0; }
+.ui-resizable-e { cursor: e-resize; width: 7px; right: -5px; top: 0; height: 100%; }
+.ui-resizable-w { cursor: w-resize; width: 7px; left: -5px; top: 0; height: 100%; }
+.ui-resizable-se { cursor: se-resize; width: 12px; height: 12px; right: 1px; bottom: 1px; }
+.ui-resizable-sw { cursor: sw-resize; width: 9px; height: 9px; left: -5px; bottom: -5px; }
+.ui-resizable-nw { cursor: nw-resize; width: 9px; height: 9px; left: -5px; top: -5px; }
+.ui-resizable-ne { cursor: ne-resize; width: 9px; height: 9px; right: -5px; top: -5px;}
+
+/**
+ * PrimeUI Core
  */
 .pui-shadow {
     -moz-box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
@@ -427,7 +486,7 @@ button.pui-button::-moz-focus-inner {
 }
 
 .pui-datatable table {
-    border-collapse:collapse;
+	border-collapse:collapse;
     width: 100%;
     table-layout: fixed;
 }
@@ -636,11 +695,11 @@ button.pui-button::-moz-focus-inner {
         display: block;
         border: 0px none;
         width: 100%;
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;
-        float: left;
-        clear: left;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+		float: left;
+		clear: left;
     }
     
     .pui-datatable-reflow .pui-datatable-data.ui-widget-content {
@@ -659,12 +718,12 @@ button.pui-button::-moz-focus-inner {
         margin: -.4em 1em -.4em -.4em;
     }
 }.pui-datagrid .pui-paginator {
-    text-align: center;
+	text-align: center;
     border-top: 0px none;
 }
 
 .pui-datagrid-column {
-    padding: 3px;
+	padding: 3px;
 }
 
 .pui-datagrid-content-empty {
@@ -949,11 +1008,11 @@ button.pui-button::-moz-focus-inner {
 }
 
 .pui-galleria-nav-next, .pui-galleria-nav-prev {
-    cursor: pointer;
+	cursor: pointer;
     position: absolute;
 }
 
-.pui-galleria-nav-prev {    
+.pui-galleria-nav-prev {	
     left: 5px;
 }
 
@@ -974,62 +1033,62 @@ button.pui-button::-moz-focus-inner {
     padding: 1em 1.4em;
 }/* ie6 */
 * html .pui-growl {
-    position:absolute; 
+	position:absolute; 
 }
 * html .pui-growl-item {
-    padding-bottom:0;
+	padding-bottom:0;
 }
 * html .pui-growl-icon-close {
-    top:7px;
-    right:7px;
+	top:7px;
+	right:7px;
 }
 
 .pui-growl {
-    position:fixed;
-    top:20px;
-    right:20px;
-    width:301px;
+	position:fixed;
+	top:20px;
+	right:20px;
+	width:301px;
 }
 .pui-growl-item-container {
-    position:relative;
-    margin:0 0 10px 0;
-    opacity:0.85;
-    filter:alpha(opacity=85);
+	position:relative;
+	margin:0 0 10px 0;
+	opacity:0.85;
+	filter:alpha(opacity=85);
 }
 .pui-growl-item {
-    display:block;
-    padding:10px 15px;
+	display:block;
+	padding:10px 15px;
 }
 .pui-growl-item p {
-    padding:0;
-    margin:0;
+	padding:0;
+	margin:0;
 }
 .pui-growl-icon-close {
-    position:absolute;
-    top:5px;
-    right:3px;
-    cursor:pointer;
+	position:absolute;
+	top:5px;
+	right:3px;
+	cursor:pointer;
 }
 .pui-growl-title {
-    font-weight:bold;
-    padding:0 0 7px 0;
-    display:block;
+	font-weight:bold;
+	padding:0 0 7px 0;
+	display:block;
 }
 .pui-growl-image {
-    float:left;
+	float:left;
     margin-left: 5px;
     padding:0;
     display: block;
 }
 
 .pui-growl-message {
-    padding:0 0 5px 0;
-    width:220px;
-    float:right;
+	padding:0 0 5px 0;
+	width:220px;
+	float:right;
 }
 
 .pui-growl-message p {
-    font-weight: normal;
+	font-weight: normal;
 }/* Grid CSS */
 .pui-grid {
     clear: both;
@@ -1687,11 +1746,11 @@ button.pui-button::-moz-focus-inner {
     padding: 2px 10px;
     border-bottom: 0px none;
 }.pui-notify {
-    position: fixed;
-    width: 100%;
-    height: 100px;
-    display: none;
-    padding: 10px;
+	position: fixed;
+	width: 100%;
+	height: 100px;
+	display: none;
+	padding: 10px;
 }
 
 .pui-notify-top {
@@ -1703,10 +1762,10 @@ button.pui-button::-moz-focus-inner {
 }
  
 .pui-notify-close {
-    position: absolute;
-    right: 3em;
-    top: 1em;
-    cursor: pointer;
+	position: absolute;
+	right: 3em;
+	top: 1em;
+	cursor: pointer;
     opacity: 0.5;
 }
 
@@ -1818,13 +1877,13 @@ button.pui-button::-moz-focus-inner {
 .pui-paginator .pui-paginator-first,
 .pui-paginator .pui-paginator-prev,
 .pui-paginator .pui-paginator-current {
-    display: inline-block;
-    padding: 2px 6px;
-    zoom: 1;
-    margin-left: 1px;
-    margin-right: 1px;
-    text-decoration: none;
-    outline: none;
+	display: inline-block;
+	padding: 2px 6px;
+	zoom: 1;
+	margin-left: 1px;
+	margin-right: 1px;
+	text-decoration: none;
+	outline: none;
 }
 
 .pui-paginator .pui-paginator-page,
@@ -1837,8 +1896,8 @@ button.pui-button::-moz-focus-inner {
 
 .pui-paginator .pui-paginator-current,
 .pui-paginator .pui-paginator-rpp-options {
-    margin-left: 1em;
-    margin-right: 1em;
+	margin-left: 1em;
+	margin-right: 1em;
     background-image: none;
 }
 
@@ -1846,8 +1905,8 @@ button.pui-button::-moz-focus-inner {
 .pui-paginator .pui-paginator-prev .ui-icon,
 .pui-paginator .pui-paginator-first .ui-icon,
 .pui-paginator .pui-paginator-last .ui-icon {
-    height: auto;
-    overflow: inherit;
+	height: auto;
+	overflow: inherit;
 }
 
 .pui-paginator .pui-paginator-jtp-select option,
@@ -1858,41 +1917,41 @@ button.pui-button::-moz-focus-inner {
     -moz-box-shadow: none;
     -webkit-box-shadow: none;
 }.pui-panel {
-    padding: 0.2em;
+	padding: 0.2em;
 }
 
 .pui-panel .pui-panel-titlebar {
-    padding: 0.5em 1em 0.3em;
+	padding: 0.5em 1em 0.3em;
 }
 
 .pui-panel .pui-panel-title {
-    margin: 0.1em 16px 0.2em 0;
+	margin: 0.1em 16px 0.2em 0;
 }
 
 .pui-panel .pui-panel-titlebar-icon {
-    float: right;
+	float: right;
     cursor: pointer;
 }
 
 .pui-panel .pui-panel-titlebar-icon,
 .pui-panel .pui-panel-titlebar-icon:hover,
 .pui-panel .pui-panel-titlebar-icon:focus {
-    margin-left:0.2em;
+	margin-left:0.2em;
     margin-top:-0.1em;
     *margin:-1.5em 0em 0em 0.2em;
 }
 
 .pui-panel .pui-panel-content {
-    border: 0;
+	border: 0;
     background: none;
-    padding: 0.5em 1em;
+	padding: 0.5em 1em;
 }
 
 .pui-panel .pui-panel-footer {
-    border-width:1px 0 0;
-    margin:0.5em 0 0;
-    padding:0.5em 1em;
-    text-align:left;
+	border-width:1px 0 0;
+	margin:0.5em 0 0;
+	padding:0.5em 1em;
+	text-align:left;
 }
 
 .pui-panel-collapsed-h .pui-panel-titlebar-icon,
@@ -2296,12 +2355,12 @@ button.pui-button::-moz-focus-inner {
     -webkit-box-sizing:border-box;
     -moz-box-sizing: border-box;
 }.pui-inputswitch {
-    display: inline-block;
-    padding: 0;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    user-select: none;
+	display: inline-block;
+	padding: 0;
+	position: relative;
+	overflow: hidden;
+	cursor: pointer;
+	user-select: none;
     -moz-user-select: none;
     -khtml-user-select: none;
     -webkit-user-select: none;
@@ -2310,52 +2369,52 @@ button.pui-button::-moz-focus-inner {
 
 .pui-inputswitch .pui-inputswitch-on,
 .pui-inputswitch .pui-inputswitch-off {
-    white-space: nowrap;
+	white-space: nowrap;
     display: block;
     position: absolute;
-    top: 0;
+	top: 0;
     width: auto;
     overflow: hidden;
     user-select: none;
     -moz-user-select: none;
     -khtml-user-select: none;
     -webkit-user-select: none;
-    font-weight: bold;
-    height: 20px;
-    padding-top: 4px;
+	font-weight: bold;
+	height: 20px;
+	padding-top: 4px;
 }
 
 .pui-inputswitch .pui-inputswitch-off {
-    right: 0;
-    text-align: right;
+	right: 0;
+	text-align: right;
 }
 
 .pui-inputswitch .pui-inputswitch-off span {
-    display: inline-block;
-    text-align: center;
-    padding-left: 2px;
-    padding-right: 3px;
+	display: inline-block;
+	text-align: center;
+	padding-left: 2px;
+	padding-right: 3px;
 }
 
 .pui-inputswitch .pui-inputswitch-on {
-    left: 0;
-    padding-right: 4px;
+	left: 0;
+	padding-right: 4px;
     border: 0 none;
 }
 
 .pui-inputswitch .pui-inputswitch-on span {
-    display: inline-block;
-    text-align: center;
-    padding-left: 3px;
-    padding-right: 2px;
+	display: inline-block;
+	text-align: center;
+	padding-left: 3px;
+	padding-right: 2px;
 }
 
 .pui-inputswitch .pui-inputswitch-handle {
-    display: block;
-    width: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
+	display: block;
+	width: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
     height: 24px;
     border-top: 0 none;
     border-bottom: 0 none;
@@ -2588,7 +2647,7 @@ button.pui-button::-moz-focus-inner {
     display: inline-block;
     zoom: 1;
 }.pui-treetable table {
-    border-collapse:collapse;
+	border-collapse:collapse;
     width: 100%;
     table-layout: fixed;
 }
