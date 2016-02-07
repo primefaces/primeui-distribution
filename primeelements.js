@@ -1,5 +1,5 @@
 /*
- * PrimeUI 3.0.1
+ * PrimeUI 3.0.2
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -227,6 +227,12 @@ if(!xtag.tags['p-accordion']) {
             },
             renderdelay: {
                 attribute: {}
+            },
+            style: {
+                attribute: {}
+            },
+            styleclass: {
+                attribute: {}
             }
         },
 
@@ -262,8 +268,10 @@ if(!xtag.tags['p-accordion']) {
                     easing: this.easing||'easeInOutCirc',
                     pageLinks: this.pagelinks ? parseInt(this.pagelinks): 3,
                     template: $(this).children('script'),
-                    pageChange: this.onpagechange ? function(event, param) {PUI.executeFunctionByName($this.onpagechange, event, param);} : null
-                });     
+                    pageChange: this.onpagechange ? function(event, param) {PUI.executeFunctionByName($this.onpagechange, event, param);} : null,
+                    style: this.style,
+                    styleClass: this.styleClass
+                });
             }
         }
     });
@@ -660,6 +668,216 @@ if(!xtag.tags['p-datagrid']) {
         }
     });
     
+}if(!xtag.tags['p-datepicker']) {
+ 
+    xtag.register('p-datepicker', {
+
+        accessors: {
+            altfield: {
+                attribute:{}
+            },
+            altformat: {
+                attribute:{}
+            },
+            autosize: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            beforeshow: {
+                attribute:{}
+            },
+            beforeshowday: {
+                attribute:{}
+            },
+            calculateweek: {
+                attribute:{}
+            },
+            changemonth: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            changeyear: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            constraininput: {
+                attribute:{}
+            },
+            dateformat: {
+                attribute:{}
+            },
+            defaultdate: {
+                attribute:{}
+            },
+            disabled: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            duration: {
+                attribute:{}
+            },
+            gotocurrent: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            hideifnoprevnext: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            inline: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            maxdate: {
+                attribute:{}
+            },
+            mindate: {
+                attribute:{}
+            },
+            navigationasdateformat: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            numberofmonths: {
+                attribute:{}
+            },
+            onchangemonthyear: {
+                attribute:{}
+            },
+            onclose: {
+                attribute:{}
+            },
+            onselect: {
+                attribute:{}
+            },
+            selectothermonths: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            shortyearcutoff: {
+                attribute:{}
+            },
+            showanim: {
+                attribute:{}
+            },
+            showbuttonpanel: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            showcurrentatpos: {
+                attribute:{}
+            },
+            showon: {
+                attribute:{}
+            },
+            showothermonths: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            showweek: {
+                attribute:{
+                    boolean:true
+                }
+            },
+            stepmonths: {
+                attribute:{}
+            },
+            yearrange: {
+                attribute:{}
+            },
+            yearsuffix: {
+                attribute:{}
+            }
+        },
+
+        lifecycle: {
+            created: function() {
+                var $this = this;
+
+                if(this.inline) {
+                    this.xtag.container = $(this).append('<div></div>').children('div');
+                }
+                else {
+                    this.xtag.container = $(this).append('<input />').children('input');
+                }
+
+                this.xtag.container.datepicker({
+                    altField: this.altfield ? document.getElementById(this.altField): null,
+                    altFormat: this.altformat||'',
+                    autoSize: this.autosize,
+                    beforeShow: this.beforeshow||null,
+                    beforeShowDay: this.beforeshowday||null,
+                    buttonText: '',
+                    calculateWeek: this.calculateweek||undefined,
+                    changeMonth: this.changemonth,
+                    changeYear: this.changeyear,
+                    constrainInput: this.constraininput !== null ? JSON.parse(this.constrainInput) : true,
+                    defaultDate: this.defaultdate||null,
+                    dateFormat: this.dateformat||'mm/dd/yy',
+                    duration: this.duration||'fast',
+                    gotoCurrent: this.gotocurrent,
+                    hideIfNoPrevNext: this.hideifnoprevnext,
+                    maxDate: this.maxdate||null,
+                    minDate: this.mindate||null,
+                    navigationAsDateFormat: this.navigationasdateformat,
+                    numberOfMonths: this.numberofmonths ? parseInt(this.numberOfMonths) : 1,
+                    onChangeMonthYear: this.onchangeMonthYear ? function(event, value){PUI.executeFunctionByName($this.onchangemonthyear, event, value);} : null,
+                    onClose: this.onclose ? function(event, value){PUI.executeFunctionByName($this.onclose, event, value);} : null,
+                    onSelect: this.onselect ? function(event, value){PUI.executeFunctionByName($this.onselect, event, value);} : null,
+                    selectOtherMonths: this.selectothermonths,
+                    shortYearCutoff: this.shortyearcutoff||'+10',
+                    showAnim: this.showanim||'fadeIn',
+                    showButtonPanel: this.showbuttonpanel,
+                    showCurrentAtPos: this.showcurrentatpos ? parseInt(this.showCurrentAtPos) : 0,
+                    showOn: this.showon||'focus',
+                    showOtherMonths: this.showothermonths,
+                    showWeek: this.showweek,
+                    stepMonths: this.stepmonths ? parseInt(this.stepMonths) : 1,
+                    yearSuffix: this.yearsuffix||'',
+                    yearRange: this.yearrange||'c-10:c+10'
+                });
+
+                if(this.showon !== 'focus' && !this.inline) {
+                    $(this).children('button').puibutton({icon:'fa fa-calendar'});
+                }
+
+                if(this.disabled) {
+                    this.disable();
+                }
+            }
+        },
+
+        methods: {
+            disable: function() {
+                this.xtag.container.prop('disabled', true);
+                if(this.showon !== 'focus' && !this.inline) {
+                    this.xtag.container.siblings('.ui-datepicker-trigger:button').prop('disabled', true).addClass('ui-state-disabled');
+                }
+            },
+            enable: function() {
+                this.xtag.container.prop('disabled', false);
+                if(this.showon !== 'focus' && !this.inline) {
+                    this.xtag.container.siblings('.ui-datepicker-trigger:button').prop('disabled', false).removeClass('ui-state-disabled');
+                }
+            },
+            getDate: function() {
+                return this.xtag.container.datepicker('getDate');
+            }
+        }
+        
+    });
+    
 }if(!xtag.tags['p-dialog']) {
  
     xtag.register('p-dialog', {
@@ -850,6 +1068,12 @@ if(!xtag.tags['p-datagrid']) {
             },
             onchange: {
                 attribute: {}
+            },
+            style: {
+                attribute: {}
+            },
+            styleclass: {
+                attribute: {}
             }
         },
 
@@ -879,7 +1103,9 @@ if(!xtag.tags['p-datagrid']) {
                     filterfunction: this.filterfunction,
                     scrollHeight: this.scrollheight ? parseInt(this.scrollheight) : 200,
                     appendTo: this.appendto||'body',
-                    change: this.onchange ? function(event) {PUI.executeFunctionByName($this.onchange, event);} : null
+                    change: this.onchange ? function(event) {PUI.executeFunctionByName($this.onchange, event);} : null,
+                    style: this.style,
+                    styleClass: this.styleclass
                 });
             }
         },
@@ -1023,6 +1249,9 @@ if(!xtag.tags['p-datagrid']) {
             },
             life: {
                 attribute:{}
+            },
+            appendto: {
+                attribute: {}
             }
         },
 
@@ -1031,8 +1260,9 @@ if(!xtag.tags['p-datagrid']) {
                 this.xtag.growl = $(this).append('<div></div>').children('div');
 
                 $(this.xtag.growl).puigrowl({
-                    life: this.life || 3000,
-                    sticky: this.sticky
+                    life: this.life||3000,
+                    sticky: this.sticky,
+                    appendTo: this.appendTo ? document.getElementById(this.appendto) : undefined
                 });
             }
         },
@@ -2437,6 +2667,18 @@ if(!xtag.tags['p-messages']) {
             },
             destroy: function() {
                 this.xtag.container.slider('destroy');
+            },
+            getValue: function() {
+                if(this.range)
+                    return this.xtag.container.slider('values');
+                else
+                    return this.xtag.container.slider('value');
+            },
+            setValue: function(val) {
+                if(this.range)
+                    this.xtag.container.slider('values', val);
+                else
+                    this.xtag.container.slider('value', val);
             }
         }
         

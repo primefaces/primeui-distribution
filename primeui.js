@@ -1,5 +1,5 @@
 /*
- * PrimeUI 3.0.1
+ * PrimeUI 3.0.2
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -947,12 +947,12 @@ PUI.resolveUserAgent();/**
         
         disable: function() {
             this._unbindEvents();
-            this.addClass('ui-state-disabled');
+            this.element.addClass('ui-state-disabled').prop('disabled',true);
         },
         
         enable: function() {
             if(this.element.prop('disabled')) {
-                this._bindEvents();           
+                this._bindEvents();
                 this.element.prop('disabled', false).removeClass('ui-state-disabled');
             }
         },
@@ -990,8 +990,10 @@ PUI.resolveUserAgent();/**
             autoplayInterval: 0,
             easing: 'easeInOutCirc',
             pageLinks: 3,
+            style: null,
             styleClass: null,
-            template: null
+            template: null,
+            enhanced: false
         },
        
         _create: function() {
@@ -999,16 +1001,18 @@ PUI.resolveUserAgent();/**
             if(!this.id) {
                 this.id = this.element.uniqueId().attr('id');
             }
-            
-            //create elements
-            this.element.wrap('<div class="pui-carousel ui-widget ui-widget-content ui-corner-all"><div class="pui-carousel-viewport"></div></div>');
+
+            if(!this.options.enhanced) {
+                this.element.wrap('<div class="pui-carousel ui-widget ui-widget-content ui-corner-all"><div class="pui-carousel-viewport"></div></div>');
+            }
+
             this.container = this.element.parent().parent();
             this.element.addClass('pui-carousel-items');
-            this.container.prepend('<div class="pui-carousel-header ui-widget-header"><div class="pui-carousel-header-title"></div></div>');
             this.viewport = this.element.parent();
+            this.container.prepend('<div class="pui-carousel-header ui-widget-header"><div class="pui-carousel-header-title"></div></div>');
             this.header = this.container.children('.pui-carousel-header');
-            this.header.append('<span class="pui-carousel-button pui-carousel-next-button fa fa-arrow-circle-right"></span>' + 
-                                '<span class="pui-carousel-button pui-carousel-prev-button fa fa-arrow-circle-left"></span>');
+            this.header.append('<span class="pui-carousel-button pui-carousel-next-button fa fa-arrow-circle-right"></span>' +
+                '<span class="pui-carousel-button pui-carousel-prev-button fa fa-arrow-circle-left"></span>');
                 
             if(this.options.headerText) {
                 this.header.children('.pui-carousel-header-title').html(this.options.headerText);
@@ -1017,11 +1021,30 @@ PUI.resolveUserAgent();/**
             if(this.options.styleClass) {
                 this.container.addClass(this.options.styleClass);
             }
+
+            if(this.options.style) {
+                this.container.attr('style', this.options.style);
+            }
             
             if(this.options.datasource)
                 this._loadData();
             else
                 this._render();
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+            this.header.remove();
+            this.items.removeClass('pui-carousel-item ui-widget-content ui-corner-all').css('width','auto');
+            this.element.removeClass('pui-carousel-items').css('left','auto');
+
+            if(!this.options.enhanced) {
+                this.element.unwrap().unwrap();
+            }
+
+            if(this.options.datasource) {
+                this.items.remove();
+            }
         },
         
         _loadData: function() {
@@ -1164,37 +1187,39 @@ PUI.resolveUserAgent();/**
                 }
             });
 
-            this.element.swipe({
-                swipe:function(event, direction) {
-                    if(direction === 'left') {
-                        if($this.page === ($this.totalPages - 1)) {
-                            if($this.options.circular)
-                                $this.setPage(0);
+            if($.swipe) {
+                this.element.swipe({
+                    swipe:function(event, direction) {
+                        if(direction === 'left') {
+                            if($this.page === ($this.totalPages - 1)) {
+                                if($this.options.circular)
+                                    $this.setPage(0);
+                            }
+                            else {
+                                $this.setPage($this.page + 1);
+                            }
                         }
-                        else {
-                            $this.setPage($this.page + 1);
+                        else if(direction === 'right') {
+                            if($this.page === 0) {
+                                if($this.options.circular)
+                                    $this.setPage($this.totalPages - 1);
+                            }
+                            else {
+                                $this.setPage($this.page - 1);
+                            }
                         }
                     }
-                    else if(direction === 'right') {
-                        if($this.page === 0) {
-                            if($this.options.circular)
-                                $this.setPage($this.totalPages - 1);
-                        }
-                        else {
-                            $this.setPage($this.page - 1);
-                        }
-                    }
-                }
-            });
+                });
+            }
 
             if(this.pageLinks.length) {
-                this.pageLinks.on('click', function(e) {
+                this.pageLinks.on('click.puicarousel', function(e) {
                     $this.setPage($(this).index());
                     e.preventDefault();
                 });
             }
 
-            this.header.children('select').on('change', function() {
+            this.header.children('select').on('change.puicarousel', function() {
                 $this.setPage(parseInt($(this).val()) - 1);
             });
 
@@ -1211,6 +1236,23 @@ PUI.resolveUserAgent();/**
             }
             
             this.eventsBound = true;
+        },
+
+        _unbindEvents: function() {
+            this.prevNav.off('click.puicarousel');
+            this.nextNav.off('click.puicarousel');
+            if(this.pageLinks.length) {
+                this.pageLinks.off('click.puicarousel');
+            }
+            this.header.children('select').off('change.puicarousel');
+
+            if(this.options.autoplayInterval) {
+                this.stopAutoplay();
+            }
+
+            if(this.options.responsive) {
+                $(window).off('resize.' + this.id)
+            }
         },
 
         updateNavigators: function() {
@@ -1870,20 +1912,20 @@ PUI.resolveUserAgent();/**
                     result = null;
                     
                     if (typeof value1 == 'string' || value1 instanceof String) {
-                    	if ( value1.localeCompare ) {
-                    		return (order * value1.localeCompare(value2));
-                    	}
-                    	else {
-                        	if (value1.toLowerCase) {
-                            	value1 = value1.toLowerCase();
+                        if ( value1.localeCompare ) {
+                            return (order * value1.localeCompare(value2));
+                        }
+                        else {
+                            if (value1.toLowerCase) {
+                                value1 = value1.toLowerCase();
                             }
                             if (value2.toLowerCase) {
-                            	value2 = value2.toLowerCase();
+                                value2 = value2.toLowerCase();
                             }
                             result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
                             
                             
-                    	}
+                        }
                     }
                     else {
                         result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
@@ -3130,7 +3172,7 @@ PUI.resolveUserAgent();/**
         },
 
         setTotalRecords: function(val) {
-            this.paginator.puipaginator('option','totalRecords', 20);
+            this.paginator.puipaginator('option','totalRecords', val);
         },
 
         _createFilterMap: function() {
@@ -4179,7 +4221,7 @@ PUI.resolveUserAgent();/**
 (function() {
 
     $.widget("primeui.puidropdown", {
-       
+
         options: {
             effect: 'fade',
             effectSpeed: 'normal',
@@ -4191,60 +4233,104 @@ PUI.resolveUserAgent();/**
             content: null,
             scrollHeight: 200,
             appendTo: 'body',
-            editable:false
+            editable: false,
+            value: null,
+            style: null,
+            styleClass: null
         },
 
         _create: function() {
-            if(this.options.data) {
-                for(var i = 0; i < this.options.data.length; i++) {
-                    var choice = this.options.data[i];
-                    if(choice.label)
-                        this.element.append('<option value="' + choice.value + '">' + choice.label + '</option>');
-                    else
-                        this.element.append('<option value="' + choice + '">' + choice + '</option>');
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+
+            if(!this.options.enhanced) {
+                if(this.options.data) {
+                    for(var i = 0; i < this.options.data.length; i++) {
+                        var choice = this.options.data[i];
+                        if(choice.label)
+                            this.element.append('<option value="' + choice.value + '">' + choice.label + '</option>');
+                        else
+                            this.element.append('<option value="' + choice + '">' + choice + '</option>');
+                    }
+                }
+                this.choices = this.element.children('option');
+                this.element.attr('tabindex', '-1').wrap('<div class="pui-dropdown ui-widget ui-state-default ui-corner-all ui-helper-clearfix" />')
+                    .wrap('<div class="ui-helper-hidden-accessible" />');
+
+                this.container = this.element.closest('.pui-dropdown');
+                this.focusElementContainer = $('<div class="ui-helper-hidden-accessible"><input type="text" /></div>').appendTo(this.container);
+                this.focusElement = this.focusElementContainer.children('input');
+                this.label = this.options.editable ? $('<input type="text" class="pui-dropdown-label pui-inputtext ui-corner-all"">')
+                    : $('<label class="pui-dropdown-label pui-inputtext ui-corner-all"/>');
+                this.label.appendTo(this.container);
+                this.menuIcon = $('<div class="pui-dropdown-trigger ui-state-default ui-corner-right"><span class="pui-icon fa fa-fw fa-caret-down"></span></div>')
+                    .appendTo(this.container);
+
+                //panel
+                this.panel = $('<div class="pui-dropdown-panel ui-widget-content ui-corner-all ui-helper-hidden pui-shadow" />');
+                this.itemsWrapper = $('<div class="pui-dropdown-items-wrapper" />').appendTo(this.panel);
+                this.itemsContainer = $('<ul class="pui-dropdown-items pui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>')
+                    .appendTo(this.itemsWrapper);
+
+                this.optGroupsSize = this.itemsContainer.children('li.puiselectonemenu-item-group').length;
+
+                if(this.options.filter) {
+                    this.filterContainer = $('<div class="pui-dropdown-filter-container" />').prependTo(this.panel);
+                    this.filterInput = $('<input type="text" autocomplete="off" class="pui-dropdown-filter pui-inputtext ui-widget ui-state-default ui-corner-all" />')
+                        .appendTo(this.filterContainer);
+                    this.filterContainer.append('<span class="pui-icon fa fa-search"></span>');
+                }
+
+                this._generateItems();
+            }
+            else {
+                this.choices = this.element.children('option');
+                this.container = this.element.closest('.pui-dropdown');
+                this.focusElementContainer = this.container.children('.ui-helper-hidden-accessible:last');
+                this.focusElement = this.focusElementContainer.children('input');
+                this.label = this.container.children('.pui-dropdown-label');
+                this.menuIcon = this.container.children('.pui-dropdown-trigger');
+                this.panel = this.container.children('.pui-dropdown-panel');
+                this.itemsWrapper = this.panel.children('.pui-dropdown-items-wrapper');
+                this.itemsContainer = this.itemsWrapper.children('ul');
+                this.itemsContainer.addClass('pui-dropdown-items pui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset');
+                this.items = this.itemsContainer.children('li').addClass('pui-dropdown-item pui-dropdown-list-item ui-corner-all');
+
+                if(this.options.filter) {
+                    this.filterContainer = this.panel.children('.pui-dropdown-filter-container');
+                    this.filterInput = this.filterContainer.children('input');
                 }
             }
-            
-            this.element.wrap('<div class="pui-dropdown ui-widget ui-state-default ui-corner-all ui-helper-clearfix" />')
-                    .wrap('<div class="ui-helper-hidden-accessible" />');
-            this.container = this.element.closest('.pui-dropdown');
-            this.focusElementContainer = $('<div class="ui-helper-hidden-accessible"><input type="text" /></div>').appendTo(this.container);
-            this.focusElement = this.focusElementContainer.children('input');
-            this.label = this.options.editable ? $('<input type="text" class="pui-dropdown-label pui-inputtext ui-corner-all"">') 
-                                : $('<label class="pui-dropdown-label pui-inputtext ui-corner-all"/>');
-            this.label.appendTo(this.container);
-            this.menuIcon = $('<div class="pui-dropdown-trigger ui-state-default ui-corner-right"><span class="pui-icon fa fa-fw fa-caret-down"></span></div>')
-                                .appendTo(this.container);
-            //panel
-            this.panel = $('<div class="pui-dropdown-panel ui-widget-content ui-corner-all ui-helper-hidden pui-shadow" />');
+
+            if(this.options.style) {
+                this.container.attr('style', this.options.style);
+            }
+
+            if(this.options.styleClass) {
+                this.container.addClass(this.options.styleClass);
+            }
+
+            this.disabled = this.element.prop('disabled')||this.options.disabled;
+
             if(this.options.appendTo === 'self')
                 this.panel.appendTo(this.container);
             else
                 this.panel.appendTo(this.options.appendTo);
-                
-            this.itemsWrapper = $('<div class="pui-dropdown-items-wrapper" />').appendTo(this.panel);
-            this.itemsContainer = $('<ul class="pui-dropdown-items pui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>')
-                                    .appendTo(this.itemsWrapper);
-                            
-            this.disabled = this.element.prop('disabled');
-            this.choices = this.element.children('option');
-            this.optGroupsSize = this.itemsContainer.children('li.puiselectonemenu-item-group').length;
-            
-            if(this.options.filter) {
-                this.filterContainer = $('<div class="pui-dropdown-filter-container" />').prependTo(this.panel);
-                this.filterInput = $('<input type="text" autocomplete="off" class="pui-dropdown-filter pui-inputtext ui-widget ui-state-default ui-corner-all" />')
-                                            .appendTo(this.filterContainer);
-                this.filterContainer.append('<span class="pui-icon fa fa-search"></span>');
-            }
 
-            this._generateItems();
-            
             if(this.options.scrollHeight && this.panel.outerHeight() > this.options.scrollHeight) {
                 this.itemsWrapper.height(this.options.scrollHeight);
             }
-            
-            var $this = this,
-            selectedOption = this.choices.filter(':selected');
+
+            var $this = this;
+
+            //preselection via value option
+            if(this.options.value) {
+                this.choices.filter('[value="'+this.options.value+'"]').prop('selected', true);
+            }
+
+            var selectedOption = this.choices.filter(':selected');
 
             //disable options
             this.choices.filter(':disabled').each(function() {
@@ -4273,24 +4359,24 @@ PUI.resolveUserAgent();/**
                 this._highlightItem(this.items.eq(selectedOption.index()));
             }
 
-            if(!this.disabled) {            
+            if(!this.disabled) {
                 this._bindEvents();
                 this._bindConstantEvents();
             }
         },
-        
+
         _generateItems: function() {
             for(var i = 0; i < this.choices.length; i++) {
                 var option = this.choices.eq(i),
-                optionLabel = option.text(),
-                content = this.options.content ? this.options.content.call(this, this.options.data[i]) : optionLabel;
-                    
+                    optionLabel = option.text(),
+                    content = this.options.content ? this.options.content.call(this, this.options.data[i]) : optionLabel;
+
                 this.itemsContainer.append('<li data-label="' + optionLabel + '" class="pui-dropdown-item pui-dropdown-list-item ui-corner-all">' + content + '</li>');
             }
-            
+
             this.items = this.itemsContainer.children('.pui-dropdown-item');
         },
-        
+
         _bindEvents: function() {
             var $this = this;
 
@@ -4299,39 +4385,39 @@ PUI.resolveUserAgent();/**
             });
 
             this.triggers.on('mouseenter.puidropdown', function() {
-                if(!$this.container.hasClass('ui-state-focus')) {
-                    $this.container.addClass('ui-state-hover');
-                    $this.menuIcon.addClass('ui-state-hover');
-                }
-            })
-            .on('mouseleave.puidropdown', function() {
-                $this.container.removeClass('ui-state-hover');
-                $this.menuIcon.removeClass('ui-state-hover');
-            })
-            .on('click.puidropdown', function(e) {
-                if($this.panel.is(":hidden")) {
-                    $this._show();
-                }
-                else {
-                    $this._hide();
+                    if(!$this.container.hasClass('ui-state-focus')) {
+                        $this.container.addClass('ui-state-hover');
+                        $this.menuIcon.addClass('ui-state-hover');
+                    }
+                })
+                .on('mouseleave.puidropdown', function() {
+                    $this.container.removeClass('ui-state-hover');
+                    $this.menuIcon.removeClass('ui-state-hover');
+                })
+                .on('click.puidropdown', function(e) {
+                    if($this.panel.is(":hidden")) {
+                        $this._show();
+                    }
+                    else {
+                        $this._hide();
 
-                    $this._revert();
-                }
+                        $this._revert();
+                    }
 
-                $this.container.removeClass('ui-state-hover');
-                $this.menuIcon.removeClass('ui-state-hover');          
-                $this.focusElement.trigger('focus.puidropdown');
-                e.preventDefault();
-            });
+                    $this.container.removeClass('ui-state-hover');
+                    $this.menuIcon.removeClass('ui-state-hover');
+                    $this.focusElement.trigger('focus.puidropdown');
+                    e.preventDefault();
+                });
 
             this.focusElement.on('focus.puidropdown', function() {
-                $this.container.addClass('ui-state-focus');
-                $this.menuIcon.addClass('ui-state-focus');
-            })
-            .on('blur.puidropdown', function() {
-                $this.container.removeClass('ui-state-focus');
-                $this.menuIcon.removeClass('ui-state-focus');
-            });
+                    $this.container.addClass('ui-state-focus');
+                    $this.menuIcon.addClass('ui-state-focus');
+                })
+                .on('blur.puidropdown', function() {
+                    $this.container.removeClass('ui-state-focus');
+                    $this.menuIcon.removeClass('ui-state-focus');
+                });
 
             if(this.options.editable) {
                 this.label.on('change.pui-dropdown', function() {
@@ -4355,28 +4441,28 @@ PUI.resolveUserAgent();/**
                 });
             }
         },
-                
+
         _bindItemEvents: function(item) {
             var $this = this;
-            
-            item.on('mouseover.puidropdown', function() {
-                var el = $(this);
 
-                if(!el.hasClass('ui-state-highlight'))
-                    $(this).addClass('ui-state-hover');
-            })
-            .on('mouseout.puidropdown', function() {
-                $(this).removeClass('ui-state-hover');
-            })
-            .on('click.puidropdown', function() {
-                $this._selectItem($(this));   
-            });
+            item.on('mouseover.puidropdown', function() {
+                    var el = $(this);
+
+                    if(!el.hasClass('ui-state-highlight'))
+                        $(this).addClass('ui-state-hover');
+                })
+                .on('mouseout.puidropdown', function() {
+                    $(this).removeClass('ui-state-hover');
+                })
+                .on('click.puidropdown', function() {
+                    $this._selectItem($(this));
+                });
         },
-        
+
         _bindConstantEvents: function() {
             var $this = this;
-            
-            $(document.body).bind('mousedown.pui-dropdown', function (e) {
+
+            $(document.body).on('mousedown.pui-dropdown-' + this.id, function (e) {
                 if($this.panel.is(":hidden")) {
                     return;
                 }
@@ -4402,16 +4488,16 @@ PUI.resolveUserAgent();/**
             this._unbindResize();
             this._bindResize();
         },
-        
+
         _bindKeyEvents: function() {
             var $this = this;
 
-            this.focusElement.on('keydown.puiselectonemenu', function(e) {
+            this.focusElement.on('keydown.puidropdown', function(e) {
                 var keyCode = $.ui.keyCode,
                     key = e.which,
                     activeItem;
 
-                switch(key) { 
+                switch(key) {
                     case keyCode.UP:
                     case keyCode.LEFT:
                         activeItem = $this._getActiveItem();
@@ -4420,15 +4506,15 @@ PUI.resolveUserAgent();/**
                         if(prev.length == 1) {
                             if($this.panel.is(':hidden')) {
                                 $this._selectItem(prev);
-                            } 
+                            }
                             else {
                                 $this._highlightItem(prev);
                                 PUI.scrollInView($this.itemsWrapper, prev);
                             }
                         }
 
-                        e.preventDefault();                    
-                    break;
+                        e.preventDefault();
+                        break;
 
                     case keyCode.DOWN:
                     case keyCode.RIGHT:
@@ -4450,10 +4536,10 @@ PUI.resolveUserAgent();/**
                         }
 
                         e.preventDefault();
-                    break;
+                        break;
 
                     case keyCode.ENTER:
-                    case keyCode.NUMPAD_ENTER: 
+                    case keyCode.NUMPAD_ENTER:
                         if($this.panel.is(':hidden')) {
                             $this._show();
                         }
@@ -4462,25 +4548,25 @@ PUI.resolveUserAgent();/**
                         }
 
                         e.preventDefault();
-                    break;
+                        break;
 
                     case keyCode.TAB:
                         if($this.panel.is(':visible')) {
                             $this._revert();
                             $this._hide();
                         }
-                    break;
+                        break;
 
                     case keyCode.ESCAPE:
                         if($this.panel.is(':visible')) {
                             $this._revert();
                             $this._hide();
                         }
-                    break;
+                        break;
 
-                    default:    
+                    default:
                         var k = String.fromCharCode((96 <= key && key <= 105)? key-48 : key),
-                        currentItem = $this.items.filter('.ui-state-highlight');
+                            currentItem = $this.items.filter('.ui-state-highlight');
 
                         //Search items forward from current to end and on no result, search from start until current
                         var highlightItem = $this._search(k, currentItem.index() + 1, $this.options.length);
@@ -4495,19 +4581,36 @@ PUI.resolveUserAgent();/**
                             else {
                                 $this._highlightItem(highlightItem);
                                 PUI.scrollInView($this.itemsWrapper, highlightItem);
-                            }    
+                            }
                         }
 
-                    break;
+                        break;
                 }
             });
         },
-                
+
+        _unbindEvents: function() {
+            this.items.off('mouseover.puidropdown mouseout.puidropdown click.puidropdown');
+            this.triggers.off('mouseenter.puidropdown mouseleave.puidropdown click.puidropdown');
+            this.focusElement.off('keydown.puidropdown focus.puidropdown blur.puidropdown');
+
+            if(this.options.editable) {
+                this.label.off('change.puidropdown');
+            }
+
+            if(this.options.filter) {
+                this.filterInput.off('keyup.pui-dropdown');
+            }
+
+            $(document.body).off('mousedown.pui-dropdown-' + this.id);
+            this._unbindResize();
+        },
+
         _selectItem: function(item, silent) {
             var selectedOption = this.choices.eq(this._resolveItemIndex(item)),
-            currentOption = this.choices.filter(':selected'),
-            sameOption = selectedOption.val() == currentOption.val(),
-            shouldChange = null;
+                currentOption = this.choices.filter(':selected'),
+                sameOption = selectedOption.val() == currentOption.val(),
+                shouldChange = null;
 
             if(this.options.editable) {
                 shouldChange = (!sameOption)||(selectedOption.text() != this.label.val());
@@ -4535,10 +4638,10 @@ PUI.resolveUserAgent();/**
                 this._hide();
             }
         },
-        
+
         _highlightItem: function(item) {
             this.items.filter('.ui-state-highlight').removeClass('ui-state-highlight');
-            
+
             if(item.length) {
                 item.addClass('ui-state-highlight');
 
@@ -4548,19 +4651,23 @@ PUI.resolveUserAgent();/**
                 this._setLabel('&nbsp;');
             }
         },
-        
+
         _triggerChange: function(edited) {
             this.changed = false;
+            var selectedOption = this.choices.filter(':selected');
 
             if(this.options.change) {
-                this._trigger('change');
+                this._trigger('change', null, {
+                    value: selectedOption.val(),
+                    index: selectedOption.index()
+                });
             }
 
             if(!edited) {
                 this.value = this.choices.filter(':selected').val();
             }
         },
-        
+
         _resolveItemIndex: function(item) {
             if(this.optGroupsSize === 0) {
                 return item.index();
@@ -4569,7 +4676,7 @@ PUI.resolveUserAgent();/**
                 return item.index() - item.prevAll('li.pui-dropdown-item-group').length;
             }
         },
-        
+
         _setLabel: function(value) {
             if(this.options.editable) {
                 this.label.val(value);
@@ -4583,7 +4690,7 @@ PUI.resolveUserAgent();/**
                 }
             }
         },
-        
+
         _bindResize: function() {
             var $this = this;
 
@@ -4598,12 +4705,6 @@ PUI.resolveUserAgent();/**
             $(window).unbind(this.resizeNS);
         },
 
-        _unbindEvents: function() {
-            this.items.off();
-            this.triggers.off();
-            this.label.off();
-        },
-        
         _alignPanelWidth: function() {
             if(!this.panelWidthAdjusted) {
                 var jqWidth = this.container.outerWidth();
@@ -4614,31 +4715,31 @@ PUI.resolveUserAgent();/**
                 this.panelWidthAdjusted = true;
             }
         },
-        
+
         _alignPanel: function() {
             if(this.panel.parent().is(this.container)) {
                 this.panel.css({
-                    left: '0px',
-                    top: this.container.outerHeight() + 'px'
-                })
-                .width(this.container.outerWidth());
-            } 
+                        left: '0px',
+                        top: this.container.outerHeight() + 'px'
+                    })
+                    .width(this.container.outerWidth());
+            }
             else {
                 this._alignPanelWidth();
                 this.panel.css({left:'', top:''}).position({
-                                            my: 'left top',
-                                            at: 'left bottom',
-                                            of: this.container,
-                                            collision: 'flipfit'
-                                        });
+                    my: 'left top',
+                    at: 'left bottom',
+                    of: this.container,
+                    collision: 'flipfit'
+                });
             }
         },
-        
+
         _show: function() {
             this._alignPanel();
 
             this.panel.css('z-index', ++PUI.zindex);
-            
+
             if(this.options.effect !== 'none') {
                 this.panel.show(this.options.effect, {}, this.options.effectSpeed);
             }
@@ -4651,7 +4752,7 @@ PUI.resolveUserAgent();/**
         _hide: function() {
             this.panel.hide();
         },
-        
+
         _revert: function() {
             if(this.options.editable && this.customInput) {
                 this._setLabel(this.customInputVal);
@@ -4662,11 +4763,11 @@ PUI.resolveUserAgent();/**
                 this._highlightItem(this.items.eq(this.preShowValue.index()));
             }
         },
-        
+
         _getActiveItem: function() {
             return this.items.filter('.ui-state-highlight');
         },
-        
+
         _setupFilterMatcher: function() {
             this.filterMatchers = {
                 'startsWith': this._startsWithFilter,
@@ -4691,7 +4792,7 @@ PUI.resolveUserAgent();/**
         },
 
         _filter: function(value) {
-            this.initialHeight = this.initialHeight||this.itemsWrapper.height();        
+            this.initialHeight = this.initialHeight||this.itemsWrapper.height();
             var filterValue = this.options.caseSensitiveFilter ? $.trim(value) : $.trim(value).toLowerCase();
 
             if(filterValue === '') {
@@ -4700,8 +4801,8 @@ PUI.resolveUserAgent();/**
             else {
                 for(var i = 0; i < this.choices.length; i++) {
                     var option = this.choices.eq(i),
-                    itemLabel = this.options.caseSensitiveFilter ? option.text() : option.text().toLowerCase(),
-                    item = this.items.eq(i);
+                        itemLabel = this.options.caseSensitiveFilter ? option.text() : option.text().toLowerCase(),
+                        item = this.items.eq(i);
 
                     if(this.filterMatcher(itemLabel, filterValue))
                         item.show();
@@ -4716,9 +4817,11 @@ PUI.resolveUserAgent();/**
             else {
                 this.itemsWrapper.height(this.initialHeight);
             }
+
+            this._alignPanel();
         },
-        
-        _search: function(text, start, end) { 
+
+        _search: function(text, start, end) {
             for(var i = start; i  < end; i++) {
                 var option = this.choices.eq(i);
 
@@ -4737,7 +4840,7 @@ PUI.resolveUserAgent();/**
         getSelectedLabel: function() {
             return this.choices.filter(':selected').text();
         },
-        
+
         selectValue : function(value) {
             var option = this.choices.filter('[value="' + value + '"]');
 
@@ -4746,7 +4849,7 @@ PUI.resolveUserAgent();/**
 
         addOption: function(option, val) {
             var value, label;
-            
+
             //backward compatibility for key-value parameters
             if(val !== undefined && val !== null) {
                 value = val;
@@ -4757,11 +4860,11 @@ PUI.resolveUserAgent();/**
                 value = (option.value !== undefined && option.value !== null) ? option.value : option;
                 label = (option.label !== undefined && option.label !== null) ? option.label : option;
             }
-            
+
             var content = this.options.content ? this.options.content.call(this, option) : label,
-            item = $('<li data-label="' + label + '" class="pui-dropdown-item pui-dropdown-list-item ui-corner-all">' + content + '</li>'),
-            optionElement = $('<option value="' + value + '">' + label + '</option>');
-            
+                item = $('<li data-label="' + label + '" class="pui-dropdown-item pui-dropdown-list-item ui-corner-all">' + content + '</li>'),
+                optionElement = $('<option value="' + value + '">' + label + '</option>');
+
             optionElement.appendTo(this.element);
             this._bindItemEvents(item);
             item.appendTo(this.itemsContainer);
@@ -4785,17 +4888,29 @@ PUI.resolveUserAgent();/**
         },
 
         _setOption: function (key, value) {
-            $.Widget.prototype._setOption.apply(this, arguments);
-            if (key === 'data') {
+            if (key === 'data' || key === 'options') {
+                this.options.data = value;
                 this.removeAllOptions();
-                
+
                 for(var i = 0; i < this.options.data.length; i++) {
                     this.addOption(this.options.data[i]);
                 }
-                
+
                 if(this.options.scrollHeight && this.panel.outerHeight() > this.options.scrollHeight) {
                     this.itemsWrapper.height(this.options.scrollHeight);
                 }
+            }
+            else if(key === 'value') {
+                this.options.value = value;
+                this.choices.prop('selected', false);
+                var selectedOption = this.choices.filter('[value="'+this.options.value+'"]');
+                if(selectedOption.length) {
+                    selectedOption.prop('selected', true);
+                    this._highlightItem(this.items.eq(selectedOption.index()));
+                }
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
             }
         },
 
@@ -4810,12 +4925,36 @@ PUI.resolveUserAgent();/**
             this.label.removeClass('ui-state-disabled');
             this.menuIcon.removeClass('ui-state-disabled');
         },
-        
+
         getEditableText: function() {
             return this.label.val();
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+            if(!this.options.enhanced) {
+                this.panel.remove();
+                this.label.remove();
+                this.menuIcon.remove();
+                this.focusElementContainer.remove();
+                this.element.unwrap().unwrap();
+            }
+            else {
+                if(this.options.appendTo == 'body') {
+                    this.panel.appendTo(this.container);
+                }
+
+                if(this.options.style) {
+                    this.container.removeAttr('style');
+                }
+
+                if(this.options.styleClass) {
+                    this.container.removeClass(this.options.styleClass);
+                }
+            }
         }
     });
-    
+
 })();/**
  * PrimeFaces Fieldset Widget
  */
@@ -5165,34 +5304,52 @@ PUI.resolveUserAgent();/**
 (function() {
 
     $.widget("primeui.puigrowl", {
-       
+
         options: {
             sticky: false,
-            life: 3000
+            life: 3000,
+            messages: null,
+            appendTo: document.body
         },
-        
+
         _create: function() {
             var container = this.element;
-            
-            container.addClass("pui-growl ui-widget").appendTo(document.body);
+            this.originalParent = this.element.parent();
+
+            container.addClass("pui-growl ui-widget");
+
+            if(this.options.appendTo) {
+                container.appendTo(this.options.appendTo);
+            }
+
+            if(this.options.messages) {
+                this.show(this.options.messages);
+            }
         },
-        
+
         show: function(msgs) {
             var $this = this;
-        
-            //this.jq.css('z-index', ++PrimeFaces.zindex);
+
+            this.element.css('z-index', ++PUI.zindex);
 
             this.clear();
 
-            $.each(msgs, function(i, msg) {
-                $this._renderMessage(msg);
-            }); 
+            if(msgs && msgs.length) {
+                $.each(msgs, function(i, msg) {
+                    $this._renderMessage(msg);
+                });
+            }
         },
-        
+
         clear: function() {
-            this.element.children('div.pui-growl-item-container').remove();
+            var messageElements = this.element.children('div.pui-growl-item-container');
+            for(var i = 0; i < messageElements.length; i++) {
+                this._unbindMessageEvents(messageElements.eq(i));
+            }
+
+            messageElements.remove();
         },
-        
+
         _renderMessage: function(msg) {
             var markup = '<div class="pui-growl-item-container ui-state-highlight ui-corner-all ui-helper-hidden" aria-live="polite">';
             markup += '<div class="pui-growl-item pui-shadow">';
@@ -5204,11 +5361,11 @@ PUI.resolveUserAgent();/**
             markup += '</div><div style="clear: both;"></div></div></div>';
 
             var message = $(markup);
-            
+
             this._bindMessageEvents(message);
             message.appendTo(this.element).fadeIn();
         },
-        
+
         _removeMessage: function(message) {
             message.fadeTo('normal', 0, function() {
                 message.slideUp('normal', 'easeInOutCirc', function() {
@@ -5216,21 +5373,21 @@ PUI.resolveUserAgent();/**
                 });
             });
         },
-        
+
         _bindMessageEvents: function(message) {
             var $this = this,
-            sticky = this.options.sticky;
+                sticky = this.options.sticky;
 
             message.on('mouseover.puigrowl', function() {
-                var msg = $(this);
+                    var msg = $(this);
 
-                if(!msg.is(':animated')) {
-                    msg.find('div.pui-growl-icon-close:first').show();
-                }
-            })
-            .on('mouseout.puigrowl', function() {        
-                $(this).find('div.pui-growl-icon-close:first').hide();
-            });
+                    if(!msg.is(':animated')) {
+                        msg.find('div.pui-growl-icon-close:first').show();
+                    }
+                })
+                .on('mouseout.puigrowl', function() {
+                    $(this).find('div.pui-growl-icon-close:first').hide();
+                });
 
             //remove message on click of close icon
             message.find('div.pui-growl-icon-close').on('click.puigrowl',function() {
@@ -5245,7 +5402,21 @@ PUI.resolveUserAgent();/**
                 this._setRemovalTimeout(message);
             }
         },
-        
+
+        _unbindMessageEvents: function(message) {
+            var $this = this,
+                sticky = this.options.sticky;
+
+            message.off('mouseover.puigrowl mouseout.puigrowl');
+            message.find('div.pui-growl-icon-close').off('click.puigrowl');
+            if(!sticky) {
+                var timeout = message.data('timeout');
+                if(timeout) {
+                    window.clearTimeout(timeout);
+                }
+            }
+        },
+
         _setRemovalTimeout: function(message) {
             var $this = this;
 
@@ -5255,24 +5426,42 @@ PUI.resolveUserAgent();/**
 
             message.data('timeout', timeout);
         },
-        
+
         _getIcon: function(severity) {
             switch(severity) {
                 case 'info':
                     return 'fa-info-circle';
-                break;
-                
+                    break;
+
                 case 'warn':
                     return 'fa-warning';
-                break;
-                
+                    break;
+
                 case 'error':
                     return 'fa-close';
-                break;
-                
+                    break;
+
                 default:
                     return 'fa-info-circle';
-                break;
+                    break;
+            }
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'value' || key === 'messages') {
+                this.show(value);
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
+        },
+
+        _destroy: function() {
+            this.clear();
+            this.element.removeClass("pui-growl ui-widget");
+
+            if(this.options.appendTo) {
+                this.element.appendTo(this.originalParent);
             }
         }
     });
@@ -6102,38 +6291,58 @@ PUI.resolveUserAgent();/**
 (function() {
 
     $.widget("primeui.puilistbox", {
-       
+
         options: {
+            value: null,
             scrollHeight: 200,
             content: null,
             data: null,
             template: null,
             style: null,
-            styleClass: null
+            styleClass: null,
+            multiple: false,
+            enhanced: false,
+            change: null
         },
 
         _create: function() {
-            this.element.wrap('<div class="pui-listbox pui-inputtext ui-widget ui-widget-content ui-corner-all"><div class="ui-helper-hidden-accessible"></div></div>');
-            this.container = this.element.parent().parent();
-            this.listContainer = $('<ul class="pui-listbox-list"></ul>').appendTo(this.container);
-            this.options.multiple = this.element.prop("multiple");
+            if(!this.options.enhanced) {
+                this.element.wrap('<div class="pui-listbox pui-inputtext ui-widget ui-widget-content ui-corner-all"><div class="ui-helper-hidden-accessible"></div></div>');
+                this.container = this.element.parent().parent();
+                this.listContainer = $('<ul class="pui-listbox-list"></ul>').appendTo(this.container);
+
+                if(this.options.data) {
+                    this._populateInputFromData();
+                }
+
+                this._populateContainerFromOptions();
+            }
+            else {
+                this.container = this.element.parent().parent();
+                this.listContainer = this.container.children('ul').addClass('pui-listbox-list');
+                this.items = this.listContainer.children('li').addClass('pui-listbox-item ui-corner-all');
+                this.choices = this.element.children('option');
+            }
 
             if(this.options.style) {
                 this.container.attr('style', this.options.style);
             }
-            
+
             if(this.options.styleClass) {
                 this.container.addClass(this.options.styleClass);
             }
 
-            if(this.options.data) {
-                this._populateInputFromData();
+            if(this.options.multiple)
+                this.element.prop('multiple', true);
+            else
+                this.options.multiple = this.element.prop('multiple');
+
+            //preselection
+            if(this.options.value !== null && this.options.value !== undefined) {
+                this._updateSelection(this.options.value);
             }
 
-            this._populateContainerFromOptions();
-
             this._restrictHeight();
-
             this._bindEvents();
         },
 
@@ -6167,29 +6376,7 @@ PUI.resolveUserAgent();/**
             var $this = this;
 
             //items
-            this.items.on('mouseover.puilistbox', function() {
-                var item = $(this);
-                if(!item.hasClass('ui-state-highlight')) {
-                    item.addClass('ui-state-hover');
-                }
-            })
-            .on('mouseout.puilistbox', function() {
-                $(this).removeClass('ui-state-hover');
-            })
-            .on('dblclick.puilistbox', function(e) {       
-                $this.element.trigger('dblclick');
-
-                PUI.clearSelection();
-                e.preventDefault();
-            })
-            .on('click.puilistbox', function(e) {       
-                if($this.options.multiple)
-                    $this._clickMultiple(e, $(this));
-                else
-                    $this._clickSingle(e, $(this));
-            
-                
-            });
+            this._bindItemEvents();
 
             //input
             this.element.on('focus.puilistbox', function() {
@@ -6198,7 +6385,41 @@ PUI.resolveUserAgent();/**
                 $this.container.removeClass('ui-state-focus');
             });
         },
-        
+
+        _bindItemEvents: function() {
+            var $this = this;
+            this.items.on('mouseover.puilistbox', function() {
+                    var item = $(this);
+                    if(!item.hasClass('ui-state-highlight')) {
+                        item.addClass('ui-state-hover');
+                    }
+                })
+                .on('mouseout.puilistbox', function() {
+                    $(this).removeClass('ui-state-hover');
+                })
+                .on('dblclick.puilistbox', function(e) {
+                    $this.element.trigger('dblclick');
+
+                    PUI.clearSelection();
+                    e.preventDefault();
+                })
+                .on('click.puilistbox', function(e) {
+                    if($this.options.multiple)
+                        $this._clickMultiple(e, $(this));
+                    else
+                        $this._clickSingle(e, $(this));
+                });
+        },
+
+        _unbindEvents: function() {
+            this._unbindItemEvents();
+            this.element.off('focus.puilistbox blur.puilistbox');
+        },
+
+        _unbindItemEvents: function() {
+            this.items.off('mouseover.puilistbox mouseout.puilistbox dblclick.puilistbox click.puilistbox');
+        },
+
         _clickSingle: function(event, item) {
             var selectedItem = this.items.filter('.ui-state-highlight');
 
@@ -6208,20 +6429,23 @@ PUI.resolveUserAgent();/**
                 }
 
                 this.selectItem(item);
-                this.element.trigger('change');
+                this._trigger('change', event, {
+                    value: this.choices.eq(item.index()).attr('value'),
+                    index: item.index()
+                });
             }
 
             this.element.trigger('click');
 
             PUI.clearSelection();
-            
+
             event.preventDefault();
         },
-                
-        _clickMultiple: function(event, item) {            
+
+        _clickMultiple: function(event, item) {
             var selectedItems = this.items.filter('.ui-state-highlight'),
-            metaKey = (event.metaKey||event.ctrlKey),
-            unchanged = (!metaKey && selectedItems.length === 1 && selectedItems.index() === item.index());
+                metaKey = (event.metaKey||event.ctrlKey),
+                unchanged = (!metaKey && selectedItems.length === 1 && selectedItems.index() === item.index());
 
             if(!event.shiftKey) {
                 if(!metaKey) {
@@ -6230,7 +6454,7 @@ PUI.resolveUserAgent();/**
 
                 if(metaKey && item.hasClass('ui-state-highlight')) {
                     this.unselectItem(item);
-                } 
+                }
                 else {
                     this.selectItem(item);
                     this.cursorItem = item;
@@ -6240,24 +6464,36 @@ PUI.resolveUserAgent();/**
                 //range selection
                 if(this.cursorItem) {
                     this.unselectAll();
- 
+
                     var currentItemIndex = item.index(),
-                    cursorItemIndex = this.cursorItem.index(),
-                    startIndex = (currentItemIndex > cursorItemIndex) ? cursorItemIndex : currentItemIndex,
-                    endIndex = (currentItemIndex > cursorItemIndex) ? (currentItemIndex + 1) : (cursorItemIndex + 1);
-                    
+                        cursorItemIndex = this.cursorItem.index(),
+                        startIndex = (currentItemIndex > cursorItemIndex) ? cursorItemIndex : currentItemIndex,
+                        endIndex = (currentItemIndex > cursorItemIndex) ? (currentItemIndex + 1) : (cursorItemIndex + 1);
+
                     for(var i = startIndex ; i < endIndex; i++) {
                         this.selectItem(this.items.eq(i));
                     }
-                } 
+                }
                 else {
                     this.selectItem(item);
                     this.cursorItem = item;
                 }
             }
-            
+
             if(!unchanged) {
-                this.element.trigger('change');
+                var values = [],
+                    indexes = [];
+                for(var i = 0; i < this.choices.length; i++) {
+                    if(this.choices.eq(i).prop('selected')) {
+                        values.push(this.choices.eq(i).attr('value'));
+                        indexes.push(i);
+                    }
+                }
+
+                this._trigger('change', event, {
+                    value: values,
+                    index: indexes
+                })
             }
 
             this.element.trigger('click');
@@ -6292,14 +6528,13 @@ PUI.resolveUserAgent();/**
             else {
                 item = value;
             }
-            
+
             item.removeClass('ui-state-highlight');
             this.choices.eq(item.index()).prop('selected', false);
             this._trigger('itemUnselect', null, this.choices.eq(item.index()));
         },
 
         _setOption: function (key, value) {
-            $.Widget.prototype._setOption.apply(this, arguments);
             if (key === 'data') {
                 this.element.empty();
                 this.listContainer.empty();
@@ -6310,10 +6545,15 @@ PUI.resolveUserAgent();/**
                 this._restrictHeight();
                 this._bindEvents();
             }
-        },
-
-        _unbindEvents: function() {
-            this.items.off('mouseover.puilistbox click.puilistbox dblclick.puilistbox');
+            else if (key === 'value') {
+                this._updateSelection(value);
+            }
+            else if (key === 'options') {
+                this._updateOptions(value);
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
         },
 
         disable: function () {
@@ -6325,7 +6565,7 @@ PUI.resolveUserAgent();/**
             this._bindEvents();
             this.items.removeClass('ui-state-disabled');
         },
-        
+
         _createItemContent: function(choice) {
             if(this.options.template) {
                 var template = this.options.template.html();
@@ -6338,9 +6578,68 @@ PUI.resolveUserAgent();/**
             else {
                 return choice.label;
             }
+        },
+
+        _updateSelection: function(value) {
+            this.choices.prop('selected', false);
+            this.items.removeClass('ui-state-highlight');
+
+            for(var i = 0; i < this.choices.length; i++) {
+                var choice = this.choices.eq(i);
+                if(this.options.multiple) {
+                    if($.inArray(choice.attr('value'), value) >= 0) {
+                        choice.prop('selected', true);
+                        this.items.eq(i).addClass('ui-state-highlight');
+                    }
+                }
+                else {
+                    if(choice.attr('value') == value) {
+                        choice.prop('selected', true);
+                        this.items.eq(i).addClass('ui-state-highlight');
+                        break;
+                    }
+                }
+
+            }
+        },
+
+        //primeng
+        _updateOptions: function(options) {
+            var $this = this;
+            setTimeout(function() {
+                $this.items = $this.listContainer.children('li').addClass('pui-listbox-item ui-corner-all');
+                $this.choices = $this.element.children('option');
+                $this._unbindItemEvents();
+                $this._bindItemEvents();
+            }, 50);
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+
+            if(!this.options.enhanced) {
+                this.listContainer.remove();
+                this.element.unwrap().unwrap();
+            }
+
+            if(this.options.style) {
+                this.container.removeAttr('style');
+            }
+
+            if(this.options.styleClass) {
+                this.container.removeClass(this.options.styleClass);
+            }
+
+            if(this.options.multiple) {
+                this.element.prop('multiple', false);
+            }
+
+            if(this.choices) {
+                this.choices.prop('selected', false);
+            }
         }
     });
-        
+
 })();/**
  * PrimeUI BaseMenu widget
  */
@@ -9327,42 +9626,58 @@ PUI.resolveUserAgent();/**
         }
     });
     
-})();(function() {
+})();/**
+ * PrimeUI SelectButton Widget
+ */
+(function() {
 
     $.widget("primeui.puiselectbutton", {
-       
-       options: {
+
+        options: {
+            value: null,
             choices: null,
             formfield: null,
-            unselectable: false,
             tabindex: '0',
-            multiple: false
+            multiple: false,
+            enhanced: false
         },
-        
+
         _create: function() {
-            this.element.addClass('pui-selectbutton pui-buttonset ui-widget ui-corner-all').attr('tabindex');
-            
-            //create buttons
-            if(this.options.choices) {
-                this.element.addClass('pui-buttonset-' + this.options.choices.length);
-                for(var i = 0; i < this.options.choices.length; i++) {
-                    this.element.append('<div class="pui-button ui-widget ui-state-default pui-button-text-only" tabindex="' + this.options.tabindex + '" data-value="' 
-                                        + this.options.choices[i].value + '">' +
-                                        '<span class="pui-button-text ui-c">' + 
-                                        this.options.choices[i].label + 
-                                        '</span></div>');
+            if(!this.options.enhanced) {
+                this.element.addClass('pui-selectbutton pui-buttonset ui-widget ui-corner-all').attr('tabindex');
+
+                if(this.options.choices) {
+                    this.element.addClass('pui-buttonset-' + this.options.choices.length);
+                    for(var i = 0; i < this.options.choices.length; i++) {
+                        this.element.append('<div class="pui-button ui-widget ui-state-default pui-button-text-only" tabindex="' + this.options.tabindex + '" data-value="'
+                            + this.options.choices[i].value + '">' +
+                            '<span class="pui-button-text ui-c">' +
+                            this.options.choices[i].label +
+                            '</span></div>');
+                    }
                 }
             }
-            
+            else {
+                var $this = this;
+                this.options.choices = [];
+
+                this.element.children('.pui-button').each(function() {
+                    var btn = $(this),
+                        value = btn.attr('data-value'),
+                        label = btn.children('span').text();
+                    $this.options.choices.push({'label': label, 'value': value});
+                });
+            }
+
             //cornering
             this.buttons = this.element.children('div.pui-button');
+
             this.buttons.filter(':first-child').addClass('ui-corner-left');
             this.buttons.filter(':last-child').addClass('ui-corner-right');
-            
-            //Single Select Button Or Multiple Select Button Decision
-            if(!this.options.multiple)  {         
-                this.input = $('<input type="hidden"></input>').appendTo(this.element);
-            } 
+
+            if(!this.options.multiple)  {
+                this.input = $('<input type="hidden" />').appendTo(this.element);
+            }
             else {
                 this.input = $('<select class="ui-helper-hidden-accessible" multiple></select>').appendTo(this.element);
                 for (var i = 0; i < this.options.choices.length; i++) {
@@ -9371,96 +9686,175 @@ PUI.resolveUserAgent();/**
                 }
                 this.selectOptions = this.input.children('option');
             }
-            
+
             if(this.options.formfield) {
                 this.input.attr('name', this.options.formfield);
             }
 
+            //preselection
+            if(this.options.value !== null && this.options.value !== undefined) {
+                this._updateSelection(this.options.value);
+            }
+
             this._bindEvents();
         },
-        
+
+        _destroy: function() {
+            this._unbindEvents();
+            if(!this.options.enhanced) {
+                this.buttons.remove();
+                this.element.removeClass('pui-selectbutton pui-buttonset ui-widget ui-corner-all').removeAttr('tabindex');
+            }
+            else {
+                this.buttons.removeClass('ui-state-focus ui-state-hover ui-state-active ui-corner-left ui-corner-right');
+            }
+            this.input.remove();
+        },
+
+        _triggerChangeEvent: function() {
+            var $this = this;
+
+            if(this.options.multiple) {
+                var values = [],
+                    indexes = [];
+                for(var i = 0; i < $this.buttons.length; i++) {
+                    var btn = $this.buttons.eq(i);
+                    if(btn.hasClass('ui-state-active')) {
+                        values.push(btn.data('value'));
+                        indexes.push(i);
+                    }
+                }
+
+                $this._trigger('change', event, {
+                    value: values,
+                    index: indexes
+                });
+            }
+            else {
+                for(var i = 0; i < $this.buttons.length; i++) {
+                    var btn = $this.buttons.eq(i);
+                    if(btn.hasClass('ui-state-active')) {
+                        $this._trigger('change', event, {
+                            value: btn.data('value'),
+                            index: i
+                        });
+
+                        break;
+                    }
+                }
+            }
+        },
+
         _bindEvents: function() {
             var $this = this;
-            
-            this.buttons.on('mouseover', function() {
-                var btn = $(this);
-                if(!btn.hasClass('ui-state-active')) {
-                    btn.addClass('ui-state-hover');
-                }
-            })
-            .on('mouseout', function() {
-                $(this).removeClass('ui-state-hover');
-            })
-            .on('click', function(e) {
-                var btn = $(this);
-                if($(this).hasClass("ui-state-active")) {
-                    if($this.options.unselectable) {
-                        $this.unselectOption(btn);
-                        $this._trigger('change', e);
+
+            this.buttons.on('mouseover.puiselectbutton', function() {
+                    var btn = $(this);
+                    if(!btn.hasClass('ui-state-active')) {
+                        btn.addClass('ui-state-hover');
                     }
-                }
-                else {
-                    if($this.options.multiple) {
-                        $this.selectOption(btn);
+                })
+                .on('mouseout.puiselectbutton', function() {
+                    $(this).removeClass('ui-state-hover');
+                })
+                .on('click.puiselectbutton', function(e) {
+                    var btn = $(this);
+
+                    if($(this).hasClass("ui-state-active")) {
+                        $this.unselectOption(btn);
                     }
                     else {
-                        $this.unselectOption(btn.siblings('.ui-state-active'));
-                        $this.selectOption(btn);
-                    } 
-                    
-                    $this._trigger('change', e);
-                }
-            })
-            .on('focus', function() {            
-                $(this).addClass('ui-state-focus');
-            })
-            .on('blur', function() {            
-                $(this).removeClass('ui-state-focus');
-            })
-            .on('keydown', function(e) {
-                var keyCode = $.ui.keyCode;
-                if(e.which === keyCode.ENTER) {
-                    $this.element.trigger('click');
-                    e.preventDefault();
-                }
-            })
-            .on('keydown', function(e) {
-                var keyCode = $.ui.keyCode;
-                if(e.which === keyCode.SPACE||e.which === keyCode.ENTER||e.which === keyCode.NUMPAD_ENTER) {
-                    $(this).trigger('click');
-                    e.preventDefault();
-                }
-            });
+                        if($this.options.multiple) {
+                            $this.selectOption(btn);
+                        }
+                        else {
+                            $this.unselectOption(btn.siblings('.ui-state-active'));
+                            $this.selectOption(btn);
+                        }
+                    }
+
+                    $this._triggerChangeEvent();
+                })
+                .on('focus.puiselectbutton', function() {
+                    $(this).addClass('ui-state-focus');
+                })
+                .on('blur.puiselectbutton', function() {
+                    $(this).removeClass('ui-state-focus');
+                })
+                .on('keydown.puiselectbutton', function(e) {
+                    var keyCode = $.ui.keyCode;
+                    if(e.which === keyCode.SPACE||e.which === keyCode.ENTER||e.which === keyCode.NUMPAD_ENTER) {
+                        $(this).trigger('click');
+                        e.preventDefault();
+                    }
+                });
         },
-        
+
+        _unbindEvents: function() {
+            this.buttons.off('mouseover.puiselectbutton mouseout.puiselectbutton focus.puiselectbutton blur.puiselectbutton keydown.puiselectbutton click.puiselectbutton');
+        },
+
         selectOption: function(value) {
             var btn = $.isNumeric(value) ? this.element.children('.pui-button').eq(value) : value;
-            
-            if(this.options.multiple)
+
+            if(this.options.multiple) {
                 this.selectOptions.eq(btn.index()).prop('selected',true);
+            }
             else
                 this.input.val(btn.data('value'));
-            
+
             btn.addClass('ui-state-active');
         },
-        
+
         unselectOption: function(value){
             var btn = $.isNumeric(value) ? this.element.children('.pui-button').eq(value) : value;
-            
+
             if(this.options.multiple)
                 this.selectOptions.eq(btn.index()).prop('selected',false);
             else
                 this.input.val('');
 
-            btn.removeClass('ui-state-active');   
-            btn.removeClass('ui-state-focus');         
-        }
-        
-    });
-    
-})();
+            btn.removeClass('ui-state-active');
+            btn.removeClass('ui-state-focus');
+        },
 
-/**
+        _setOption: function (key, value) {
+            if (key === 'data') {
+                this.element.empty();
+                this._bindEvents();
+            }
+            else if (key === 'value') {
+                this._updateSelection(value);
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
+        },
+
+        _updateSelection: function(value) {
+            this.buttons.removeClass('ui-state-active');
+
+            for(var i = 0; i < this.buttons.length; i++) {
+                var button = this.buttons.eq(i),
+                    buttonValue = button.attr('data-value');
+
+                if(this.options.multiple) {
+                    if($.inArray(buttonValue, value) >= 0) {
+                        button.addClass('ui-state-active');
+                    }
+                }
+                else {
+                    if(buttonValue == value) {
+                        button.addClass('ui-state-active');
+                        break;
+                    }
+                }
+            }
+        }
+
+    });
+
+})();/**
  * PrimeUI spinner widget
  */
 (function() {
@@ -9940,40 +10334,53 @@ PUI.resolveUserAgent();/**
         
     });
     
-})();(function() {
+})();/**
+ * PrimeUI Switch Widget
+ */
+(function() {
 
     $.widget("primeui.puiswitch", {
-       
-       options: {
+
+        options: {
             onLabel: 'On',
             offLabel: 'Off',
-            change: null
+            checked: false,
+            change: null,
+            enhanced: false
         },
-        
-        _create: function() {
-            this.element.wrap('<div class="pui-inputswitch ui-widget ui-widget-content ui-corner-all"></div>');
-            this.container = this.element.parent();
 
-            this.element.wrap('<div class="ui-helper-hidden-accessible"></div>');
-            this.container.prepend('<div class="pui-inputswitch-off"></div>' + 
-                                    '<div class="pui-inputswitch-on ui-state-active"></div>' + 
-                                    '<div class="pui-inputswitch-handle ui-state-default"></div>');
-            
-            this.onContainer = this.container.children('.pui-inputswitch-on');
-            this.offContainer = this.container.children('.pui-inputswitch-off');            
-            this.onContainer.append('<span>'+ this.options.onLabel +'</span>');
-            this.offContainer.append('<span>'+ this.options.offLabel +'</span>');
+        _create: function() {
+            if(!this.options.enhanced) {
+                this.element.wrap('<div class="pui-inputswitch ui-widget ui-widget-content ui-corner-all"></div>');
+                this.container = this.element.parent();
+
+                this.element.wrap('<div class="ui-helper-hidden-accessible"></div>');
+                this.container.prepend('<div class="pui-inputswitch-off"></div>' +
+                    '<div class="pui-inputswitch-on ui-state-active"></div>' +
+                    '<div class="pui-inputswitch-handle ui-state-default"></div>');
+
+                this.onContainer = this.container.children('.pui-inputswitch-on');
+                this.offContainer = this.container.children('.pui-inputswitch-off');
+                this.onContainer.append('<span>'+ this.options.onLabel +'</span>');
+                this.offContainer.append('<span>'+ this.options.offLabel +'</span>');
+            }
+            else {
+                this.container = this.element.closest('.pui-inputswitch');
+                this.onContainer = this.container.children('.pui-inputswitch-on');
+                this.offContainer = this.container.children('.pui-inputswitch-off');
+            }
+
             this.onLabel = this.onContainer.children('span');
             this.offLabel = this.offContainer.children('span');
             this.handle = this.container.children('.pui-inputswitch-handle');
 
-            var	onContainerWidth = this.onContainer.width(),
-            offContainerWidth = this.offContainer.width(),
-            spanPadding	= this.offLabel.innerWidth() - this.offLabel.width(),
-            handleMargins = this.handle.outerWidth() - this.handle.innerWidth();
+            var onContainerWidth = this.onContainer.width(),
+                offContainerWidth = this.offContainer.width(),
+                spanPadding = this.offLabel.innerWidth() - this.offLabel.width(),
+                handleMargins = this.handle.outerWidth() - this.handle.innerWidth();
 
             var containerWidth = (onContainerWidth > offContainerWidth) ? onContainerWidth : offContainerWidth,
-            handleWidth = containerWidth;
+                handleWidth = containerWidth;
 
             this.handle.css({'width':handleWidth});
             handleWidth = this.handle.width();
@@ -9990,7 +10397,8 @@ PUI.resolveUserAgent();/**
             this.offContainer.css({ width: this.container.width() - 5 });
             this.offset = this.container.width() - this.handle.outerWidth();
 
-            if(this.element.prop('checked')) {
+            //default value
+            if(this.element.prop('checked')||this.options.checked) {
                 this.handle.css({ 'left': this.offset});
                 this.onContainer.css({ 'width': this.offset});
                 this.offLabel.css({ 'margin-right': -this.offset});
@@ -10004,57 +10412,82 @@ PUI.resolveUserAgent();/**
                 this._bindEvents();
             }
         },
-        
+
         _bindEvents: function() {
             var $this = this;
-        
-            this.container.on('click.inputSwitch', function(e) {
+
+            this.container.on('click.puiswitch', function(e) {
                 $this.toggle();
                 $this.element.trigger('focus');
             });
 
-            this.element.on('focus.inputSwitch', function(e) {
-                $this.handle.addClass('ui-state-focus');
-            })
-            .on('blur.inputSwitch', function(e) {
-                $this.handle.removeClass('ui-state-focus');
-            })
-            .on('keydown.inputSwitch', function(e) {
-                var keyCode = $.ui.keyCode;
-                if(e.which === keyCode.SPACE) {
-                    e.preventDefault();
-                }
-            })
-            .on('keyup.inputSwitch', function(e) {
-                var keyCode = $.ui.keyCode;
-                if(e.which === keyCode.SPACE) {
-                    $this.toggle();
+            this.element.on('focus.puiswitch', function(e) {
+                    $this.handle.addClass('ui-state-focus');
+                })
+                .on('blur.puiswitch', function(e) {
+                    $this.handle.removeClass('ui-state-focus');
+                })
+                .on('keydown.puiswitch', function(e) {
+                    var keyCode = $.ui.keyCode;
+                    if(e.which === keyCode.SPACE) {
+                        e.preventDefault();
+                    }
+                })
+                .on('keyup.puiswitch', function(e) {
+                    var keyCode = $.ui.keyCode;
+                    if(e.which === keyCode.SPACE) {
+                        $this.toggle();
 
-                    e.preventDefault();
-                }
-            })
-            .on('change.inputSwitch', function(e) {
-                if($this.element.prop('checked'))
-                    $this._checkUI();
-                else
-                    $this._uncheckUI();
-                
-                $this._trigger('change', e);
-            });
+                        e.preventDefault();
+                    }
+                })
+                .on('change.puiswitch', function(e) {
+                    if($this.element.prop('checked')||$this.options.checked)
+                        $this._checkUI();
+                    else
+                        $this._uncheckUI();
+
+                    $this._trigger('change', e, {checked: $this.options.checked});
+                });
         },
-        
+
+        _unbindEvents: function() {
+            this.container.off('click.puiswitch');
+            this.element.off('focus.puiswitch blur.puiswitch keydown.puiswitch keyup.puiswitch change.puiswitch');
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+
+            if(!this.options.enhanced) {
+                this.onContainer.remove();
+                this.offContainer.remove();
+                this.handle.remove();
+                this.element.unwrap().unwrap();
+            }
+            else {
+                this.container.css('width', 'auto');
+                this.onContainer.css('width', 'auto');
+                this.onLabel.css('width', 'auto').css('margin-left', 0);
+                this.offContainer.css('width', 'auto');
+                this.offLabel.css('width', 'auto').css('margin-left', 0);
+            }
+        },
+
         toggle: function() {
-            if(this.element.prop('checked'))
+            if(this.element.prop('checked')||this.options.checked)
                 this.uncheck();
             else
                 this.check();
         },
 
         check: function() {
+            this.options.checked = true;
             this.element.prop('checked', true).trigger('change');
         },
 
         uncheck: function() {
+            this.options.checked = false;
             this.element.prop('checked', false).trigger('change');
         },
 
@@ -10070,12 +10503,22 @@ PUI.resolveUserAgent();/**
             this.onLabel.animate({marginLeft:-this.offset}, 200);
             this.offLabel.animate({marginRight:0}, 200);
             this.handle.animate({left:0}, 200);
-        }     
-    });
-    
-})();
+        },
 
-/**
+        _setOption: function(key, value) {
+            if(key === 'checked') {
+                if(value)
+                    this.check();
+                else
+                    this.uncheck();
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
+        },
+    });
+
+})();/**
  * PrimeUI tabview widget
  */
 (function() {

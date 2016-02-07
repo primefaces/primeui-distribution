@@ -1,5 +1,5 @@
 /*
- * PrimeUI 3.0.1
+ * PrimeUI 3.0.2
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -191,9 +191,9 @@ button.pui-button::-moz-focus-inner{border:0;padding:0;}
 .pui-dropdown-panel .pui-dropdown-item-group{font-weight:bold;}
 .pui-dropdown-panel .pui-dropdown-list{padding:.4em;border:0 none;}
 .pui-dropdown-panel .pui-dropdown-list-item{border:0 none;cursor:pointer;margin:1px 0;padding:3px 5px;text-align:left;}
-.pui-dropdown-panel .pui-dropdown-filter{width:85%;padding-right:18px;}
+.pui-dropdown-panel .pui-dropdown-filter{width:100%;padding-right:18px;box-sizing:border-box;}
 .pui-dropdown-panel .pui-dropdown-filter-container{position:relative;margin:0;padding:.4em;display:inline-block;}
-.pui-dropdown-panel .pui-dropdown-filter-container .pui-icon{position:absolute;top:10px;right:15px;}
+.pui-dropdown-panel .pui-dropdown-filter-container .pui-icon{position:absolute;top:12px;right:15px;}
 .pui-fluid .pui-dropdown{width:100%;box-sizing:border-box;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;}
 .pui-fluid .pui-dropdown .pui-dropdown-trigger{width:32px;padding:0 6px;box-sizing:border-box;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;}.pui-fieldset,.pui-fieldset .pui-fieldset-legend{padding:.6em 1em;}
 .pui-fieldset-toggleable .pui-fieldset-legend{padding:.5em 1em .5em .5em;cursor:pointer;white-space:nowrap;}
@@ -412,6 +412,7 @@ button.pui-button::-moz-focus-inner{border:0;padding:0;}
 .pui-picklist.pui-picklist-responsive .pui-picklist-buttons .fa-angle-double-left:before{content:"\f102";}
 }.pui-progressbar{height:1.2em;text-align:left;position:relative;}
 .pui-progressbar .pui-progressbar-value{margin:-1px;height:100%;width:0;position:absolute;display:none;}
+.pui-progressbar .pui-progressbar-value-animate{-webkit-transition:width 1s ease-in-out;-moz-transition:width 1s ease-in-out;-o-transition:width 1s ease-in-out;transition:width 1s ease-in-out;}
 .pui-progressbar .pui-progressbar-label{text-align:center;height:100%;width:100%;position:absolute;display:none;font-weight:bold;}.pui-radiobutton{position:relative;width:16px;margin:2px 0;line-height:16px;cursor:pointer;}
 .pui-radiobutton .pui-radiobutton-box{width:16px;height:16px;line-height:16px;-moz-border-radius:10px;-webkit-border-radius:10px;border-radius:10px;}
 .pui-radiobutton-icon{font-size:10px;margin-top:3px;margin-left:2px;display:block;}.pui-rating-star,.pui-rating-cancel{float:left;display:block;overflow:hidden;text-indent:-999em;cursor:pointer;}
