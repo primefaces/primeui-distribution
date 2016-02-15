@@ -8,7 +8,7 @@
 
 /* Component containers
 ----------------------------------*/
-.ui-widget { font-family: Verdana,Arial,sans-serif/*{ffDefault}*/; font-size: 1.1em/*{fsDefault}*/; }
+.ui-widget { font-family: Verdana,Arial,sans-serif/*{ffDefault}*/; font-size: 1em/*{fsDefault}*/; }
 .ui-widget .ui-widget { font-size: 1em; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Verdana,Arial,sans-serif/*{ffDefault}*/; font-size: 1em; }
 .ui-widget-content { border: 1px solid #aaaaaa/*{borderColorContent}*/; background: #ffffff/*{bgColorContent}*/ url(images/ui-bg_flat_75_ffffff_40x100.png)/*{bgImgUrlContent}*/ 50%/*{bgContentXPos}*/ 50%/*{bgContentYPos}*/ repeat-x/*{bgContentRepeat}*/; color: #222222/*{fcContent}*/; }
@@ -247,7 +247,7 @@
 .ui-widget-shadow { margin: -8px/*{offsetTopShadow}*/ 0 0 -8px/*{offsetLeftShadow}*/; padding: 8px/*{thicknessShadow}*/; background: #aaaaaa/*{bgColorShadow}*/ url(images/ui-bg_flat_0_aaaaaa_40x100.png)/*{bgImgUrlShadow}*/ 50%/*{bgShadowXPos}*/ 50%/*{bgShadowYPos}*/ repeat-x/*{bgShadowRepeat}*/; opacity: .3;filter:Alpha(Opacity=30)/*{opacityShadow}*/; -moz-border-radius: 8px/*{cornerRadiusShadow}*/; -webkit-border-radius: 8px/*{cornerRadiusShadow}*/; border-radius: 8px/*{cornerRadiusShadow}*/; }
 
 /* PrimeFaces Extensions */
-.pui-inputtext, .ui-widget-content .pui-inputtext, .ui-widget-header .pui-inputtext {
+.ui-inputtext, .ui-widget-content .ui-inputtext, .ui-widget-header .ui-inputtext {
     background: #ffffff;
     -moz-box-shadow: inset 0 2px 2px #8f8f8f;
     -webkit-box-shadow: inset 0 2px 2px #8f8f8f;
@@ -255,11 +255,11 @@
     color: #555555;
 }
 
-.pui-inputtext.ui-state-hover, .ui-widget-content .pui-inputtext.ui-state-hover, .ui-widget-header .pui-inputtext.ui-state-hover {
+.ui-inputtext.ui-state-hover, .ui-widget-content .ui-inputtext.ui-state-hover, .ui-widget-header .ui-inputtext.ui-state-hover {
     border-color: #bfdaff;
 }
 
-.pui-inputtext.ui-state-focus, .ui-widget-content .pui-inputtext.ui-state-focus, .ui-widget-header .pui-inputtext.ui-state-focus {
+.ui-inputtext.ui-state-focus, .ui-widget-content .ui-inputtext.ui-state-focus, .ui-widget-header .ui-inputtext.ui-state-focus {
     -moz-box-shadow: 0px 0px 5px #bfdaff, inset 0 2px 2px #8f8f8f;
     -webkit-box-shadow: 0px 0px 5px #bfdaff, inset 0 2px 2px #8f8f8f;
     box-shadow: 0px 0px 5px #bfdaff, inset 0 2px 2px #8f8f8f;

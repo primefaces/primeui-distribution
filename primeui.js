@@ -1,5 +1,5 @@
 /*
- * PrimeUI 3.0.2
+ * PrimeUI 4.0.0
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -23,12 +23,12 @@ var PUI = {
     zindex : 1000,
     
     gridColumns: {
-        '1': 'pui-grid-col-12',
-        '2': 'pui-grid-col-6',
-        '3': 'pui-grid-col-4',
-        '4': 'pui-grid-col-3',
-        '6': 'pui-grid-col-2',
-        '12': 'pui-grid-col-11'
+        '1': 'ui-grid-col-12',
+        '2': 'ui-grid-col-6',
+        '3': 'ui-grid-col-4',
+        '4': 'ui-grid-col-3',
+        '6': 'ui-grid-col-2',
+        '12': 'ui-grid-col-11'
     },
         
     /**
@@ -255,7 +255,7 @@ PUI.resolveUserAgent();/**
             }
         
             var $this = this;
-            this.element.addClass('pui-accordion ui-widget ui-helper-reset');
+            this.element.addClass('ui-accordion ui-widget ui-helper-reset');
 
             var tabContainers = this.element.children();
 
@@ -272,19 +272,19 @@ PUI.resolveUserAgent();/**
                 this.panels = tabContainers.children('div');
             }
             
-            this.headers.addClass('pui-accordion-header ui-helper-reset ui-state-default').each(function(i) {
+            this.headers.addClass('ui-accordion-header ui-helper-reset ui-state-default').each(function(i) {
                 var header = $(this),
                 title = header.html(),
                 active = $this.options.multiple ? ($.inArray(i, $this.options.activeIndex) !== -1) : (i == $this.options.activeIndex);
                 headerClass = (active) ? 'ui-state-active ui-corner-top' : 'ui-corner-all',
-                iconClass = (active) ? 'pui-icon fa fa-fw fa-caret-down' : 'pui-icon fa fa-fw fa-caret-right';
+                iconClass = (active) ? 'ui-icon fa fa-fw fa-caret-down' : 'ui-icon fa fa-fw fa-caret-right';
 
                 header.addClass(headerClass).html('<span class="' + iconClass + '"></span><a href="#">' + title + '</a>');
             });
             
             this.panels.each(function(i) {
                 var content = $(this);
-                content.addClass('pui-accordion-content ui-helper-reset ui-widget-content'),
+                content.addClass('ui-accordion-content ui-helper-reset ui-widget-content'),
                 active = $this.options.multiple ? ($.inArray(i, $this.options.activeIndex) !== -1) : (i == $this.options.activeIndex);
                 
                 if(!active) {
@@ -299,10 +299,10 @@ PUI.resolveUserAgent();/**
 
         _destroy: function() {
             this._unbindEvents();
-            this.element.removeClass('pui-accordion ui-widget ui-helper-reset');
-            this.headers.removeClass('pui-accordion-header ui-helper-reset ui-state-default ui-state-hover ui-state-active ui-state-disabled ui-corner-all ui-corner-top');
-            this.panels.removeClass('pui-accordion-content ui-helper-reset ui-widget-content ui-helper-hidden');
-            this.headers.children('.pui-icon').remove();
+            this.element.removeClass('ui-accordion ui-widget ui-helper-reset');
+            this.headers.removeClass('ui-accordion-header ui-helper-reset ui-state-default ui-state-hover ui-state-active ui-state-disabled ui-corner-all ui-corner-top');
+            this.panels.removeClass('ui-accordion-content ui-helper-reset ui-widget-content ui-helper-hidden');
+            this.headers.children('.ui-icon').remove();
             this.headers.children('a').contents().unwrap();
         },
         
@@ -367,7 +367,7 @@ PUI.resolveUserAgent();/**
             var panel = this.panels.eq(index),
             header = panel.prev();
 
-            header.attr('aria-expanded', false).children('.pui-icon').removeClass('fa-caret-down').addClass('fa-caret-right');
+            header.attr('aria-expanded', false).children('.ui-icon').removeClass('fa-caret-down').addClass('fa-caret-right');
             header.removeClass('ui-state-active ui-corner-top').addClass('ui-corner-all');
             panel.attr('aria-hidden', true).slideUp();
 
@@ -378,14 +378,14 @@ PUI.resolveUserAgent();/**
             //deactivate current
             if(!this.options.multiple) {
                 var oldHeader = this.headers.filter('.ui-state-active');
-                oldHeader.children('.pui-icon').removeClass('fa-caret-down').addClass('fa-caret-right');
+                oldHeader.children('.ui-icon').removeClass('fa-caret-down').addClass('fa-caret-right');
                 oldHeader.attr('aria-expanded', false).removeClass('ui-state-active ui-corner-top').addClass('ui-corner-all').next().attr('aria-hidden', true).slideUp();
             }
 
             //activate selected
             var newHeader = panel.prev();
             newHeader.attr('aria-expanded', true).addClass('ui-state-active ui-corner-top').removeClass('ui-state-hover ui-corner-all')
-                    .children('.pui-icon').removeClass('fa-caret-right').addClass('fa-caret-down');
+                    .children('.ui-icon').removeClass('fa-caret-right').addClass('fa-caret-down');
 
             panel.attr('aria-hidden', false).slideDown('normal');
         },
@@ -432,20 +432,20 @@ PUI.resolveUserAgent();/**
         },
 
         _create: function() {
-            this.element.wrap('<span class="pui-autocomplete ui-widget" />');
+            this.element.wrap('<span class="ui-autocomplete ui-widget" />');
             this.element.puiinputtext();
-            this.panel = $('<div class="pui-autocomplete-panel ui-widget-content ui-corner-all ui-helper-hidden pui-shadow"></div>').appendTo('body');
+            this.panel = $('<div class="ui-autocomplete-panel ui-widget-content ui-corner-all ui-helper-hidden ui-shadow"></div>').appendTo('body');
             
             if(this.options.multiple) {
-                this.element.wrap('<ul class="pui-autocomplete-multiple ui-widget pui-inputtext ui-state-default ui-corner-all">' + 
-                                        '<li class="pui-autocomplete-input-token"></li></ul>');
+                this.element.wrap('<ul class="ui-autocomplete-multiple ui-widget ui-inputtext ui-state-default ui-corner-all">' + 
+                                        '<li class="ui-autocomplete-input-token"></li></ul>');
                 this.inputContainer = this.element.parent();
                 this.multiContainer = this.inputContainer.parent();
             }
             else {
                 if(this.options.dropdown) {
-                    this.dropdown = $('<button type="button" class="pui-autocomplete-dropdown pui-button ui-widget ui-state-default ui-corner-right pui-button-icon-only">' +
-                        '<span class="pui-icon fa fa-fw fa-caret-down"></span><span class="pui-button-text">&nbsp;</span></button>')
+                    this.dropdown = $('<button type="button" class="ui-autocomplete-dropdown ui-button ui-widget ui-state-default ui-corner-right ui-button-icon-only">' +
+                        '<span class="ui-icon fa fa-fw fa-caret-down"></span><span class="ui-button-text">&nbsp;</span></button>')
                         .insertAfter(this.element);
                     this.element.removeClass('ui-corner-all').addClass('ui-corner-left');
                 }
@@ -506,10 +506,10 @@ PUI.resolveUserAgent();/**
                     $this.element.trigger('focus');
                 });
 
-                this.element.on('focus.pui-autocomplete', function() {
+                this.element.on('focus.ui-autocomplete', function() {
                     $this.multiContainer.addClass('ui-state-focus');
                 })
-                .on('blur.pui-autocomplete', function(e) {
+                .on('blur.ui-autocomplete', function(e) {
                     $this.multiContainer.removeClass('ui-state-focus');
                 });
             }
@@ -671,13 +671,13 @@ PUI.resolveUserAgent();/**
                 var item = $(this);
                 
                 if($this.options.multiple) {
-                    var tokenMarkup = '<li class="pui-autocomplete-token ui-state-active ui-corner-all ui-helper-hidden">';
-                    tokenMarkup += '<span class="pui-autocomplete-token-icon fa fa-fw fa-close" />';
-                    tokenMarkup += '<span class="pui-autocomplete-token-label">' + item.data('label') + '</span></li>';
+                    var tokenMarkup = '<li class="ui-autocomplete-token ui-state-active ui-corner-all ui-helper-hidden">';
+                    tokenMarkup += '<span class="ui-autocomplete-token-icon fa fa-fw fa-close" />';
+                    tokenMarkup += '<span class="ui-autocomplete-token-label">' + item.data('label') + '</span></li>';
 
                     $(tokenMarkup).data(item.data())
                         .insertBefore($this.inputContainer).fadeIn()
-                        .children('.pui-autocomplete-token-icon').on('click.pui-autocomplete', function(e) {
+                        .children('.ui-autocomplete-token-icon').on('click.ui-autocomplete', function(e) {
                             var token = $(this).parent();
                             $this._removeItem(token);
                             $this._trigger('unselect', e, token);
@@ -731,10 +731,10 @@ PUI.resolveUserAgent();/**
         _handleData: function(data) {
             var $this = this;
             this.panel.html('');
-            this.listContainer = $('<ul class="pui-autocomplete-items pui-autocomplete-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>').appendTo(this.panel);
+            this.listContainer = $('<ul class="ui-autocomplete-items ui-autocomplete-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>').appendTo(this.panel);
 
             for(var i = 0; i < data.length; i++) {
-                var item = $('<li class="pui-autocomplete-item pui-autocomplete-list-item ui-corner-all"></li>');
+                var item = $('<li class="ui-autocomplete-item ui-autocomplete-list-item ui-corner-all"></li>');
                 item.data(data[i]);
                 
                 if(this.options.content)
@@ -745,7 +745,7 @@ PUI.resolveUserAgent();/**
                 this.listContainer.append(item);
             }
             
-            this.items = this.listContainer.children('.pui-autocomplete-item');
+            this.items = this.listContainer.children('.ui-autocomplete-item');
             
             this._bindDynamicEvents();
 
@@ -759,7 +759,7 @@ PUI.resolveUserAgent();/**
                         var item = $(this),
                         text = item.html(),
                         re = new RegExp(PUI.escapeRegExp($this.query), 'gi'),
-                        highlighedText = text.replace(re, '<span class="pui-autocomplete-query">$&</span>');
+                        highlighedText = text.replace(re, '<span class="ui-autocomplete-query">$&</span>');
 
                         item.html(highlighedText);
                     });
@@ -825,11 +825,11 @@ PUI.resolveUserAgent();/**
             }
             else {
                 if(this.panel.is(':visible')) {
-                    panelWidth = this.panel.children('.pui-autocomplete-items').outerWidth();
+                    panelWidth = this.panel.children('.ui-autocomplete-items').outerWidth();
                 }
                 else {
                     this.panel.css({'visibility':'hidden','display':'block'});
-                    panelWidth = this.panel.children('.pui-autocomplete-items').outerWidth();
+                    panelWidth = this.panel.children('.ui-autocomplete-items').outerWidth();
                     this.panel.css({'visibility':'visible','display':'none'});
                 }
 
@@ -871,28 +871,28 @@ PUI.resolveUserAgent();/**
             var element = this.element;
             this.elementText = this.element.text();
             
-            var value = this.options.value||(this.elementText === '' ? 'pui-button' : this.elementText),
+            var value = this.options.value||(this.elementText === '' ? 'ui-button' : this.elementText),
             disabled = element.prop('disabled'),
             styleClass = null;
             
             if(this.options.icon) {
-                styleClass = (value === 'pui-button') ? 'pui-button-icon-only' : 'pui-button-text-icon-' + this.options.iconPos;
+                styleClass = (value === 'ui-button') ? 'ui-button-icon-only' : 'ui-button-text-icon-' + this.options.iconPos;
             }
             else {
-                styleClass = 'pui-button-text-only';
+                styleClass = 'ui-button-text-only';
             }
 
             if(disabled) {
                 styleClass += ' ui-state-disabled';
             }
             
-            this.element.addClass('pui-button ui-widget ui-state-default ui-corner-all ' + styleClass).text('');
+            this.element.addClass('ui-button ui-widget ui-state-default ui-corner-all ' + styleClass).text('');
             
             if(this.options.icon) {
-                this.element.append('<span class="pui-button-icon-' + this.options.iconPos + ' pui-icon pui-c fa fa-fw ' + this.options.icon + '" />');
+                this.element.append('<span class="ui-button-icon-' + this.options.iconPos + ' ui-icon ui-c fa fa-fw ' + this.options.icon + '" />');
             }
             
-            this.element.append('<span class="pui-button-text pui-c">' + value + '</span>');
+            this.element.append('<span class="ui-button-text ui-c">' + value + '</span>');
                         
             if(!disabled) {
                 this._bindEvents();
@@ -900,11 +900,11 @@ PUI.resolveUserAgent();/**
         },
 
         _destroy: function() {
-            this.element.removeClass('pui-button ui-widget ui-state-default ui-state-hover ui-state-active ui-state-disabled ui-state-focus ui-corner-all ' + 
-                                                    'pui-button-text-only pui-button-icon-only pui-button-text-icon-right pui-button-text-icon-left');
+            this.element.removeClass('ui-button ui-widget ui-state-default ui-state-hover ui-state-active ui-state-disabled ui-state-focus ui-corner-all ' + 
+                                                    'ui-button-text-only ui-button-icon-only ui-button-text-icon-right ui-button-text-icon-left');
             this._unbindEvents();
-            this.element.children('.pui-icon').remove();
-            this.element.children('.pui-button-text').remove();
+            this.element.children('.ui-icon').remove();
+            this.element.children('.ui-button-text').remove();
             this.element.text(this.elementText);
         },
         
@@ -1003,19 +1003,19 @@ PUI.resolveUserAgent();/**
             }
 
             if(!this.options.enhanced) {
-                this.element.wrap('<div class="pui-carousel ui-widget ui-widget-content ui-corner-all"><div class="pui-carousel-viewport"></div></div>');
+                this.element.wrap('<div class="ui-carousel ui-widget ui-widget-content ui-corner-all"><div class="ui-carousel-viewport"></div></div>');
             }
 
             this.container = this.element.parent().parent();
-            this.element.addClass('pui-carousel-items');
+            this.element.addClass('ui-carousel-items');
             this.viewport = this.element.parent();
-            this.container.prepend('<div class="pui-carousel-header ui-widget-header"><div class="pui-carousel-header-title"></div></div>');
-            this.header = this.container.children('.pui-carousel-header');
-            this.header.append('<span class="pui-carousel-button pui-carousel-next-button fa fa-arrow-circle-right"></span>' +
-                '<span class="pui-carousel-button pui-carousel-prev-button fa fa-arrow-circle-left"></span>');
+            this.container.prepend('<div class="ui-carousel-header ui-widget-header"><div class="ui-carousel-header-title"></div></div>');
+            this.header = this.container.children('.ui-carousel-header');
+            this.header.append('<span class="ui-carousel-button ui-carousel-next-button fa fa-arrow-circle-right"></span>' +
+                '<span class="ui-carousel-button ui-carousel-prev-button fa fa-arrow-circle-left"></span>');
                 
             if(this.options.headerText) {
-                this.header.children('.pui-carousel-header-title').html(this.options.headerText);
+                this.header.children('.ui-carousel-header-title').html(this.options.headerText);
             }
             
             if(this.options.styleClass) {
@@ -1035,8 +1035,8 @@ PUI.resolveUserAgent();/**
         _destroy: function() {
             this._unbindEvents();
             this.header.remove();
-            this.items.removeClass('pui-carousel-item ui-widget-content ui-corner-all').css('width','auto');
-            this.element.removeClass('pui-carousel-items').css('left','auto');
+            this.items.removeClass('ui-carousel-item ui-widget-content ui-corner-all').css('width','auto');
+            this.element.removeClass('ui-carousel-items').css('left','auto');
 
             if(!this.options.enhanced) {
                 this.element.unwrap().unwrap();
@@ -1057,7 +1057,7 @@ PUI.resolveUserAgent();/**
         _updateDatasource: function(value) {
             this.options.datasource = value;
             this.element.children().remove();
-            this.header.children('.pui-carousel-page-links').remove();
+            this.header.children('.ui-carousel-page-links').remove();
             this.header.children('select').remove();
             this._loadData();
         },
@@ -1076,7 +1076,7 @@ PUI.resolveUserAgent();/**
             }
             
             this.items = this.element.children('li');
-            this.items.addClass('pui-carousel-item ui-widget-content ui-corner-all');
+            this.items.addClass('ui-carousel-item ui-widget-content ui-corner-all');
             this.itemsCount = this.items.length;
             this.columns = this.options.numVisible;
             this.first = this.options.firstVisible;
@@ -1085,11 +1085,11 @@ PUI.resolveUserAgent();/**
             
             this._renderPageLinks();
             
-            this.prevNav = this.header.children('.pui-carousel-prev-button');
-            this.nextNav = this.header.children('.pui-carousel-next-button');
-            this.pageLinks = this.header.find('> .pui-carousel-page-links > .pui-carousel-page-link');
-            this.dropdown = this.header.children('.pui-carousel-dropdown');
-            this.mobileDropdown = this.header.children('.pui-carousel-mobiledropdown');
+            this.prevNav = this.header.children('.ui-carousel-prev-button');
+            this.nextNav = this.header.children('.ui-carousel-next-button');
+            this.pageLinks = this.header.find('> .ui-carousel-page-links > .ui-carousel-page-link');
+            this.dropdown = this.header.children('.ui-carousel-dropdown');
+            this.mobileDropdown = this.header.children('.ui-carousel-mobiledropdown');
             
             this._bindEvents();
             
@@ -1105,14 +1105,14 @@ PUI.resolveUserAgent();/**
         
         _renderPageLinks: function() {
             if(this.totalPages <= this.options.pageLinks) {
-                this.pageLinksContainer = $('<div class="pui-carousel-page-links"></div>');
+                this.pageLinksContainer = $('<div class="ui-carousel-page-links"></div>');
                 for(var i = 0; i < this.totalPages; i++) {
-                    this.pageLinksContainer.append('<a href="#" class="pui-carousel-page-link fa fa-circle-o"></a>');
+                    this.pageLinksContainer.append('<a href="#" class="ui-carousel-page-link fa fa-circle-o"></a>');
                 }
                 this.header.append(this.pageLinksContainer);
             }
             else {
-                this.dropdown = $('<select class="pui-carousel-dropdown ui-widget ui-state-default ui-corner-left"></select>');
+                this.dropdown = $('<select class="ui-carousel-dropdown ui-widget ui-state-default ui-corner-left"></select>');
                 for(var i = 0; i < this.totalPages; i++) {
                     var pageNumber = (i+1);
                     this.dropdown.append('<option value="' + pageNumber + '">' + pageNumber + '</option>');
@@ -1121,7 +1121,7 @@ PUI.resolveUserAgent();/**
             }
             
             if(this.options.responsive) {
-                this.mobileDropdown = $('<select class="pui-carousel-mobiledropdown ui-widget ui-state-default ui-corner-left"></select>');
+                this.mobileDropdown = $('<select class="ui-carousel-mobiledropdown ui-widget ui-state-default ui-corner-left"></select>');
                 for(var i = 0; i < this.itemsCount; i++) {
                     var pageNumber = (i+1);
                     this.mobileDropdown.append('<option value="' + pageNumber + '">' + pageNumber + '</option>');
@@ -1349,10 +1349,10 @@ PUI.resolveUserAgent();/**
     $.widget("primeui.puicheckbox", {
        
         _create: function() {
-            this.element.wrap('<div class="pui-chkbox ui-widget"><div class="ui-helper-hidden-accessible"></div></div>');
+            this.element.wrap('<div class="ui-chkbox ui-widget"><div class="ui-helper-hidden-accessible"></div></div>');
             this.container = this.element.parent().parent();
-            this.box = $('<div class="pui-chkbox-box ui-widget ui-corner-all ui-state-default">').appendTo(this.container);
-            this.icon = $('<span class="pui-chkbox-icon pui-c"></span>').appendTo(this.box);
+            this.box = $('<div class="ui-chkbox-box ui-widget ui-corner-all ui-state-default">').appendTo(this.container);
+            this.icon = $('<span class="ui-chkbox-icon ui-c"></span>').appendTo(this.box);
             this.disabled = this.element.prop('disabled');
             this.label = $('label[for="' + this.element.attr('id') + '"]');
             
@@ -1481,7 +1481,7 @@ PUI.resolveUserAgent();/**
 
         _destroy: function() {
             this._unbindEvents();
-            this.container.removeClass('pui-chkbox ui-widget');
+            this.container.removeClass('ui-chkbox ui-widget');
             this.box.remove();
             this.element.unwrap().unwrap();
         }
@@ -1539,9 +1539,9 @@ PUI.resolveUserAgent();/**
                 this.id = this.element.uniqueId().attr('id');
             }
             
-            this.element.addClass('pui-datatable ui-widget');
+            this.element.addClass('ui-datatable ui-widget');
             if(this.options.responsive) {
-                this.element.addClass('pui-datatable-reflow');
+                this.element.addClass('ui-datatable-reflow');
             }
             
             if(this.options.scrollable) {
@@ -1584,10 +1584,10 @@ PUI.resolveUserAgent();/**
         },
         
         _createRegularDatatable: function() {
-            this.tableWrapper = $('<div class="pui-datatable-tablewrapper" />').appendTo(this.element);
+            this.tableWrapper = $('<div class="ui-datatable-tablewrapper" />').appendTo(this.element);
             this.table = $('<table><thead></thead><tbody></tbody></table>').appendTo(this.tableWrapper);
             this.thead = this.table.children('thead');
-            this.tbody = this.table.children('tbody').addClass('pui-datatable-data');
+            this.tbody = this.table.children('tbody').addClass('ui-datatable-data');
 
             if(this.containsFooter()) {
                 this.tfoot = this.thead.after('<tfoot></tfoot>').next();
@@ -1595,15 +1595,15 @@ PUI.resolveUserAgent();/**
         },
         
         _createScrollableDatatable: function() {            
-            this.element.append('<div class="ui-widget-header pui-datatable-scrollable-header"><div class="pui-datatable-scrollable-header-box"><table><thead></thead></table></div></div>')
-                        .append('<div class="pui-datatable-scrollable-body"><table><tbody></tbody></table></div>');
+            this.element.append('<div class="ui-widget-header ui-datatable-scrollable-header"><div class="ui-datatable-scrollable-header-box"><table><thead></thead></table></div></div>')
+                        .append('<div class="ui-datatable-scrollable-body"><table><tbody></tbody></table></div>');
         
-            this.thead = this.element.find('> .pui-datatable-scrollable-header > .pui-datatable-scrollable-header-box > table > thead');
-            this.tbody = this.element.find('> .pui-datatable-scrollable-body > table > tbody');
+            this.thead = this.element.find('> .ui-datatable-scrollable-header > .ui-datatable-scrollable-header-box > table > thead');
+            this.tbody = this.element.find('> .ui-datatable-scrollable-body > table > tbody');
             
             if(this.containsFooter()) {
-                this.element.append('<div class="ui-widget-header pui-datatable-scrollable-footer"><div class="pui-datatable-scrollable-footer-box"><table><tfoot></tfoot></table></div></div>');
-                this.tfoot = this.element.find('> .pui-datatable-scrollable-footer > .pui-datatable-scrollable-footer-box > table > tfoot');
+                this.element.append('<div class="ui-widget-header ui-datatable-scrollable-footer"><div class="ui-datatable-scrollable-footer-box"><table><tfoot></tfoot></table></div></div>');
+                this.tfoot = this.element.find('> .ui-datatable-scrollable-footer > .ui-datatable-scrollable-footer-box > table > tfoot');
             }
         },
                 
@@ -1614,7 +1614,7 @@ PUI.resolveUserAgent();/**
             this._initFooter();
 
             if(this.options.caption) {
-                this.element.prepend('<div class="pui-datatable-caption ui-widget-header">' + this.options.caption + '</div>');
+                this.element.prepend('<div class="ui-datatable-caption ui-widget-header">' + this.options.caption + '</div>');
             }
             
             if(this.options.paginator) {
@@ -1627,7 +1627,7 @@ PUI.resolveUserAgent();/**
             }
             
             if(this.options.footer) {
-                this.element.append('<div class="pui-datatable-footer ui-widget-header">' + this.options.footer + '</div>');
+                this.element.append('<div class="ui-datatable-footer ui-widget-header">' + this.options.footer + '</div>');
             }
 
             if(this._isSortingEnabled()) {
@@ -1709,7 +1709,7 @@ PUI.resolveUserAgent();/**
             $this = this;
     
             $.each(columns, function(i, col) {
-                var cell = $('<th class="ui-state-default"><span class="pui-column-title"></span></th>').data('field', col.field).uniqueId().appendTo(headerRow);
+                var cell = $('<th class="ui-state-default"><span class="ui-column-title"></span></th>').data('field', col.field).uniqueId().appendTo(headerRow);
 
                 if(col.headerClass) {
                     cell.addClass(col.headerClass);
@@ -1720,9 +1720,9 @@ PUI.resolveUserAgent();/**
                 }
 
                 if(col.headerText)
-                    cell.children('.pui-column-title').text(col.headerText);
+                    cell.children('.ui-column-title').text(col.headerText);
                 else if(col.headerContent)
-                    cell.children('.pui-column-title').append(col.headerContent.call(this, col));
+                    cell.children('.ui-column-title').append(col.headerContent.call(this, col));
                 
                 if(col.rowspan) {
                     cell.attr('rowspan', col.rowspan);
@@ -1733,15 +1733,15 @@ PUI.resolveUserAgent();/**
                 }
 
                 if(col.sortable) {
-                    cell.addClass('pui-sortable-column')
+                    cell.addClass('ui-sortable-column')
                             .data('order', 0)
-                            .append('<span class="pui-sortable-column-icon fa fa-fw fa-sort"></span>');
+                            .append('<span class="ui-sortable-column-icon fa fa-fw fa-sort"></span>');
                 }
                 
                 if(col.filter) {
                     $this.hasFiltering = true;
                     
-                    var filterElement = $('<input type="text" class="pui-column-filter" />').puiinputtext().data({
+                    var filterElement = $('<input type="text" class="ui-column-filter" />').puiinputtext().data({
                         'field': col.field,
                         'filtermatchmode': col.filterMatchMode||'startsWith'
                     }).appendTo(cell);
@@ -1776,14 +1776,14 @@ PUI.resolveUserAgent();/**
         },
 
         _indicateInitialSortColumn: function() {
-            this.sortableColumns = this.thead.find('> tr > th.pui-sortable-column');
+            this.sortableColumns = this.thead.find('> tr > th.ui-sortable-column');
             var $this = this;
             
             $.each(this.sortableColumns, function(i, column) {
                 var $column = $(column),
                     data = $column.data();
                 if ($this.options.sortField === data.field) {
-                    var sortIcon = $column.children('.pui-sortable-column-icon');
+                    var sortIcon = $column.children('.ui-sortable-column-icon');
                     $column.data('order', $this.options.sortOrder).removeClass('ui-state-hover').addClass('ui-state-active');
                     if($this.options.sortOrder === -1)
                         sortIcon.removeClass('fa-sort fa-sort-asc').addClass('fa-sort-desc');
@@ -1835,13 +1835,13 @@ PUI.resolveUserAgent();/**
                 });
             }
 
-            this.thead.find('> tr > th.pui-sortable-column').data('order', 0).filter('.ui-state-active').removeClass('ui-state-active')
-                                .children('span.pui-sortable-column-icon').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
+            this.thead.find('> tr > th.ui-sortable-column').data('order', 0).filter('.ui-state-active').removeClass('ui-state-active')
+                                .children('span.ui-sortable-column-icon').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
         },
                 
         _initSorting: function() {
             var $this = this,
-            sortableColumns = this.thead.find('> tr > th.pui-sortable-column');
+            sortableColumns = this.thead.find('> tr > th.ui-sortable-column');
             
             sortableColumns.on('mouseover.puidatatable', function() {
                 var column = $(this);
@@ -1864,10 +1864,10 @@ PUI.resolveUserAgent();/**
                 sortField = column.data('field'),
                 order = column.data('order'),
                 sortOrder = (order === 0) ? 1 : (order * -1),
-                sortIcon = column.children('.pui-sortable-column-icon');
+                sortIcon = column.children('.ui-sortable-column-icon');
                 
                 //clean previous sort state
-                column.siblings().filter('.ui-state-active').data('order', 0).removeClass('ui-state-active').children('span.pui-sortable-column-icon')
+                column.siblings().filter('.ui-state-active').data('order', 0).removeClass('ui-state-active').children('span.ui-sortable-column-icon')
                                                             .removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
                                                     
                 //update state
@@ -1912,20 +1912,20 @@ PUI.resolveUserAgent();/**
                     result = null;
                     
                     if (typeof value1 == 'string' || value1 instanceof String) {
-                        if ( value1.localeCompare ) {
-                            return (order * value1.localeCompare(value2));
-                        }
-                        else {
-                            if (value1.toLowerCase) {
-                                value1 = value1.toLowerCase();
+                    	if ( value1.localeCompare ) {
+                    		return (order * value1.localeCompare(value2));
+                    	}
+                    	else {
+                        	if (value1.toLowerCase) {
+                            	value1 = value1.toLowerCase();
                             }
                             if (value2.toLowerCase) {
-                                value2 = value2.toLowerCase();
+                            	value2 = value2.toLowerCase();
                             }
                             result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
                             
                             
-                        }
+                    	}
                     }
                     else {
                         result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
@@ -1966,7 +1966,7 @@ PUI.resolveUserAgent();/**
                     
                     if(rowData) {
                         var row = $('<tr class="ui-widget-content" />').appendTo(this.tbody),
-                        zebraStyle = (i%2 === 0) ? 'pui-datatable-even' : 'pui-datatable-odd',
+                        zebraStyle = (i%2 === 0) ? 'ui-datatable-even' : 'ui-datatable-odd',
                         rowIndex = i;
 
                         row.addClass(zebraStyle);
@@ -1994,7 +1994,7 @@ PUI.resolveUserAgent();/**
                             }
                             
                             if(columnOptions.editor) {
-                                column.addClass('pui-editable-column').data({
+                                column.addClass('ui-editable-column').data({
                                     'editor': columnOptions.editor, 
                                     'rowdata': rowData,
                                     'field': columnOptions.field
@@ -2009,14 +2009,14 @@ PUI.resolveUserAgent();/**
                                     column.append(content);
                             }
                             else if(columnOptions.rowToggler) {
-                                column.append('<div class="pui-row-toggler fa fa-fw fa-chevron-circle-right pui-c"></div>');
+                                column.append('<div class="ui-row-toggler fa fa-fw fa-chevron-circle-right ui-c"></div>');
                             }
                             else if(columnOptions.field) {
                                 column.text(rowData[columnOptions.field]);
                             }
                             
                             if(this.options.responsive && columnOptions.headerText) {
-                                column.prepend('<span class="pui-column-title">' + columnOptions.headerText + '</span>');
+                                column.prepend('<span class="ui-column-title">' + columnOptions.headerText + '</span>');
                             }
                         }
                     }
@@ -2061,7 +2061,7 @@ PUI.resolveUserAgent();/**
         _initSelection: function() {
             var $this = this;
             this.selection = [];
-            this.rowSelector = '> tr.ui-widget-content:not(.pui-datatable-empty-message,.pui-datatable-unselectable)';
+            this.rowSelector = '> tr.ui-widget-content:not(.ui-datatable-empty-message,.ui-datatable-unselectable)';
             
             //shift key based range selection
             if(this._isMultipleSelection()) {
@@ -2096,7 +2096,7 @@ PUI.resolveUserAgent();/**
         },
                 
         _onRowClick: function(event, rowElement) {
-            if(!$(event.target).is(':input,:button,a,.pui-c')) {
+            if(!$(event.target).is(':input,:button,a,.ui-c')) {
                 var row = $(rowElement),
                 selected = row.hasClass('ui-state-highlight'),
                 metaKey = event.metaKey||event.ctrlKey,
@@ -2276,7 +2276,7 @@ PUI.resolveUserAgent();/**
         
         _initExpandableRows: function() {
             var $this = this,
-            togglerSelector = '> tr > td > div.pui-row-toggler';
+            togglerSelector = '> tr > td > div.ui-row-toggler';
 
             this.tbody.off('click', togglerSelector)
                 .on('click', togglerSelector, null, function() {
@@ -2316,15 +2316,15 @@ PUI.resolveUserAgent();/**
         
         loadExpandedRowContent: function(row) {
             var rowIndex = this._getRowIndex(row),
-            expandedRow = $('<tr class="pui-expanded-row-content pui-datatable-unselectable ui-widget-content"><td colspan="' + this.options.columns.length + '"></td></tr>');
+            expandedRow = $('<tr class="ui-expanded-row-content ui-datatable-unselectable ui-widget-content"><td colspan="' + this.options.columns.length + '"></td></tr>');
             expandedRow.children('td').append(this.options.expandedRowContent.call(this, this.data[rowIndex]));
 
-            row.addClass('pui-expanded-row').after(expandedRow);
+            row.addClass('ui-expanded-row').after(expandedRow);
             this._trigger('rowExpand', null, this.data[this._getRowIndex(row)]);
         },
         
         collapseRow: function(row) {
-            row.removeClass('pui-expanded-row').next('.pui-expanded-row-content').remove();
+            row.removeClass('ui-expanded-row').next('.ui-expanded-row-content').remove();
         },
         
         collapseAllRows: function() {
@@ -2337,7 +2337,7 @@ PUI.resolveUserAgent();/**
                 var columns = expandedRow.children('td');
                 for (var i = 0; i < columns.length; i++) {
                     var column = columns.eq(i),
-                    toggler = column.children('.pui-row-toggler');
+                    toggler = column.children('.ui-row-toggler');
 
                     if (toggler.length) {
                         toggler.addClass('fa-chevron-circle-right').removeClass('fa-chevron-circle-down');
@@ -2347,7 +2347,7 @@ PUI.resolveUserAgent();/**
         },
         
         getExpandedRows: function () {
-            return this.tbody.children('.pui-expanded-row');
+            return this.tbody.children('.ui-expanded-row');
         },
                 
         _createStateMeta: function() {
@@ -2386,9 +2386,9 @@ PUI.resolveUserAgent();/**
         },
         
         _initScrolling: function() {
-            this.scrollHeader = this.element.children('.pui-datatable-scrollable-header');
-            this.scrollBody = this.element.children('.pui-datatable-scrollable-body');
-            this.scrollHeaderBox = this.scrollHeader.children('.pui-datatable-scrollable-header-box');
+            this.scrollHeader = this.element.children('.ui-datatable-scrollable-header');
+            this.scrollBody = this.element.children('.ui-datatable-scrollable-body');
+            this.scrollHeaderBox = this.scrollHeader.children('.ui-datatable-scrollable-header-box');
             this.headerTable = this.scrollHeaderBox.children('table');
             this.bodyTable = this.scrollBody.children('table');
             this.percentageScrollHeight = this.options.scrollHeight && (this.options.scrollHeight.indexOf('%') !== -1);
@@ -2444,13 +2444,13 @@ PUI.resolveUserAgent();/**
             this.theadClone.find('th').each(function() {
                 var header = $(this);
                 header.attr('id', header.attr('id') + '_clone');
-                $(this).children().not('.pui-column-title').remove();
+                $(this).children().not('.ui-column-title').remove();
             });
-            this.theadClone.removeAttr('id').addClass('pui-datatable-scrollable-theadclone').height(0).prependTo(this.bodyTable);
+            this.theadClone.removeAttr('id').addClass('ui-datatable-scrollable-theadclone').height(0).prependTo(this.bodyTable);
 
             //align horizontal scroller on keyboard tab
             if(this.options.scrollWidth) {
-                var clonedSortableColumns = this.theadClone.find('> tr > th.pui-sortable-column');
+                var clonedSortableColumns = this.theadClone.find('> tr > th.ui-sortable-column');
                 clonedSortableColumns.each(function() {
                     $(this).data('original', $(this).attr('id').split('_clone')[0]);
                 });
@@ -2475,8 +2475,8 @@ PUI.resolveUserAgent();/**
 
         adjustScrollHeight: function() {
             var relativeHeight = this.element.parent().innerHeight() * (parseInt(this.options.scrollHeight) / 100),
-            tableHeaderHeight = this.element.children('.pui-datatable-header').outerHeight(true),
-            tableFooterHeight = this.element.children('.pui-datatable-footer').outerHeight(true),
+            tableHeaderHeight = this.element.children('.ui-datatable-header').outerHeight(true),
+            tableFooterHeight = this.element.children('.ui-datatable-footer').outerHeight(true),
             scrollersHeight = (this.scrollHeader.outerHeight(true) + this.scrollFooter.outerHeight(true)),
             paginatorsHeight = this.paginator ? this.paginator.getContainerHeight(true) : 0,
             height = (relativeHeight - (scrollersHeight + paginatorsHeight + tableHeaderHeight + tableFooterHeight));
@@ -2549,7 +2549,7 @@ PUI.resolveUserAgent();/**
                     });
                 }
                 else {
-                    this.element.find('> .pui-datatable-tablewrapper > table > thead > tr > th').each(function() {
+                    this.element.find('> .ui-datatable-tablewrapper > table > thead > tr > th').each(function() {
                         var col = $(this);
                         col.width(col.width());
                     });
@@ -2727,11 +2727,11 @@ PUI.resolveUserAgent();/**
         },
         
         _initResizableColumns: function() {
-            this.element.addClass('pui-datatable-resizable');
-            this.thead.find('> tr > th').addClass('pui-resizable-column');
-            this.resizerHelper = $('<div class="pui-column-resizer-helper ui-state-highlight"></div>').appendTo(this.element);
+            this.element.addClass('ui-datatable-resizable');
+            this.thead.find('> tr > th').addClass('ui-resizable-column');
+            this.resizerHelper = $('<div class="ui-column-resizer-helper ui-state-highlight"></div>').appendTo(this.element);
             this.addResizers();
-            var resizers = this.thead.find('> tr > th > span.pui-column-resizer'),
+            var resizers = this.thead.find('> tr > th > span.ui-column-resizer'),
             $this = this;
 
             setTimeout(function() {
@@ -2773,7 +2773,7 @@ PUI.resolveUserAgent();/**
                     }
 
                     if($this.options.stickyHeader) {
-                        $this.thead.find('.pui-column-filter').prop('disabled', false);
+                        $this.thead.find('.ui-column-filter').prop('disabled', false);
                         $this.clone = $this.thead.clone(true);
                         $this.cloneContainer.find('thead').remove();
                         $this.cloneContainer.children('table').append($this.clone);
@@ -2850,11 +2850,11 @@ PUI.resolveUserAgent();/**
         },
         
         addResizers: function() {
-            var resizableColumns = this.thead.find('> tr > th.pui-resizable-column');
-            resizableColumns.prepend('<span class="pui-column-resizer">&nbsp;</span>');
+            var resizableColumns = this.thead.find('> tr > th.ui-resizable-column');
+            resizableColumns.prepend('<span class="ui-column-resizer">&nbsp;</span>');
 
             if(this.options.columnResizeMode === 'fit') {
-                resizableColumns.filter(':last-child').children('span.pui-column-resizer').hide();
+                resizableColumns.filter(':last-child').children('span.ui-column-resizer').hide();
             }
         },
         
@@ -2862,13 +2862,13 @@ PUI.resolveUserAgent();/**
             var $this = this;
 
             this.tbody.sortable({
-                placeholder: 'pui-datatable-rowordering ui-state-active',
+                placeholder: 'ui-datatable-rowordering ui-state-active',
                 cursor: 'move',
                 handle: 'td,span:not(.ui-c)',
                 appendTo: document.body,
                 helper: function(event, ui) {
                     var cells = ui.children(),
-                    helper = $('<div class="pui-datatable ui-widget"><table><tbody></tbody></table></div>'),
+                    helper = $('<div class="ui-datatable ui-widget"><table><tbody></tbody></table></div>'),
                     helperRow = ui.clone(),
                     helperCells = helperRow.children();
 
@@ -2902,12 +2902,12 @@ PUI.resolveUserAgent();/**
             for(var i = this._getFirst(); i < rows.length; i++) {
                 var row = rows.eq(i);
 
-                row.data('ri', i).removeClass('pui-datatable-even pui-datatable-odd');
+                row.data('ri', i).removeClass('ui-datatable-even ui-datatable-odd');
 
                 if(i % 2 === 0)
-                    row.addClass('pui-datatable-even');
+                    row.addClass('ui-datatable-even');
                 else
-                    row.addClass('pui-datatable-odd');
+                    row.addClass('ui-datatable-odd');
 
             }
         },
@@ -2918,7 +2918,7 @@ PUI.resolveUserAgent();/**
         
         _initFiltering: function() {
             var $this = this;
-            this.filterElements = this.thead.find('.pui-column-filter');
+            this.filterElements = this.thead.find('.ui-column-filter');
             
             this.filterElements.on('keyup', function() {
                         if($this.filterTimeout) {
@@ -3034,7 +3034,7 @@ PUI.resolveUserAgent();/**
             stickyNS = 'scroll.' + this.id,
             resizeNS = 'resize.sticky-' + this.id; 
 
-            this.cloneContainer = $('<div class="pui-datatable pui-datatable-sticky ui-widget"><table></table></div>');
+            this.cloneContainer = $('<div class="ui-datatable ui-datatable-sticky ui-widget"><table></table></div>');
             this.clone = this.thead.clone(true);
             this.cloneContainer.children('table').append(this.clone);
 
@@ -3056,7 +3056,7 @@ PUI.resolveUserAgent();/**
                                             'position': 'fixed',
                                             'top': '0px'
                                         })
-                                        .addClass('pui-shadow pui-sticky');
+                                        .addClass('ui-shadow ui-sticky');
 
                     if(scrollTop >= (tableOffset.top + $this.tbody.height()))
                         $this.cloneContainer.hide();
@@ -3068,7 +3068,7 @@ PUI.resolveUserAgent();/**
                                             'position': 'absolute',
                                             'top': tableOffset.top
                                         })
-                                        .removeClass('pui-shadow pui-sticky');
+                                        .removeClass('ui-shadow ui-sticky');
                 }
             })
             .off(resizeNS).on(resizeNS, function() {
@@ -3076,17 +3076,17 @@ PUI.resolveUserAgent();/**
             });
 
             //filter support
-            this.thead.find('.pui-column-filter').prop('disabled', true);
+            this.thead.find('.ui-column-filter').prop('disabled', true);
         },
         
         _initEditing: function() {
-            var cellSelector = '> tr > td.pui-editable-column',
+            var cellSelector = '> tr > td.ui-editable-column',
             $this = this;
             
             this.tbody.off('click', cellSelector)
                         .on('click', cellSelector, null, function(e) {
                             var cell = $(this);
-                            if(!cell.hasClass('pui-cell-editing')) {
+                            if(!cell.hasClass('ui-cell-editing')) {
                                 $this._showCellEditor(cell);
                                 e.stopPropagation();
                             }
@@ -3099,7 +3099,7 @@ PUI.resolveUserAgent();/**
     
             editor.val(cell.data('rowdata')[cell.data('field')]);
             
-            cell.addClass('pui-cell-editing').html('').append(editor);
+            cell.addClass('ui-cell-editing').html('').append(editor);
             
             editor.focus().on('change', function() {
                 $this._onCellEditorChange(cell);
@@ -3117,18 +3117,18 @@ PUI.resolveUserAgent();/**
                 }
                 else if(key === keyCode.TAB) {
                     if(e.shiftKey) {
-                        var prevCell = cell.prevAll('td.pui-editable-column').eq(0);
+                        var prevCell = cell.prevAll('td.ui-editable-column').eq(0);
                         if(!prevCell.length) {
-                            prevCell = cell.parent().prev('tr').children('td.pui-editable-column:last');
+                            prevCell = cell.parent().prev('tr').children('td.ui-editable-column:last');
                         }
                         if(prevCell.length) {
                             $this._showCellEditor(prevCell);
                         }
                     }
                     else {
-                        var nextCell = cell.nextAll('td.pui-editable-column').eq(0);
+                        var nextCell = cell.nextAll('td.ui-editable-column').eq(0);
                         if(!nextCell.length) {
-                            nextCell = cell.parent().next('tr').children('td.pui-editable-column').eq(0);
+                            nextCell = cell.parent().next('tr').children('td.ui-editable-column').eq(0);
                         }
                         if(nextCell.length) {
                             $this._showCellEditor(nextCell);
@@ -3144,7 +3144,7 @@ PUI.resolveUserAgent();/**
         },
         
         _onCellEditorChange: function(cell) {
-            var newCellValue = cell.children('.pui-cell-editor').val();
+            var newCellValue = cell.children('.ui-cell-editor').val();
             
             var retVal = this._trigger('cellEdit', null, {
                 oldValue: cell.data('rowdata')[cell.data('field')],
@@ -3159,8 +3159,8 @@ PUI.resolveUserAgent();/**
         },
         
         _onCellEditorBlur: function(cell) {
-            cell.removeClass('pui-cell-editing').text(cell.data('rowdata')[cell.data('field')])
-                    .children('.pui-cell-editor').remove();
+            cell.removeClass('ui-cell-editing').text(cell.data('rowdata')[cell.data('field')])
+                    .children('.ui-cell-editor').remove();
         },
 
         reload: function() {
@@ -3194,7 +3194,7 @@ PUI.resolveUserAgent();/**
         editors: {
             
             'input': function() {
-                return $('<input type="text" class="pui-cell-editor"/>');
+                return $('<input type="text" class="ui-cell-editor"/>');
             }
         }
     
@@ -3224,19 +3224,19 @@ PUI.resolveUserAgent();/**
                 this.id = this.element.uniqueId().attr('id');
             }
                         
-            this.element.addClass('pui-datagrid ui-widget');
+            this.element.addClass('ui-datagrid ui-widget');
             
             //header
             if(this.options.header) {
-                this.element.append('<div class="pui-datagrid-header ui-widget-header ui-corner-top">' + this.options.header + '</div>');
+                this.element.append('<div class="ui-datagrid-header ui-widget-header ui-corner-top">' + this.options.header + '</div>');
             }
             
             //content
-            this.content = $('<div class="pui-datagrid-content ui-widget-content pui-grid pui-grid-responsive"></div>').appendTo(this.element);
+            this.content = $('<div class="ui-datagrid-content ui-widget-content ui-grid ui-grid-responsive"></div>').appendTo(this.element);
             
             //footer
             if(this.options.footer) {
-                this.element.append('<div class="pui-datagrid-footer ui-widget-header ui-corner-top">' + this.options.footer + '</div>');
+                this.element.append('<div class="ui-datagrid-footer ui-widget-header ui-corner-top">' + this.options.footer + '</div>');
             }
             
             //data
@@ -3302,10 +3302,10 @@ PUI.resolveUserAgent();/**
                     
                     if(dataValue) {
                         if(i % this.options.columns === 0) {
-                            gridRow = $('<div class="pui-grid-row"></div>').appendTo(this.content);
+                            gridRow = $('<div class="ui-grid-row"></div>').appendTo(this.content);
                         }
                         
-                        var gridColumn = $('<div class="pui-datagrid-column ' + PUI.getGridColumn(this.options.columns) + '"></div>').appendTo(gridRow),
+                        var gridColumn = $('<div class="ui-datagrid-column ' + PUI.getGridColumn(this.options.columns) + '"></div>').appendTo(gridRow),
                         markup = this._createItemContent(dataValue);
                         gridColumn.append(markup);
                     }
@@ -3446,21 +3446,21 @@ PUI.resolveUserAgent();/**
                 this.id = this.element.uniqueId().attr('id');
             }
             
-            this.element.addClass('pui-datascroller ui-widget');
+            this.element.addClass('ui-datascroller ui-widget');
             if(this.options.header) {
-                this.header = this.element.append('<div class="pui-datascroller-header ui-widget-header ui-corner-top">' + this.options.header + '</div>').children('.pui-datascroller-header');
+                this.header = this.element.append('<div class="ui-datascroller-header ui-widget-header ui-corner-top">' + this.options.header + '</div>').children('.ui-datascroller-header');
             }
             
-            this.content = this.element.append('<div class="pui-datascroller-content ui-widget-content ui-corner-bottom"></div>').children('.pui-datascroller-content');
-            this.list = this.content.append('<ul class="pui-datascroller-list"></ul>').children('.pui-datascroller-list');
-            this.loaderContainer = this.content.append('<div class="pui-datascroller-loader"></div>').children('.pui-datascroller-loader');
-            this.loadStatus = $('<div class="pui-datascroller-loading"></div>');
+            this.content = this.element.append('<div class="ui-datascroller-content ui-widget-content ui-corner-bottom"></div>').children('.ui-datascroller-content');
+            this.list = this.content.append('<ul class="ui-datascroller-list"></ul>').children('.ui-datascroller-list');
+            this.loaderContainer = this.content.append('<div class="ui-datascroller-loader"></div>').children('.ui-datascroller-loader');
+            this.loadStatus = $('<div class="ui-datascroller-loading"></div>');
             this.loading = false;
             this.allLoaded = false;
             this.offset = 0;
             
             if(this.options.mode === 'self') {
-                this.element.addClass('pui-datascroller-inline');
+                this.element.addClass('ui-datascroller-inline');
                 
                 if(this.options.scrollHeight) {
                     this.content.css('height', this.options.scrollHeight);
@@ -3575,7 +3575,7 @@ PUI.resolveUserAgent();/**
         _renderData: function(data, start, end) {
             if(data && data.length) {
                 for(var i = start; i < end; i++) {
-                    var listItem = $('<li class="pui-datascroller-item"></li>'),
+                    var listItem = $('<li class="ui-datascroller-item"></li>'),
                     content = this._createItemContent(data[i]);
                     listItem.append(content);
                     
@@ -3654,18 +3654,18 @@ PUI.resolveUserAgent();/**
             
             //container
             if(!this.options.enhanced) {
-                this.element.addClass('pui-dialog ui-widget ui-widget-content ui-helper-hidden ui-corner-all pui-shadow')
-                        .contents().wrapAll('<div class="pui-dialog-content ui-widget-content" />');
+                this.element.addClass('ui-dialog ui-widget ui-widget-content ui-helper-hidden ui-corner-all ui-shadow')
+                        .contents().wrapAll('<div class="ui-dialog-content ui-widget-content" />');
 
                 //header
                 var title = this.options.title||this.element.attr('title');
-                this.element.prepend('<div class="pui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top">' +
-                                '<span id="' + this.element.attr('id') + '_label" class="pui-dialog-title">' + title + '</span>')
+                this.element.prepend('<div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top">' +
+                                '<span id="' + this.element.attr('id') + '_label" class="ui-dialog-title">' + title + '</span>')
                                 .removeAttr('title');
 
                 //footer
                 if(this.options.buttons) {
-                    this.footer = $('<div class="pui-dialog-buttonpane ui-widget-content ui-helper-clearfix"></div>').appendTo(this.element);
+                    this.footer = $('<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"></div>').appendTo(this.element);
                     for(var i = 0; i < this.options.buttons.length; i++) {
                         var buttonMeta = this.options.buttons[i],
                         button = $('<button type="button"></button>').appendTo(this.footer);
@@ -3678,33 +3678,33 @@ PUI.resolveUserAgent();/**
                 }
 
                 if(this.options.rtl) {
-                    this.element.addClass('pui-dialog-rtl');
+                    this.element.addClass('ui-dialog-rtl');
                 }
             }
             
             //elements
-            this.content = this.element.children('.pui-dialog-content');
-            this.titlebar = this.element.children('.pui-dialog-titlebar');
+            this.content = this.element.children('.ui-dialog-content');
+            this.titlebar = this.element.children('.ui-dialog-titlebar');
             
             if(!this.options.enhanced) {
                 if(this.options.closable) {
-                    this._renderHeaderIcon('pui-dialog-titlebar-close', 'fa-close');
+                    this._renderHeaderIcon('ui-dialog-titlebar-close', 'fa-close');
                 }
                 
                 if(this.options.maximizable) {
-                    this._renderHeaderIcon('pui-dialog-titlebar-maximize', 'fa-sort');
+                    this._renderHeaderIcon('ui-dialog-titlebar-maximize', 'fa-sort');
                 }
                 
                 if(this.options.minimizable) {
-                    this._renderHeaderIcon('pui-dialog-titlebar-minimize', 'fa-minus');
+                    this._renderHeaderIcon('ui-dialog-titlebar-minimize', 'fa-minus');
                 }
             }
             
             //icons
-            this.icons = this.titlebar.children('.pui-dialog-titlebar-icon');
-            this.closeIcon = this.titlebar.children('.pui-dialog-titlebar-close');
-            this.minimizeIcon = this.titlebar.children('.pui-dialog-titlebar-minimize');
-            this.maximizeIcon = this.titlebar.children('.pui-dialog-titlebar-maximize');
+            this.icons = this.titlebar.children('.ui-dialog-titlebar-icon');
+            this.closeIcon = this.titlebar.children('.ui-dialog-titlebar-close');
+            this.minimizeIcon = this.titlebar.children('.ui-dialog-titlebar-minimize');
+            this.maximizeIcon = this.titlebar.children('.ui-dialog-titlebar-maximize');
             
             this.blockEvents = 'focus.puidialog mousedown.puidialog mouseup.puidialog keydown.puidialog keyup.puidialog';            
             this.parent = this.element.parent();
@@ -3733,8 +3733,8 @@ PUI.resolveUserAgent();/**
             }
 
             //docking zone
-            if($(document.body).children('.pui-dialog-docking-zone').length === 0) {
-                $(document.body).append('<div class="pui-dialog-docking-zone"></div>');
+            if($(document.body).children('.ui-dialog-docking-zone').length === 0) {
+                $(document.body).append('<div class="ui-dialog-docking-zone"></div>');
             }
 
             //aria
@@ -3748,7 +3748,7 @@ PUI.resolveUserAgent();/**
         _destroy: function() {
             //restore dom
             if(!this.options.enhanced) {
-                this.element.removeClass('pui-dialog ui-widget ui-widget-content ui-helper-hidden ui-corner-all pui-shadow');
+                this.element.removeClass('ui-dialog ui-widget ui-widget-content ui-helper-hidden ui-corner-all ui-shadow');
 
                 if(this.options.buttons) {
                     this.footer.children('button').puibutton('destroy');
@@ -3756,10 +3756,10 @@ PUI.resolveUserAgent();/**
                 }
 
                 if(this.options.rtl) {
-                    this.element.removeClass('pui-dialog-rtl');
+                    this.element.removeClass('ui-dialog-rtl');
                 }
 
-                var title = this.titlebar.children('.pui-dialog-title').text()||this.options.title;
+                var title = this.titlebar.children('.ui-dialog-title').text()||this.options.title;
                 if(title) {
                     this.element.attr('title', title);
                 }
@@ -3797,15 +3797,15 @@ PUI.resolveUserAgent();/**
         },
         
         _renderHeaderIcon: function(styleClass, icon) {
-            this.titlebar.append('<a class="pui-dialog-titlebar-icon ' + styleClass + ' ui-corner-all" href="#" role="button">' +
-                                '<span class="pui-icon fa fa-fw ' + icon + '"></span></a>');
+            this.titlebar.append('<a class="ui-dialog-titlebar-icon ' + styleClass + ' ui-corner-all" href="#" role="button">' +
+                                '<span class="ui-icon fa fa-fw ' + icon + '"></span></a>');
         },
         
         _enableModality: function() {
             var $this = this,
             doc = $(document);
 
-            this.modality = $('<div id="' + this.element.attr('id') + '_modal" class="ui-widget-overlay pui-dialog-mask"></div>').appendTo(document.body)
+            this.modality = $('<div id="' + this.element.attr('id') + '_modal" class="ui-widget-overlay ui-dialog-mask"></div>').appendTo(document.body)
                                 .css('z-index', this.element.css('z-index') - 1);
 
             //Disable tabbing out of modal dialog and stop events from targets outside of dialog
@@ -3981,8 +3981,8 @@ PUI.resolveUserAgent();/**
 
         _setupDraggable: function() {    
             this.element.draggable({
-                cancel: '.pui-dialog-content, .pui-dialog-titlebar-close',
-                handle: '.pui-dialog-titlebar',
+                cancel: '.ui-dialog-content, .ui-dialog-titlebar-close',
+                handle: '.ui-dialog-titlebar',
                 containment : 'document'
             });
         },
@@ -4057,7 +4057,7 @@ PUI.resolveUserAgent();/**
             }
 
             if(this.maximized) {
-                this.element.removeClass('pui-dialog-maximized');
+                this.element.removeClass('ui-dialog-maximized');
                 this._restoreState();
 
                 this.maximizeIcon.removeClass('ui-state-hover');//.children('.ui-icon').removeClass('ui-icon-newwin').addClass('ui-icon-extlink');
@@ -4068,7 +4068,7 @@ PUI.resolveUserAgent();/**
 
                 var win = $(window);
 
-                this.element.addClass('pui-dialog-maximized').css({
+                this.element.addClass('ui-dialog-maximized').css({
                     'width': win.width() - 6,
                     'height': win.height()
                 }).offset({
@@ -4090,7 +4090,7 @@ PUI.resolveUserAgent();/**
 
         toggleMinimize: function() {
             var animate = true,
-            dockingZone = $(document.body).children('.pui-dialog-docking-zone');
+            dockingZone = $(document.body).children('.ui-dialog-docking-zone');
 
             if(this.maximized) {
                 this.toggleMaximize();
@@ -4100,7 +4100,7 @@ PUI.resolveUserAgent();/**
             var $this = this;
 
             if(this.minimized) {
-                this.element.appendTo(this.parent).removeClass('pui-dialog-minimized').css({'position':'fixed', 'float':'none'});
+                this.element.appendTo(this.parent).removeClass('ui-dialog-minimized').css({'position':'fixed', 'float':'none'});
                 this._restoreState();
                 this.content.show();
                 this.minimizeIcon.removeClass('ui-state-hover');//.children('.ui-icon').removeClass('ui-icon-plus').addClass('ui-icon-minus');
@@ -4120,11 +4120,11 @@ PUI.resolveUserAgent();/**
                 if(animate) {
                     this.element.effect('transfer', {
                                     to: dockingZone,
-                                    className: 'pui-dialog-minimizing'
+                                    className: 'ui-dialog-minimizing'
                                  }, 500,
                                     function() {
                                         $this._dock(dockingZone);
-                                        $this.element.addClass('pui-dialog-minimized');
+                                        $this.element.addClass('ui-dialog-minimized');
                                     });
                 } 
                 else {
@@ -4182,7 +4182,7 @@ PUI.resolveUserAgent();/**
                 'aria-hidden': !this.options.visible
             });
 
-            this.titlebar.children('a.pui-dialog-titlebar-icon').attr('role', 'button');
+            this.titlebar.children('a.ui-dialog-titlebar-icon').attr('role', 'button');
         },
 
         _removeARIA: function() {
@@ -4256,50 +4256,50 @@ PUI.resolveUserAgent();/**
                     }
                 }
                 this.choices = this.element.children('option');
-                this.element.attr('tabindex', '-1').wrap('<div class="pui-dropdown ui-widget ui-state-default ui-corner-all ui-helper-clearfix" />')
+                this.element.attr('tabindex', '-1').wrap('<div class="ui-dropdown ui-widget ui-state-default ui-corner-all ui-helper-clearfix" />')
                     .wrap('<div class="ui-helper-hidden-accessible" />');
 
-                this.container = this.element.closest('.pui-dropdown');
+                this.container = this.element.closest('.ui-dropdown');
                 this.focusElementContainer = $('<div class="ui-helper-hidden-accessible"><input type="text" /></div>').appendTo(this.container);
                 this.focusElement = this.focusElementContainer.children('input');
-                this.label = this.options.editable ? $('<input type="text" class="pui-dropdown-label pui-inputtext ui-corner-all"">')
-                    : $('<label class="pui-dropdown-label pui-inputtext ui-corner-all"/>');
+                this.label = this.options.editable ? $('<input type="text" class="ui-dropdown-label ui-inputtext ui-corner-all"">')
+                    : $('<label class="ui-dropdown-label ui-inputtext ui-corner-all"/>');
                 this.label.appendTo(this.container);
-                this.menuIcon = $('<div class="pui-dropdown-trigger ui-state-default ui-corner-right"><span class="pui-icon fa fa-fw fa-caret-down"></span></div>')
+                this.menuIcon = $('<div class="ui-dropdown-trigger ui-state-default ui-corner-right"><span class="ui-icon fa fa-fw fa-caret-down"></span></div>')
                     .appendTo(this.container);
 
                 //panel
-                this.panel = $('<div class="pui-dropdown-panel ui-widget-content ui-corner-all ui-helper-hidden pui-shadow" />');
-                this.itemsWrapper = $('<div class="pui-dropdown-items-wrapper" />').appendTo(this.panel);
-                this.itemsContainer = $('<ul class="pui-dropdown-items pui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>')
+                this.panel = $('<div class="ui-dropdown-panel ui-widget-content ui-corner-all ui-helper-hidden ui-shadow" />');
+                this.itemsWrapper = $('<div class="ui-dropdown-items-wrapper" />').appendTo(this.panel);
+                this.itemsContainer = $('<ul class="ui-dropdown-items ui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>')
                     .appendTo(this.itemsWrapper);
 
                 this.optGroupsSize = this.itemsContainer.children('li.puiselectonemenu-item-group').length;
 
                 if(this.options.filter) {
-                    this.filterContainer = $('<div class="pui-dropdown-filter-container" />').prependTo(this.panel);
-                    this.filterInput = $('<input type="text" autocomplete="off" class="pui-dropdown-filter pui-inputtext ui-widget ui-state-default ui-corner-all" />')
+                    this.filterContainer = $('<div class="ui-dropdown-filter-container" />').prependTo(this.panel);
+                    this.filterInput = $('<input type="text" autocomplete="off" class="ui-dropdown-filter ui-inputtext ui-widget ui-state-default ui-corner-all" />')
                         .appendTo(this.filterContainer);
-                    this.filterContainer.append('<span class="pui-icon fa fa-search"></span>');
+                    this.filterContainer.append('<span class="ui-icon fa fa-search"></span>');
                 }
 
                 this._generateItems();
             }
             else {
                 this.choices = this.element.children('option');
-                this.container = this.element.closest('.pui-dropdown');
+                this.container = this.element.closest('.ui-dropdown');
                 this.focusElementContainer = this.container.children('.ui-helper-hidden-accessible:last');
                 this.focusElement = this.focusElementContainer.children('input');
-                this.label = this.container.children('.pui-dropdown-label');
-                this.menuIcon = this.container.children('.pui-dropdown-trigger');
-                this.panel = this.container.children('.pui-dropdown-panel');
-                this.itemsWrapper = this.panel.children('.pui-dropdown-items-wrapper');
+                this.label = this.container.children('.ui-dropdown-label');
+                this.menuIcon = this.container.children('.ui-dropdown-trigger');
+                this.panel = this.container.children('.ui-dropdown-panel');
+                this.itemsWrapper = this.panel.children('.ui-dropdown-items-wrapper');
                 this.itemsContainer = this.itemsWrapper.children('ul');
-                this.itemsContainer.addClass('pui-dropdown-items pui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset');
-                this.items = this.itemsContainer.children('li').addClass('pui-dropdown-item pui-dropdown-list-item ui-corner-all');
+                this.itemsContainer.addClass('ui-dropdown-items ui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset');
+                this.items = this.itemsContainer.children('li').addClass('ui-dropdown-item ui-dropdown-list-item ui-corner-all');
 
                 if(this.options.filter) {
-                    this.filterContainer = this.panel.children('.pui-dropdown-filter-container');
+                    this.filterContainer = this.panel.children('.ui-dropdown-filter-container');
                     this.filterInput = this.filterContainer.children('input');
                 }
             }
@@ -4338,7 +4338,7 @@ PUI.resolveUserAgent();/**
             });
 
             //triggers
-            this.triggers = this.options.editable ? this.menuIcon : this.container.children('.pui-dropdown-trigger, .pui-dropdown-label');
+            this.triggers = this.options.editable ? this.menuIcon : this.container.children('.ui-dropdown-trigger, .ui-dropdown-label');
 
             //activate selected
             if(this.options.editable) {
@@ -4371,10 +4371,10 @@ PUI.resolveUserAgent();/**
                     optionLabel = option.text(),
                     content = this.options.content ? this.options.content.call(this, this.options.data[i]) : optionLabel;
 
-                this.itemsContainer.append('<li data-label="' + optionLabel + '" class="pui-dropdown-item pui-dropdown-list-item ui-corner-all">' + content + '</li>');
+                this.itemsContainer.append('<li data-label="' + optionLabel + '" class="ui-dropdown-item ui-dropdown-list-item ui-corner-all">' + content + '</li>');
             }
 
-            this.items = this.itemsContainer.children('.pui-dropdown-item');
+            this.items = this.itemsContainer.children('.ui-dropdown-item');
         },
 
         _bindEvents: function() {
@@ -4420,7 +4420,7 @@ PUI.resolveUserAgent();/**
                 });
 
             if(this.options.editable) {
-                this.label.on('change.pui-dropdown', function() {
+                this.label.on('change.ui-dropdown', function() {
                     $this._triggerChange(true);
                     $this.customInput = true;
                     $this.customInputVal = $(this).val();
@@ -4436,7 +4436,7 @@ PUI.resolveUserAgent();/**
 
                 this.filterInput.puiinputtext();
 
-                this.filterInput.on('keyup.pui-dropdown', function() {
+                this.filterInput.on('keyup.ui-dropdown', function() {
                     $this._filter($(this).val());
                 });
             }
@@ -4462,7 +4462,7 @@ PUI.resolveUserAgent();/**
         _bindConstantEvents: function() {
             var $this = this;
 
-            $(document.body).on('mousedown.pui-dropdown-' + this.id, function (e) {
+            $(document.body).on('mousedown.ui-dropdown-' + this.id, function (e) {
                 if($this.panel.is(":hidden")) {
                     return;
                 }
@@ -4599,10 +4599,10 @@ PUI.resolveUserAgent();/**
             }
 
             if(this.options.filter) {
-                this.filterInput.off('keyup.pui-dropdown');
+                this.filterInput.off('keyup.ui-dropdown');
             }
 
-            $(document.body).off('mousedown.pui-dropdown-' + this.id);
+            $(document.body).off('mousedown.ui-dropdown-' + this.id);
             this._unbindResize();
         },
 
@@ -4673,7 +4673,7 @@ PUI.resolveUserAgent();/**
                 return item.index();
             }
             else {
-                return item.index() - item.prevAll('li.pui-dropdown-item-group').length;
+                return item.index() - item.prevAll('li.ui-dropdown-item-group').length;
             }
         },
 
@@ -4862,7 +4862,7 @@ PUI.resolveUserAgent();/**
             }
 
             var content = this.options.content ? this.options.content.call(this, option) : label,
-                item = $('<li data-label="' + label + '" class="pui-dropdown-item pui-dropdown-list-item ui-corner-all">' + content + '</li>'),
+                item = $('<li data-label="' + label + '" class="ui-dropdown-item ui-dropdown-list-item ui-corner-all">' + content + '</li>'),
                 optionElement = $('<option value="' + value + '">' + label + '</option>');
 
             optionElement.appendTo(this.element);
@@ -4971,25 +4971,25 @@ PUI.resolveUserAgent();/**
         
         _create: function() {
             if(!this.options.enhanced) {
-                this.element.addClass('pui-fieldset ui-widget ui-widget-content ui-corner-all').
-                    children('legend').addClass('pui-fieldset-legend ui-corner-all ui-state-default');
+                this.element.addClass('ui-fieldset ui-widget ui-widget-content ui-corner-all').
+                    children('legend').addClass('ui-fieldset-legend ui-corner-all ui-state-default');
 
-                this.element.contents().wrapAll('<div class="pui-fieldset-content" />');
-                this.content = this.element.children('div.pui-fieldset-content');
-                this.legend = this.content.children('legend.pui-fieldset-legend').prependTo(this.element);
+                this.element.contents().wrapAll('<div class="ui-fieldset-content" />');
+                this.content = this.element.children('div.ui-fieldset-content');
+                this.legend = this.content.children('legend.ui-fieldset-legend').prependTo(this.element);
             }
             else {
                 this.legend = this.element.children('legend');
-                this.content = this.element.children('div.pui-fieldset-content');
+                this.content = this.element.children('div.ui-fieldset-content');
             }
             
             if(this.options.toggleable) {
                 if(this.options.enhanced) {
-                    this.toggler = this.legend.children('.pui-fieldset-toggler');
+                    this.toggler = this.legend.children('.ui-fieldset-toggler');
                 }
                 else {
-                    this.element.addClass('pui-fieldset-toggleable');
-                    this.toggler = $('<span class="pui-fieldset-toggler fa fa-fw" />').prependTo(this.legend);
+                    this.element.addClass('ui-fieldset-toggleable');
+                    this.toggler = $('<span class="ui-fieldset-toggler fa fa-fw" />').prependTo(this.legend);
                 }
 
                 this._bindEvents();
@@ -5038,12 +5038,12 @@ PUI.resolveUserAgent();/**
 
         _destroy: function() {
             if(!this.options.enhanced) {
-                this.element.removeClass('pui-fieldset ui-widget ui-widget-content ui-corner-all')
-                            .children('legend').removeClass('pui-fieldset-legend ui-corner-all ui-state-default ui-state-hover ui-state-active');
+                this.element.removeClass('ui-fieldset ui-widget ui-widget-content ui-corner-all')
+                            .children('legend').removeClass('ui-fieldset-legend ui-corner-all ui-state-default ui-state-hover ui-state-active');
                 this.content.contents().unwrap();
 
                 if(this.options.toggleable) {
-                    this.element.removeClass('pui-fieldset-toggleable');
+                    this.element.removeClass('ui-fieldset-toggleable');
                     this.toggler.remove();
                 }
             }            
@@ -5076,11 +5076,11 @@ PUI.resolveUserAgent();/**
         },
         
         _create: function() {
-            this.element.addClass('pui-galleria ui-widget ui-widget-content ui-corner-all');
+            this.element.addClass('ui-galleria ui-widget ui-widget-content ui-corner-all');
             this.panelWrapper = this.element.children('ul');
-            this.panelWrapper.addClass('pui-galleria-panel-wrapper');
+            this.panelWrapper.addClass('ui-galleria-panel-wrapper');
             this.panels = this.panelWrapper.children('li');
-            this.panels.addClass('pui-galleria-panel ui-helper-hidden');
+            this.panels.addClass('ui-galleria-panel ui-helper-hidden');
                         
             this.element.width(this.options.panelWidth);
             this.panelWrapper.width(this.options.panelWidth).height(this.options.panelHeight);
@@ -5093,7 +5093,7 @@ PUI.resolveUserAgent();/**
             
             if(this.options.customContent) {
                 this.panels.children('img').hide();
-                this.panels.children('div').addClass('pui-galleria-panel-content');
+                this.panels.children('div').addClass('ui-galleria-panel-content');
             }
             
             //show first
@@ -5113,9 +5113,9 @@ PUI.resolveUserAgent();/**
         _destroy: function() {
             this.stopSlideshow();
             this._unbindEvents();
-            this.element.removeClass('pui-galleria ui-widget ui-widget-content ui-corner-all').removeAttr('style');
-            this.panelWrapper.removeClass('pui-galleria-panel-wrapper').removeAttr('style');
-            this.panels.removeClass('pui-galleria-panel ui-helper-hidden').removeAttr('style');
+            this.element.removeClass('ui-galleria ui-widget ui-widget-content ui-corner-all').removeAttr('style');
+            this.panelWrapper.removeClass('ui-galleria-panel-wrapper').removeAttr('style');
+            this.panels.removeClass('ui-galleria-panel ui-helper-hidden').removeAttr('style');
             this.strip.remove();
             this.stripWrapper.remove();
             this.element.children('.fa').remove();
@@ -5128,33 +5128,33 @@ PUI.resolveUserAgent();/**
         _renderStrip: function() {
             var frameStyle = 'style="width:' + this.options.frameWidth + "px;height:" + this.options.frameHeight + 'px;"';
 
-            this.stripWrapper = $('<div class="pui-galleria-filmstrip-wrapper"></div>')
+            this.stripWrapper = $('<div class="ui-galleria-filmstrip-wrapper"></div>')
                     .width(this.element.width() - 50)
                     .height(this.options.frameHeight)
                     .appendTo(this.element);
 
-            this.strip = $('<ul class="pui-galleria-filmstrip"></div>').appendTo(this.stripWrapper);
+            this.strip = $('<ul class="ui-galleria-filmstrip"></div>').appendTo(this.stripWrapper);
 
             for(var i = 0; i < this.panels.length; i++) {
                 var image = this.panels.eq(i).children('img'),
-                frameClass = (i == this.options.activeIndex) ? 'pui-galleria-frame pui-galleria-frame-active' : 'pui-galleria-frame',
+                frameClass = (i == this.options.activeIndex) ? 'ui-galleria-frame ui-galleria-frame-active' : 'ui-galleria-frame',
                 frameMarkup = '<li class="'+ frameClass + '" ' + frameStyle + '>' +
-                '<div class="pui-galleria-frame-content" ' + frameStyle + '>' +
-                '<img src="' + image.attr('src') + '" class="pui-galleria-frame-image" ' + frameStyle + '/>' +
+                '<div class="ui-galleria-frame-content" ' + frameStyle + '>' +
+                '<img src="' + image.attr('src') + '" class="ui-galleria-frame-image" ' + frameStyle + '/>' +
                 '</div></li>';
 
                 this.strip.append(frameMarkup);
             }
 
-            this.frames = this.strip.children('li.pui-galleria-frame');
+            this.frames = this.strip.children('li.ui-galleria-frame');
 
             //navigators
-            this.element.append('<div class="pui-galleria-nav-prev fa fa-fw fa-chevron-circle-left" style="bottom:' + (this.options.frameHeight / 2) + 'px"></div>' + 
-                '<div class="pui-galleria-nav-next fa fa-fw fa-chevron-circle-right" style="bottom:' + (this.options.frameHeight / 2) + 'px"></div>');
+            this.element.append('<div class="ui-galleria-nav-prev fa fa-fw fa-chevron-circle-left" style="bottom:' + (this.options.frameHeight / 2) + 'px"></div>' + 
+                '<div class="ui-galleria-nav-next fa fa-fw fa-chevron-circle-right" style="bottom:' + (this.options.frameHeight / 2) + 'px"></div>');
 
             //caption
             if(this.options.showCaption) {
-                this.caption = $('<div class="pui-galleria-caption"></div>').css({
+                this.caption = $('<div class="ui-galleria-caption"></div>').css({
                     'bottom': this.stripWrapper.outerHeight() + 10,
                     'width': this.panelWrapper.width()
                     }).appendTo(this.element);
@@ -5164,7 +5164,7 @@ PUI.resolveUserAgent();/**
         _bindEvents: function() {
             var $this = this;
 
-            this.element.children('div.pui-galleria-nav-prev').on('click.puigalleria', function() {
+            this.element.children('div.ui-galleria-nav-prev').on('click.puigalleria', function() {
                 if($this.slideshowActive) {
                     $this.stopSlideshow();
                 }
@@ -5174,7 +5174,7 @@ PUI.resolveUserAgent();/**
                 }
             });
 
-            this.element.children('div.pui-galleria-nav-next').on('click.puigalleria', function() {
+            this.element.children('div.ui-galleria-nav-next').on('click.puigalleria', function() {
                 if($this.slideshowActive) {
                     $this.stopSlideshow();
                 }
@@ -5184,7 +5184,7 @@ PUI.resolveUserAgent();/**
                 }
             });
 
-            this.strip.children('li.pui-galleria-frame').on('click.puigalleria', function() {
+            this.strip.children('li.ui-galleria-frame').on('click.puigalleria', function() {
                 if($this.slideshowActive) {
                     $this.stopSlideshow();
                 }
@@ -5194,9 +5194,9 @@ PUI.resolveUserAgent();/**
         },
 
         _unbindEvents: function() {
-            this.element.children('div.pui-galleria-nav-prev').off('click.puigalleria');
-            this.element.children('div.pui-galleria-nav-next').off('click.puigalleria');
-            this.strip.children('li.pui-galleria-frame').off('click.puigalleria');
+            this.element.children('div.ui-galleria-nav-prev').off('click.puigalleria');
+            this.element.children('div.ui-galleria-nav-next').off('click.puigalleria');
+            this.strip.children('li.ui-galleria-frame').off('click.puigalleria');
         },
 
         startSlideshow: function() {
@@ -5239,9 +5239,9 @@ PUI.resolveUserAgent();/**
                         newFrame = this.frames.eq(index);
 
                     //frame
-                    oldFrame.removeClass('pui-galleria-frame-active').css('opacity', '');
+                    oldFrame.removeClass('ui-galleria-frame-active').css('opacity', '');
                     newFrame.animate({opacity:1.0}, this.options.effectSpeed, null, function() {
-                       $(this).addClass('pui-galleria-frame-active');
+                       $(this).addClass('ui-galleria-frame-active');
                     });
 
                     //viewport
@@ -5316,7 +5316,7 @@ PUI.resolveUserAgent();/**
             var container = this.element;
             this.originalParent = this.element.parent();
 
-            container.addClass("pui-growl ui-widget");
+            container.addClass("ui-growl ui-widget");
 
             if(this.options.appendTo) {
                 container.appendTo(this.options.appendTo);
@@ -5342,7 +5342,7 @@ PUI.resolveUserAgent();/**
         },
 
         clear: function() {
-            var messageElements = this.element.children('div.pui-growl-item-container');
+            var messageElements = this.element.children('div.ui-growl-item-container');
             for(var i = 0; i < messageElements.length; i++) {
                 this._unbindMessageEvents(messageElements.eq(i));
             }
@@ -5351,12 +5351,12 @@ PUI.resolveUserAgent();/**
         },
 
         _renderMessage: function(msg) {
-            var markup = '<div class="pui-growl-item-container ui-state-highlight ui-corner-all ui-helper-hidden" aria-live="polite">';
-            markup += '<div class="pui-growl-item pui-shadow">';
-            markup += '<div class="pui-growl-icon-close fa fa-close" style="display:none"></div>';
-            markup += '<span class="pui-growl-image fa fa-2x ' + this._getIcon(msg.severity) + ' pui-growl-image-' + msg.severity + '"/>';
-            markup += '<div class="pui-growl-message">';
-            markup += '<span class="pui-growl-title">' + msg.summary + '</span>';
+            var markup = '<div class="ui-growl-item-container ui-state-highlight ui-corner-all ui-helper-hidden" aria-live="polite">';
+            markup += '<div class="ui-growl-item ui-shadow">';
+            markup += '<div class="ui-growl-icon-close fa fa-close" style="display:none"></div>';
+            markup += '<span class="ui-growl-image fa fa-2x ' + this._getIcon(msg.severity) + ' ui-growl-image-' + msg.severity + '"/>';
+            markup += '<div class="ui-growl-message">';
+            markup += '<span class="ui-growl-title">' + msg.summary + '</span>';
             markup += '<p>' + (msg.detail||'') + '</p>';
             markup += '</div><div style="clear: both;"></div></div></div>';
 
@@ -5382,15 +5382,15 @@ PUI.resolveUserAgent();/**
                     var msg = $(this);
 
                     if(!msg.is(':animated')) {
-                        msg.find('div.pui-growl-icon-close:first').show();
+                        msg.find('div.ui-growl-icon-close:first').show();
                     }
                 })
                 .on('mouseout.puigrowl', function() {
-                    $(this).find('div.pui-growl-icon-close:first').hide();
+                    $(this).find('div.ui-growl-icon-close:first').hide();
                 });
 
             //remove message on click of close icon
-            message.find('div.pui-growl-icon-close').on('click.puigrowl',function() {
+            message.find('div.ui-growl-icon-close').on('click.puigrowl',function() {
                 $this._removeMessage(message);
 
                 if(!sticky) {
@@ -5408,7 +5408,7 @@ PUI.resolveUserAgent();/**
                 sticky = this.options.sticky;
 
             message.off('mouseover.puigrowl mouseout.puigrowl');
-            message.find('div.pui-growl-icon-close').off('click.puigrowl');
+            message.find('div.ui-growl-icon-close').off('click.puigrowl');
             if(!sticky) {
                 var timeout = message.data('timeout');
                 if(timeout) {
@@ -5458,7 +5458,7 @@ PUI.resolveUserAgent();/**
 
         _destroy: function() {
             this.clear();
-            this.element.removeClass("pui-growl ui-widget");
+            this.element.removeClass("ui-growl ui-widget");
 
             if(this.options.appendTo) {
                 this.element.appendTo(this.originalParent);
@@ -5481,7 +5481,7 @@ PUI.resolveUserAgent();/**
             disabled = input.prop('disabled');
 
             //visuals
-            input.addClass('pui-inputtext ui-widget ui-state-default ui-corner-all');
+            input.addClass('ui-inputtext ui-widget ui-state-default ui-corner-all');
             
             if(input.prop('disabled'))
                 input.addClass('ui-state-disabled');
@@ -5492,7 +5492,7 @@ PUI.resolveUserAgent();/**
         },
         
         _destroy: function() {
-            this.element.removeClass('pui-inputtext ui-widget ui-state-default ui-state-disabled ui-state-hover ui-state-focus ui-corner-all');
+            this.element.removeClass('ui-inputtext ui-widget ui-state-default ui-state-disabled ui-state-hover ui-state-focus ui-corner-all');
             this._disableMouseEffects();
         },
 
@@ -5576,7 +5576,7 @@ PUI.resolveUserAgent();/**
                 this.options.rowsDefault = this.element.attr('rows');
                 this.options.colsDefault = this.element.attr('cols');
         
-                this.element.addClass('pui-inputtextarea-resizable');
+                this.element.addClass('ui-inputtextarea-resizable');
                 
                 this.element.on('keyup.puiinputtextarea-resize', function() {
                     $this._resize();
@@ -5615,7 +5615,7 @@ PUI.resolveUserAgent();/**
             this.element.puiinputtext('destroy');
 
             if(this.options.autoResize) {
-                this.element.removeClass('pui-inputtextarea-resizable').off('keyup.puiinputtextarea-resize focus.puiinputtextarea-resize blur.puiinputtextarea-resize');
+                this.element.removeClass('ui-inputtextarea-resizable').off('keyup.puiinputtextarea-resize focus.puiinputtextarea-resize blur.puiinputtextarea-resize');
             }
 
             if(this.options.maxlength) {
@@ -5660,7 +5660,7 @@ PUI.resolveUserAgent();/**
         
         
         _initAutoComplete: function() {
-            var panelMarkup = '<div id="' + this.id + '_panel" class="pui-autocomplete-panel ui-widget-content ui-corner-all ui-helper-hidden pui-shadow"></div>',
+            var panelMarkup = '<div id="' + this.id + '_panel" class="ui-autocomplete-panel ui-widget-content ui-corner-all ui-helper-hidden ui-shadow"></div>',
             $this = this;
 
             this.panel = $(panelMarkup).appendTo(document.body);
@@ -5873,10 +5873,10 @@ PUI.resolveUserAgent();/**
         _handleResponse: function(data) {
             this.panel.html('');
             
-            var listContainer = $('<ul class="pui-autocomplete-items pui-autocomplete-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>');
+            var listContainer = $('<ul class="ui-autocomplete-items ui-autocomplete-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>');
 
             for(var i = 0; i < data.length; i++) {
-                var item = $('<li class="pui-autocomplete-item pui-autocomplete-list-item ui-corner-all"></li>');
+                var item = $('<li class="ui-autocomplete-item ui-autocomplete-list-item ui-corner-all"></li>');
                 item.attr('data-item-value', data[i].value);
                 item.text(data[i].label);
 
@@ -5884,7 +5884,7 @@ PUI.resolveUserAgent();/**
             }
             
             this.panel.append(listContainer);
-            this.items = this.panel.find('.pui-autocomplete-item');
+            this.items = this.panel.find('.ui-autocomplete-item');
 
             this._bindDynamicEvents();
 
@@ -5956,22 +5956,22 @@ PUI.resolveUserAgent();/**
         _create: function() { 
             this.options.mode = this.options.iframe ? 'iframe' : (this.element.children('div').length == 1) ? 'inline' : 'image';
             
-            var dom = '<div class="pui-lightbox ui-widget ui-helper-hidden ui-corner-all pui-shadow">';
-            dom += '<div class="pui-lightbox-content-wrapper">';
-            dom += '<a class="ui-state-default pui-lightbox-nav-left ui-corner-right ui-helper-hidden"><span class="fa fa-fw fa-caret-left"></span></a>';
-            dom += '<div class="pui-lightbox-content ui-corner-all"></div>';
-            dom += '<a class="ui-state-default pui-lightbox-nav-right ui-corner-left ui-helper-hidden"><span class="fa fa-fw fa-caret-right"></span></a>';
+            var dom = '<div class="ui-lightbox ui-widget ui-helper-hidden ui-corner-all ui-shadow">';
+            dom += '<div class="ui-lightbox-content-wrapper">';
+            dom += '<a class="ui-state-default ui-lightbox-nav-left ui-corner-right ui-helper-hidden"><span class="fa fa-fw fa-caret-left"></span></a>';
+            dom += '<div class="ui-lightbox-content ui-corner-all"></div>';
+            dom += '<a class="ui-state-default ui-lightbox-nav-right ui-corner-left ui-helper-hidden"><span class="fa fa-fw fa-caret-right"></span></a>';
             dom += '</div>';
-            dom += '<div class="pui-lightbox-caption ui-widget-header"><span class="pui-lightbox-caption-text"></span>';
-            dom += '<a class="pui-lightbox-close ui-corner-all" href="#"><span class="fa fa-fw fa-close"></span></a><div style="clear:both" /></div>';
+            dom += '<div class="ui-lightbox-caption ui-widget-header"><span class="ui-lightbox-caption-text"></span>';
+            dom += '<a class="ui-lightbox-close ui-corner-all" href="#"><span class="fa fa-fw fa-close"></span></a><div style="clear:both" /></div>';
             dom += '</div>';
 
             this.panel = $(dom).appendTo(document.body);
-            this.contentWrapper = this.panel.children('.pui-lightbox-content-wrapper');
-            this.content = this.contentWrapper.children('.pui-lightbox-content');
-            this.caption = this.panel.children('.pui-lightbox-caption');
-            this.captionText = this.caption.children('.pui-lightbox-caption-text');        
-            this.closeIcon = this.caption.children('.pui-lightbox-close');
+            this.contentWrapper = this.panel.children('.ui-lightbox-content-wrapper');
+            this.content = this.contentWrapper.children('.ui-lightbox-content');
+            this.caption = this.panel.children('.ui-lightbox-caption');
+            this.captionText = this.caption.children('.ui-lightbox-caption-text');        
+            this.closeIcon = this.caption.children('.ui-lightbox-close');
             
             if(this.options.mode === 'image') {
                 this._setupImaging();
@@ -6000,7 +6000,7 @@ PUI.resolveUserAgent();/**
             });
 
             //hide when outside is clicked
-            $(document.body).bind('click.pui-lightbox', function (e) {            
+            $(document.body).bind('click.ui-lightbox', function (e) {            
                 if($this.isHidden()) {
                     return;
                 }
@@ -6051,7 +6051,7 @@ PUI.resolveUserAgent();/**
                 topOffset = ($this.panel.height() - image.height()) / 2;
 
                 //resize content for new image
-                $this.content.removeClass('pui-lightbox-loading').animate({
+                $this.content.removeClass('ui-lightbox-loading').animate({
                     width: image.width(),
                     height: image.height()
                 },
@@ -6078,7 +6078,7 @@ PUI.resolveUserAgent();/**
 
                 $this._hideNavigators();
 
-                if(nav.hasClass('pui-lightbox-nav-left')) {
+                if(nav.hasClass('ui-lightbox-nav-left')) {
                     index = $this.current === 0 ? $this.links.length - 1 : $this.current - 1;
 
                     $this.links.eq(index).trigger('click');
@@ -6096,7 +6096,7 @@ PUI.resolveUserAgent();/**
                 var link = $(this);
 
                 if($this.isHidden()) {
-                    $this.content.addClass('pui-lightbox-loading').width(32).height(32);
+                    $this.content.addClass('ui-lightbox-loading').width(32).height(32);
                     $this.show();
                 }
                 else {
@@ -6107,7 +6107,7 @@ PUI.resolveUserAgent();/**
                             'height': 'auto'
                         });
 
-                        $this.content.addClass('pui-lightbox-loading');
+                        $this.content.addClass('ui-lightbox-loading');
                     });
 
                     $this.caption.slideUp();
@@ -6153,7 +6153,7 @@ PUI.resolveUserAgent();/**
         
         _setupInline: function() {
             this.links = this.element.children('a');
-            this.inline = this.element.children('div').addClass('pui-lightbox-inline');
+            this.inline = this.element.children('div').addClass('ui-lightbox-inline');
             this.inline.appendTo(this.content).show();
             var $this = this;
 
@@ -6182,7 +6182,7 @@ PUI.resolveUserAgent();/**
 
             this.element.click(function(e) {
                 if(!$this.iframeLoaded) {
-                    $this.content.addClass('pui-lightbox-loading').css({
+                    $this.content.addClass('ui-lightbox-loading').css({
                         width: $this.options.iframeWidth,
                         height: $this.options.iframeHeight
                     });
@@ -6191,7 +6191,7 @@ PUI.resolveUserAgent();/**
 
                     $this.iframe.on('load', function() {
                                     $this.iframeLoaded = true;
-                                    $this.content.removeClass('pui-lightbox-loading');
+                                    $this.content.removeClass('ui-lightbox-loading');
                                 })
                                 .attr('src', $this.element.attr('href'));
                 }
@@ -6307,9 +6307,9 @@ PUI.resolveUserAgent();/**
 
         _create: function() {
             if(!this.options.enhanced) {
-                this.element.wrap('<div class="pui-listbox pui-inputtext ui-widget ui-widget-content ui-corner-all"><div class="ui-helper-hidden-accessible"></div></div>');
+                this.element.wrap('<div class="ui-listbox ui-inputtext ui-widget ui-widget-content ui-corner-all"><div class="ui-helper-hidden-accessible"></div></div>');
                 this.container = this.element.parent().parent();
-                this.listContainer = $('<ul class="pui-listbox-list"></ul>').appendTo(this.container);
+                this.listContainer = $('<ul class="ui-listbox-list"></ul>').appendTo(this.container);
 
                 if(this.options.data) {
                     this._populateInputFromData();
@@ -6319,8 +6319,8 @@ PUI.resolveUserAgent();/**
             }
             else {
                 this.container = this.element.parent().parent();
-                this.listContainer = this.container.children('ul').addClass('pui-listbox-list');
-                this.items = this.listContainer.children('li').addClass('pui-listbox-item ui-corner-all');
+                this.listContainer = this.container.children('ul').addClass('ui-listbox-list');
+                this.items = this.listContainer.children('li').addClass('ui-listbox-item ui-corner-all');
                 this.choices = this.element.children('option');
             }
 
@@ -6361,9 +6361,9 @@ PUI.resolveUserAgent();/**
             this.choices = this.element.children('option');
             for(var i = 0; i < this.choices.length; i++) {
                 var choice = this.choices.eq(i);
-                this.listContainer.append('<li class="pui-listbox-item ui-corner-all">' + this._createItemContent(choice.get(0)) + '</li>');
+                this.listContainer.append('<li class="ui-listbox-item ui-corner-all">' + this._createItemContent(choice.get(0)) + '</li>');
             }
-            this.items = this.listContainer.find('.pui-listbox-item:not(.ui-state-disabled)');
+            this.items = this.listContainer.find('.ui-listbox-item:not(.ui-state-disabled)');
         },
 
         _restrictHeight: function() {
@@ -6607,7 +6607,7 @@ PUI.resolveUserAgent();/**
         _updateOptions: function(options) {
             var $this = this;
             setTimeout(function() {
-                $this.items = $this.listContainer.children('li').addClass('pui-listbox-item ui-corner-all');
+                $this.items = $this.listContainer.children('li').addClass('ui-listbox-item ui-corner-all');
                 $this.choices = $this.element.children('option');
                 $this._unbindItemEvents();
                 $this._bindItemEvents();
@@ -6664,7 +6664,7 @@ PUI.resolveUserAgent();/**
         _initPopup: function() {
             var $this = this;
 
-            this.element.closest('.pui-menu').addClass('pui-menu-dynamic pui-shadow').appendTo(document.body);
+            this.element.closest('.ui-menu').addClass('ui-menu-dynamic ui-shadow').appendTo(document.body);
 
             if($.type(this.options.trigger) === 'string') {
                 this.options.trigger =  $(this.options.trigger);
@@ -6676,7 +6676,7 @@ PUI.resolveUserAgent();/**
                 of: this.options.trigger
             };
             
-            this.options.trigger.on(this.options.triggerEvent + '.pui-menu', function(e) {
+            this.options.trigger.on(this.options.triggerEvent + '.ui-menu', function(e) {
                 if($this.element.is(':visible')) {
                     $this.hide();
                 }
@@ -6688,8 +6688,8 @@ PUI.resolveUserAgent();/**
             });
 
             //hide overlay on document click
-            $(document.body).on('click.pui-menu', function (e) {
-                var popup = $this.element.closest('.pui-menu');
+            $(document.body).on('click.ui-menu', function (e) {
+                var popup = $this.element.closest('.ui-menu');
                 if(popup.is(":hidden")) {
                     return;
                 }
@@ -6712,8 +6712,8 @@ PUI.resolveUserAgent();/**
             });
 
             //Hide overlay on resize
-            $(window).on('resize.pui-menu', function() {
-                if($this.element.closest('.pui-menu').is(':visible')) {
+            $(window).on('resize.ui-menu', function() {
+                if($this.element.closest('.ui-menu').is(':visible')) {
                     $this.align();
                 }
             });
@@ -6721,15 +6721,15 @@ PUI.resolveUserAgent();/**
                 
         show: function() {
             this.align();
-            this.element.closest('.pui-menu').css('z-index', ++PUI.zindex).show();
+            this.element.closest('.ui-menu').css('z-index', ++PUI.zindex).show();
         },
 
         hide: function() {
-            this.element.closest('.pui-menu').fadeOut('fast');
+            this.element.closest('.ui-menu').fadeOut('fast');
         },
 
         align: function() {
-            this.element.closest('.pui-menu').css({left:'', top:''}).position(this.positionConfig);
+            this.element.closest('.ui-menu').css({left:'', top:''}).position(this.positionConfig);
         }
     });
 })();
@@ -6746,8 +6746,8 @@ PUI.resolveUserAgent();/**
         },
         
         _create: function() {
-            this.element.addClass('pui-menu-list ui-helper-reset').
-                    wrap('<div class="pui-menu ui-widget ui-widget-content ui-corner-all ui-helper-clearfix" />');
+            this.element.addClass('ui-menu-list ui-helper-reset').
+                    wrap('<div class="ui-menu ui-widget ui-widget-content ui-corner-all ui-helper-clearfix" />');
             
             this.element.children('li').each(function() {
                 var listItem = $(this);
@@ -6756,19 +6756,19 @@ PUI.resolveUserAgent();/**
                     listItem.addClass('ui-widget-header ui-corner-all');
                 }
                 else {
-                    listItem.addClass('pui-menuitem ui-widget ui-corner-all');
+                    listItem.addClass('ui-menuitem ui-widget ui-corner-all');
                     var menuitemLink = listItem.children('a'),
                     icon = menuitemLink.data('icon');
                     
-                    menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="pui-menuitem-text" />');
+                    menuitemLink.addClass('ui-menuitem-link ui-corner-all').contents().wrap('<span class="ui-menuitem-text" />');
                     
                     if(icon) {
-                        menuitemLink.prepend('<span class="pui-menuitem-icon fa fa-fw ' + icon + '"></span>');
+                        menuitemLink.prepend('<span class="ui-menuitem-icon fa fa-fw ' + icon + '"></span>');
                     }
                 }
             });
             
-            this.menuitemLinks = this.element.find('.pui-menuitem-link:not(.ui-state-disabled)');
+            this.menuitemLinks = this.element.find('.ui-menuitem-link:not(.ui-state-disabled)');
 
             this._bindEvents();
             
@@ -6778,15 +6778,15 @@ PUI.resolveUserAgent();/**
         _bindEvents: function() {  
             var $this = this;
 
-            this.menuitemLinks.on('mouseenter.pui-menu', function(e) {
+            this.menuitemLinks.on('mouseenter.ui-menu', function(e) {
                 $(this).addClass('ui-state-hover');
             })
-            .on('mouseleave.pui-menu', function(e) {
+            .on('mouseleave.ui-menu', function(e) {
                 $(this).removeClass('ui-state-hover');
             });
 
             if(this.options.popup) {
-                this.menuitemLinks.on('click.pui-menu', function() {
+                this.menuitemLinks.on('click.ui-menu', function() {
                     $this.hide();
                 });  
             }   
@@ -6802,17 +6802,17 @@ PUI.resolveUserAgent();/**
     $.widget("primeui.puibreadcrumb", {
         
         _create: function() {
-            this.element.wrap('<div class="pui-breadcrumb ui-module ui-widget ui-widget-header ui-helper-clearfix ui-corner-all" role="menu">');
+            this.element.wrap('<div class="ui-breadcrumb ui-module ui-widget ui-widget-header ui-helper-clearfix ui-corner-all" role="menu">');
             
             this.element.children('li').each(function(index) {
                 var listItem = $(this);
                 
                 listItem.attr('role', 'menuitem');
                 var menuitemLink = listItem.children('a');
-                menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="pui-menuitem-text" />');
+                menuitemLink.addClass('ui-menuitem-link ui-corner-all').contents().wrap('<span class="ui-menuitem-text" />');
                     
                 if(index > 0) {
-                    listItem.before('<li class="pui-breadcrumb-chevron fa fa-chevron-right"></li>');
+                    listItem.before('<li class="ui-breadcrumb-chevron fa fa-chevron-right"></li>');
                 }
                 else {
                     listItem.before('<li class="fa fa-home"></li>');
@@ -6836,7 +6836,7 @@ PUI.resolveUserAgent();/**
         _create: function() {
             this._render();
             
-            this.links = this.element.find('.pui-menuitem-link:not(.ui-state-disabled)');
+            this.links = this.element.find('.ui-menuitem-link:not(.ui-state-disabled)');
 
             this._bindEvents();
             
@@ -6845,8 +6845,8 @@ PUI.resolveUserAgent();/**
                 
         _render: function() {
             var $this = this;
-            this.element.addClass('pui-menu-list ui-helper-reset').
-                    wrap('<div class="pui-tieredmenu pui-menu ui-widget ui-widget-content ui-corner-all ui-helper-clearfix" />');
+            this.element.addClass('ui-menu-list ui-helper-reset').
+                    wrap('<div class="ui-tieredmenu ui-menu ui-widget ui-widget-content ui-corner-all ui-helper-clearfix" />');
             
             this.element.parent().uniqueId();
             this.options.id = this.element.parent().attr('id');
@@ -6856,19 +6856,19 @@ PUI.resolveUserAgent();/**
                     menuitemLink = listItem.children('a'),
                     icon = menuitemLink.data('icon');
                     
-                    menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="pui-menuitem-text" />');
+                    menuitemLink.addClass('ui-menuitem-link ui-corner-all').contents().wrap('<span class="ui-menuitem-text" />');
                     
                     if(icon) {
-                        menuitemLink.prepend('<span class="pui-menuitem-icon fa fa-fw ' + icon + '"></span>');
+                        menuitemLink.prepend('<span class="ui-menuitem-icon fa fa-fw ' + icon + '"></span>');
                     }
                     
-                    listItem.addClass('pui-menuitem ui-widget ui-corner-all');
+                    listItem.addClass('ui-menuitem ui-widget ui-corner-all');
                     if(listItem.children('ul').length > 0) {
-                        var submenuIcon = listItem.parent().hasClass('pui-menu-child') ? 'fa-caret-right' : $this._getRootSubmenuIcon();
-                        listItem.addClass('pui-menu-parent');
-                        listItem.children('ul').addClass('ui-widget-content pui-menu-list ui-corner-all ui-helper-clearfix pui-menu-child pui-shadow');
+                        var submenuIcon = listItem.parent().hasClass('ui-menu-child') ? 'fa-caret-right' : $this._getRootSubmenuIcon();
+                        listItem.addClass('ui-menu-parent');
+                        listItem.children('ul').addClass('ui-widget-content ui-menu-list ui-corner-all ui-helper-clearfix ui-menu-child ui-shadow');
                         
-                        menuitemLink.prepend('<span class="pui-submenu-icon fa fa-fw ' + submenuIcon + '"></span>');
+                        menuitemLink.prepend('<span class="ui-submenu-icon fa fa-fw ' + submenuIcon + '"></span>');
                     }            
             });
         },
@@ -6882,18 +6882,18 @@ PUI.resolveUserAgent();/**
         _bindItemEvents: function() {
             var $this = this;
 
-            this.links.on('mouseenter.pui-menu',function() {
+            this.links.on('mouseenter.ui-menu',function() {
                 var link = $(this),
                 menuitem = link.parent(),
                 autoDisplay = $this.options.autoDisplay;
 
-                var activeSibling = menuitem.siblings('.pui-menuitem-active');
+                var activeSibling = menuitem.siblings('.ui-menuitem-active');
                 if(activeSibling.length === 1) {
                     $this._deactivate(activeSibling);
                 }
 
                 if(autoDisplay||$this.active) {
-                    if(menuitem.hasClass('pui-menuitem-active')) {
+                    if(menuitem.hasClass('ui-menuitem-active')) {
                         $this._reactivate(menuitem);
                     }
                     else {
@@ -6906,13 +6906,13 @@ PUI.resolveUserAgent();/**
             });
 
             if(this.options.autoDisplay === false) {
-                this.rootLinks = this.element.find('> .pui-menuitem > .pui-menuitem-link');
+                this.rootLinks = this.element.find('> .ui-menuitem > .ui-menuitem-link');
                 this.rootLinks.data('primeui-tieredmenu-rootlink', this.options.id).find('*').data('primeui-tieredmenu-rootlink', this.options.id);
 
-                this.rootLinks.on('click.pui-menu', function(e) {
+                this.rootLinks.on('click.ui-menu', function(e) {
                     var link = $(this),
                     menuitem = link.parent(),
-                    submenu = menuitem.children('ul.pui-menu-child');
+                    submenu = menuitem.children('ul.ui-menu-child');
 
                     if(submenu.length === 1) {
                         if(submenu.is(':visible')) {
@@ -6928,7 +6928,7 @@ PUI.resolveUserAgent();/**
                 });
             }
             
-            this.element.parent().find('ul.pui-menu-list').on('mouseleave.pui-menu', function(e) {
+            this.element.parent().find('ul.ui-menu-list').on('mouseleave.ui-menu', function(e) {
                 if($this.activeitem) {
                     $this._deactivate($this.activeitem);
                 }
@@ -6940,7 +6940,7 @@ PUI.resolveUserAgent();/**
         _bindDocumentHandler: function() {
             var $this = this;
 
-            $(document.body).on('click.pui-menu', function(e) {
+            $(document.body).on('click.ui-menu', function(e) {
                 var target = $(e.target);
                 if(target.data('primeui-tieredmenu-rootlink') === $this.options.id) {
                     return;
@@ -6948,7 +6948,7 @@ PUI.resolveUserAgent();/**
                     
                 $this.active = false;
 
-                $this.element.find('li.pui-menuitem-active').each(function() {
+                $this.element.find('li.ui-menuitem-active').each(function() {
                     $this._deactivate($(this), true);
                 });
             });
@@ -6956,21 +6956,21 @@ PUI.resolveUserAgent();/**
     
         _deactivate: function(menuitem, animate) {
             this.activeitem = null;
-            menuitem.children('a.pui-menuitem-link').removeClass('ui-state-hover');
-            menuitem.removeClass('pui-menuitem-active');
+            menuitem.children('a.ui-menuitem-link').removeClass('ui-state-hover');
+            menuitem.removeClass('ui-menuitem-active');
 
             if(animate) {
-                menuitem.children('ul.pui-menu-child:visible').fadeOut('fast');
+                menuitem.children('ul.ui-menu-child:visible').fadeOut('fast');
             }
             else {
-                menuitem.children('ul.pui-menu-child:visible').hide();
+                menuitem.children('ul.ui-menu-child:visible').hide();
             }
         },
 
         _activate: function(menuitem) {
             this._highlight(menuitem);
 
-            var submenu = menuitem.children('ul.pui-menu-child');
+            var submenu = menuitem.children('ul.ui-menu-child');
             if(submenu.length === 1) {
                 this._showSubmenu(menuitem, submenu);
             }
@@ -6978,8 +6978,8 @@ PUI.resolveUserAgent();/**
 
         _reactivate: function(menuitem) {
             this.activeitem = menuitem;
-            var submenu = menuitem.children('ul.pui-menu-child'),
-            activeChilditem = submenu.children('li.pui-menuitem-active:first'),
+            var submenu = menuitem.children('ul.ui-menu-child'),
+            activeChilditem = submenu.children('li.ui-menuitem-active:first'),
             _self = this;
 
             if(activeChilditem.length === 1) {
@@ -6989,8 +6989,8 @@ PUI.resolveUserAgent();/**
 
         _highlight: function(menuitem) {
             this.activeitem = menuitem;
-            menuitem.children('a.pui-menuitem-link').addClass('ui-state-hover');
-            menuitem.addClass('pui-menuitem-active');
+            menuitem.children('a.ui-menuitem-link').addClass('ui-state-hover');
+            menuitem.addClass('ui-menuitem-active');
         },
                 
         _showSubmenu: function(menuitem, submenu) {
@@ -7024,8 +7024,8 @@ PUI.resolveUserAgent();/**
         
         _create: function() {
             this._super();
-            this.element.parent().removeClass('pui-tieredmenu').
-                    addClass('pui-menubar');
+            this.element.parent().removeClass('ui-tieredmenu').
+                    addClass('ui-menubar');
         },
               
         _showSubmenu: function(menuitem, submenu) {
@@ -7035,7 +7035,7 @@ PUI.resolveUserAgent();/**
                 'z-index': ++PUI.zindex
             };
 
-            if(menuitem.parent().hasClass('pui-menu-child')) {
+            if(menuitem.parent().hasClass('ui-menu-child')) {
                 submenuCSS.left = menuitem.outerWidth();
                 submenuCSS.top = 0; 
                 submenuOffsetTop = menuitem.offset().top - win.scrollTop();
@@ -7078,16 +7078,16 @@ PUI.resolveUserAgent();/**
             this.content = this.element.parent();
             this.wrapper = this.content.parent();
             this.container = this.wrapper.parent();
-            this.submenus = this.container.find('ul.pui-menu-list');
+            this.submenus = this.container.find('ul.ui-menu-list');
             
-            this.links = this.element.find('a.pui-menuitem-link:not(.ui-state-disabled)');
-            this.backward = this.wrapper.children('div.pui-slidemenu-backward');
+            this.links = this.element.find('a.ui-menuitem-link:not(.ui-state-disabled)');
+            this.backward = this.wrapper.children('div.ui-slidemenu-backward');
 
             //config
             this.stack = [];
             this.jqWidth = this.container.width();
 
-            if(!this.element.hasClass('pui-menu-dynamic')) {
+            if(!this.element.hasClass('ui-menu-dynamic')) {
                 var $this = this;
                 setTimeout(function() {
                     $this._applyDimensions();
@@ -7100,12 +7100,12 @@ PUI.resolveUserAgent();/**
         },
         
         _render: function() {
-            this.element.addClass('pui-menu-list ui-helper-reset').
-                    wrap('<div class="pui-menu pui-slidemenu ui-widget ui-widget-content ui-corner-all"/>').
-                    wrap('<div class="pui-slidemenu-wrapper" />').
-                    after('<div class="pui-slidemenu-backward ui-widget-header ui-corner-all">\n\
-                    <span class="pui-icon fa fa-fw fa-caret-left"></span>Back</div>').
-                    wrap('<div class="pui-slidemenu-content" />');
+            this.element.addClass('ui-menu-list ui-helper-reset').
+                    wrap('<div class="ui-menu ui-slidemenu ui-widget ui-widget-content ui-corner-all"/>').
+                    wrap('<div class="ui-slidemenu-wrapper" />').
+                    after('<div class="ui-slidemenu-backward ui-widget-header ui-corner-all">\n\
+                    <span class="ui-icon fa fa-fw fa-caret-left"></span>Back</div>').
+                    wrap('<div class="ui-slidemenu-content" />');
             
             this.element.parent().uniqueId();
             this.options.id = this.element.parent().attr('id');
@@ -7115,17 +7115,17 @@ PUI.resolveUserAgent();/**
                     menuitemLink = listItem.children('a'),
                     icon = menuitemLink.data('icon');
                     
-                    menuitemLink.addClass('pui-menuitem-link ui-corner-all').contents().wrap('<span class="pui-menuitem-text" />');
+                    menuitemLink.addClass('ui-menuitem-link ui-corner-all').contents().wrap('<span class="ui-menuitem-text" />');
                     
                     if(icon) {
-                        menuitemLink.prepend('<span class="pui-menuitem-icon fa fa-fw ' + icon + '"></span>');
+                        menuitemLink.prepend('<span class="ui-menuitem-icon fa fa-fw ' + icon + '"></span>');
                     }
                     
-                    listItem.addClass('pui-menuitem ui-widget ui-corner-all');
+                    listItem.addClass('ui-menuitem ui-widget ui-corner-all');
                     if(listItem.children('ul').length > 0) {
-                        listItem.addClass('pui-menu-parent');
-                        listItem.children('ul').addClass('ui-widget-content pui-menu-list ui-corner-all ui-helper-clearfix pui-menu-child ui-shadow');
-                        menuitemLink.prepend('<span class="pui-submenu-icon fa fa-fw fa-caret-right"></span>');
+                        listItem.addClass('ui-menu-parent');
+                        listItem.children('ul').addClass('ui-widget-content ui-menu-list ui-corner-all ui-helper-clearfix ui-menu-child ui-shadow');
+                        menuitemLink.prepend('<span class="ui-submenu-icon fa fa-fw fa-caret-right"></span>');
                     }
             });
         },
@@ -7133,13 +7133,13 @@ PUI.resolveUserAgent();/**
         _bindEvents: function() {
             var $this = this;
 
-            this.links.on('mouseenter.pui-menu',function() {
+            this.links.on('mouseenter.ui-menu',function() {
                $(this).addClass('ui-state-hover'); 
             })
-            .on('mouseleave.pui-menu',function() {
+            .on('mouseleave.ui-menu',function() {
                $(this).removeClass('ui-state-hover'); 
             })
-            .on('click.pui-menu',function() {
+            .on('click.ui-menu',function() {
                var link = $(this),
                submenu = link.next();
 
@@ -7148,7 +7148,7 @@ PUI.resolveUserAgent();/**
                }
             });
 
-            this.backward.on('click.pui-menu',function() {
+            this.backward.on('click.ui-menu',function() {
                 $this._back();
             });
        },
@@ -7245,8 +7245,8 @@ PUI.resolveUserAgent();/**
         
         _create: function() {
             this._super();
-            this.element.parent().removeClass('pui-tieredmenu').
-                    addClass('pui-contextmenu pui-menu-dynamic pui-shadow');
+            this.element.parent().removeClass('ui-tieredmenu').
+                    addClass('ui-contextmenu ui-menu-dynamic ui-shadow');
             
             var $this = this;
             
@@ -7263,11 +7263,11 @@ PUI.resolveUserAgent();/**
                 this.element.parent().appendTo('body');
             }
             
-            if(this.options.target.hasClass('pui-datatable')) {
+            if(this.options.target.hasClass('ui-datatable')) {
                 $this._bindDataTable();
             }
             else {
-                this.options.target.on(this.options.event + '.pui-contextmenu' , function(e){
+                this.options.target.on(this.options.event + '.ui-contextmenu' , function(e){
                     $this.show(e);
                 });   
             }
@@ -7288,7 +7288,7 @@ PUI.resolveUserAgent();/**
             var $this = this;
 
             //hide overlay when document is clicked
-            $(document.body).on('click.pui-contextmenu', function (e) {
+            $(document.body).on('click.ui-contextmenu', function (e) {
                 if($this.element.parent().is(":hidden")) {
                     return;
                 }
@@ -7298,8 +7298,8 @@ PUI.resolveUserAgent();/**
         },
         
         _bindDataTable: function() {
-            var rowSelector = '#' + this.options.target.attr('id') + ' tbody.pui-datatable-data > tr.ui-widget-content:not(.pui-datatable-empty-message)',
-            event = this.options.event + '.pui-datatable',
+            var rowSelector = '#' + this.options.target.attr('id') + ' tbody.ui-datatable-data > tr.ui-widget-content:not(.ui-datatable-empty-message)',
+            event = this.options.event + '.ui-datatable',
             $this = this;
 
             $(document).off(event, rowSelector)
@@ -7312,7 +7312,7 @@ PUI.resolveUserAgent();/**
         
         show: function(e) {  
             //hide other contextmenus if any
-            $(document.body).children('.pui-contextmenu:visible').hide();
+            $(document.body).children('.ui-contextmenu:visible').hide();
 
             var win = $(window),
             left = e.pageX,
@@ -7346,7 +7346,7 @@ PUI.resolveUserAgent();/**
             var $this = this;
 
             //hide submenus
-            this.element.parent().find('li.pui-menuitem-active').each(function() {
+            this.element.parent().find('li.ui-menuitem-active').each(function() {
                 $this._deactivate($(this), true);
             });
 
@@ -7363,6 +7363,219 @@ PUI.resolveUserAgent();/**
               
     });
 
+})();
+
+/*
+ * PrimeUI MegaMenu Widget
+ */
+(function() {
+
+    $.widget("primeui.puimegamenu", $.primeui.puibasemenu, {
+
+        options: {
+            autoDisplay: true,
+            orientation:'horizontal'
+        },
+
+        _create: function() {
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+
+            this._render();
+
+            this.rootList = this.element.children('ul');
+            this.rootLinks = this.rootList.children('li').children('a');
+            this.subLinks = this.element.find('.ui-megamenu-panel a.ui-menuitem-link');
+            
+            this._bindEvents();
+            this._super();
+        },
+        
+        _render: function() {
+            var $this = this;
+            this.element.addClass('ui-menu ui-menubar ui-megamenu ui-widget ui-widget-content ui-corner-all ui-helper-clearfix');
+            if(this._isVertical()) {
+                this.element.addClass('ui-megamenu-vertical');
+            }
+            this.element.children('ul').addClass('ui-menu-list ui-helper-reset');
+
+            this.element.find('li').each(function(){
+                var listItem = $(this),
+                    menuitemLink = listItem.children('a'),
+                    icon = menuitemLink.data('icon');
+
+                    menuitemLink.addClass('ui-menuitem-link ui-corner-all').contents().wrap('<span class="ui-menuitem-text" />');
+
+                    if(icon) {
+                        menuitemLink.prepend('<span class="ui-menuitem-icon fa fa-fw ' + icon + '"></span>');
+                    }
+
+                    listItem.addClass('ui-menuitem ui-widget ui-corner-all');
+                    listItem.parent().addClass('ui-menu-list ui-helper-reset');
+
+                    if(listItem.children('h3').length) {
+                        listItem.addClass('ui-widget-header ui-corner-all');
+                        listItem.removeClass('ui-widget ui-menuitem');
+                    }
+                    else if(listItem.children('div').length) {
+                        var submenuIcon;
+                        if(!$this._isVertical()) {
+                            submenuIcon = 'fa-caret-down';
+                        }
+                        else {
+                            submenuIcon = 'fa-caret-right'
+                        }
+                        listItem.addClass('ui-menu-parent');
+                        listItem.children('div').addClass('ui-megamenu-panel ui-widget-content ui-menu-list ui-corner-all ui-helper-clearfix ui-menu-child ui-shadow');
+                        menuitemLink.addClass('.ui-submenu-link').prepend('<span class="ui-submenu-icon fa fa-fw ' + submenuIcon + '"></span>');
+                    }
+            })       
+        },
+              
+        _bindEvents: function() {
+            var $this = this;
+  
+            this.rootLinks.on('mouseenter', function(e) {
+                var link = $(this),
+                menuitem = link.parent();
+
+                var current = menuitem.siblings('.ui-menuitem-active');
+                if(current.length > 0) {
+                    current.find('li.ui-menuitem-active').each(function() {
+                        $this._deactivate($(this));
+                    });
+                    $this._deactivate(current, false);
+                }
+
+                if($this.options.autoDisplay||$this.active) {
+                    $this._activate(menuitem);
+                }
+                else {
+                    $this._highlight(menuitem);
+                }
+            })
+            .on('click', function(e) {
+                var link = $(this),
+                menuitem = link.parent(),
+                submenu = link.next();
+
+                if(submenu.length) {
+                    if(submenu.is(':visible')) {
+                        $this.active = false;
+                        $this._deactivate(menuitem, true);
+                    }
+                    else {
+                        $this.active = true;
+                        $this._activate(menuitem);
+                    }
+                }
+
+                e.preventDefault();
+            });
+
+
+            this.subLinks.mouseenter(function() {
+                if($this.activeitem && !$this.isRootLink($this.activeitem)) {
+                    $this._deactivate($this.activeitem);
+                }
+                $this._highlight($(this).parent());
+            })
+            .mouseleave(function() {
+                if($this.activeitem && !$this.isRootLink($this.activeitem)) {
+                    $this._deactivate($this.activeitem);
+                }
+                $(this).removeClass('ui-state-hover');
+            })
+            .on('click.puimegamenu',function() {
+                $(this).closest('div.ui-megamenu-panel').hide();
+            });
+
+            this.rootList.mouseleave(function(e) {
+                var activeitem = $this.rootList.children('.ui-menuitem-active');
+                if(activeitem.length === 1) {
+                    $this._deactivate(activeitem, false);
+                }
+            });
+       },
+
+        _isVertical: function () {
+            if(this.options.orientation === 'vertical')
+                return true;
+            else
+                return false;
+        },
+
+       _deactivate: function(menuitem, animate) {
+            var link = menuitem.children('a.ui-menuitem-link'),
+            submenu = link.next();
+            
+            menuitem.removeClass('ui-menuitem-active');
+            link.removeClass('ui-state-hover');
+            this.activeitem = null;
+            
+            if(submenu.length > 0) {
+                if(animate)
+                    submenu.fadeOut('fast');
+                else
+                    submenu.hide();
+            }
+        },
+
+        _activate: function(menuitem) {
+            var submenu = menuitem.children('.ui-megamenu-panel'),
+            $this = this;
+
+            $this._highlight(menuitem);
+
+            if(submenu.length > 0) {
+                $this._showSubmenu(menuitem, submenu);
+            }
+        },
+
+        isRootLink: function(menuitem) {
+            var submenu = menuitem.closest('ul');
+            return submenu.parent().hasClass('ui-menu');
+        },
+
+        _highlight: function(menuitem) {
+            var link = menuitem.children('a.ui-menuitem-link');
+
+            menuitem.addClass('ui-menuitem-active');
+            link.addClass('ui-state-hover');
+            this.activeitem = menuitem;
+        },
+                
+        _showSubmenu: function(menuitem, submenu) {
+            var pos = null;
+        
+            if(this._isVertical()) {
+                pos = {
+                    my: 'left top',
+                    at: 'right top',
+                    of: menuitem,
+                    collision: 'flipfit'
+                };
+            }
+            else {
+                pos = {
+                    my: 'left top',
+                    at: 'left bottom',
+                    of: menuitem,
+                    collision: 'flipfit'
+                };
+            }
+
+            submenu.css({
+                'z-index': ++PUI.zindex
+            });
+
+            submenu.show().position(pos);
+        }
+
+    });
+
 })();/**
  * PrimeUI Messages widget
  */
@@ -7375,11 +7588,11 @@ PUI.resolveUserAgent();/**
         },
 
         _create: function() {
-            this.element.addClass('pui-messages ui-widget ui-corner-all');
+            this.element.addClass('ui-messages ui-widget ui-corner-all');
             if(this.options.closable) {
-                this.closer = $('<a href="#" class="pui-messages-close"><i class="fa fa-close"></i></a>').appendTo(this.element);
+                this.closer = $('<a href="#" class="ui-messages-close"><i class="fa fa-close"></i></a>').appendTo(this.element);
             }
-            this.element.append('<span class="pui-messages-icon fa fa-2x"></span>');
+            this.element.append('<span class="ui-messages-icon fa fa-2x"></span>');
             
             this.msgContainer = $('<ul></ul>').appendTo(this.element);
             
@@ -7398,9 +7611,9 @@ PUI.resolveUserAgent();/**
 
         show: function(severity, msgs) {
             this.clear();
-            this.element.removeClass('pui-messages-info pui-messages-warn pui-messages-error').addClass('pui-messages-' + severity);
+            this.element.removeClass('ui-messages-info ui-messages-warn ui-messages-error').addClass('ui-messages-' + severity);
             
-            this.element.children('.pui-messages-icon').removeClass('fa-info-circle fa-close fa-warning').addClass(this._getIcon(severity));
+            this.element.children('.ui-messages-icon').removeClass('fa-info-circle fa-close fa-warning').addClass(this._getIcon(severity));
             
             if($.isArray(msgs)) {
                 for(var i = 0; i < msgs.length; i++) {
@@ -7415,7 +7628,7 @@ PUI.resolveUserAgent();/**
         },
         
         _showMessage: function(msg) {
-            this.msgContainer.append('<li><span class="pui-messages-summary">' + msg.summary + '</span><span class="pui-messages-detail">' + msg.detail + '</span></li>');
+            this.msgContainer.append('<li><span class="ui-messages-summary">' + msg.summary + '</span><span class="ui-messages-detail">' + msg.detail + '</span></li>');
         },
         
         clear: function() {
@@ -7458,9 +7671,9 @@ PUI.resolveUserAgent();/**
         },
         
         _create: function() {
-            this.element.addClass('pui-multiselectlistbox ui-widget ui-helper-clearfix');
+            this.element.addClass('ui-multiselectlistbox ui-widget ui-helper-clearfix');
             this.element.append('<input type="hidden"></input>');
-            this.element.append('<div class="pui-multiselectlistbox-listcontainer"></div>');
+            this.element.append('<div class="ui-multiselectlistbox-listcontainer"></div>');
             this.container = this.element.children('div');
             this.input = this.element.children('input');
             var choices = this.options.choices;
@@ -7470,17 +7683,17 @@ PUI.resolveUserAgent();/**
 
             if(choices) {
                 if(this.options.caption) {
-                    this.container.append('<div class="pui-multiselectlistbox-header ui-widget-header ui-corner-top">'+ this.options.caption +'</div>');
+                    this.container.append('<div class="ui-multiselectlistbox-header ui-widget-header ui-corner-top">'+ this.options.caption +'</div>');
                 }
                 
-                this.container.append('<ul class="pui-multiselectlistbox-list pui-inputfield ui-widget-content ui-corner-bottom"></ul>');
+                this.container.append('<ul class="ui-multiselectlistbox-list ui-inputfield ui-widget-content ui-corner-bottom"></ul>');
                 this.rootList = this.container.children('ul');
                 
                 for(var i = 0; i < choices.length; i++) {
                     this._createItemNode(choices[i], this.rootList);
                 }
                 
-                this.items = this.element.find('li.pui-multiselectlistbox-item');
+                this.items = this.element.find('li.ui-multiselectlistbox-item');
                 this._bindEvents();
                 
                 if(this.options.value !== undefined || this.options.value !== null) {
@@ -7490,7 +7703,7 @@ PUI.resolveUserAgent();/**
         },
         
         _createItemNode: function(choice, parent) {
-            var listItem = $('<li class="pui-multiselectlistbox-item"><span>'+ choice.label + '</span></li>');
+            var listItem = $('<li class="ui-multiselectlistbox-item"><span>'+ choice.label + '</span></li>');
             listItem.appendTo(parent);
             
             if(choice.items) {
@@ -7534,7 +7747,7 @@ PUI.resolveUserAgent();/**
         
         showOptionGroup: function(item) {
            item.addClass('ui-state-highlight').removeClass('ui-state-hover').siblings().filter('.ui-state-highlight').removeClass('ui-state-highlight');
-           item.closest('.pui-multiselectlistbox-listcontainer').nextAll().remove();
+           item.closest('.ui-multiselectlistbox-listcontainer').nextAll().remove();
            var childItemsContainer = item.children('ul'),
            itemValue = item.attr('data-value');
    
@@ -7543,11 +7756,11 @@ PUI.resolveUserAgent();/**
            }
 
            if(childItemsContainer.length) {
-              var groupContainer = $('<div class="pui-multiselectlistbox-listcontainer" style="display:none"></div>');
-              childItemsContainer.clone(true).appendTo(groupContainer).addClass('pui-multiselectlistbox-list pui-inputfield ui-widget-content').removeClass('ui-helper-hidden');
+              var groupContainer = $('<div class="ui-multiselectlistbox-listcontainer" style="display:none"></div>');
+              childItemsContainer.clone(true).appendTo(groupContainer).addClass('ui-multiselectlistbox-list ui-inputfield ui-widget-content').removeClass('ui-helper-hidden');
 
-              groupContainer.prepend('<div class="pui-multiselectlistbox-header ui-widget-header ui-corner-top">' + item.children('span').text() + '</div>')
-                  .children('.pui-multiselectlistbox-list').addClass('ui-corner-bottom');
+              groupContainer.prepend('<div class="ui-multiselectlistbox-header ui-widget-header ui-corner-top">' + item.children('span').text() + '</div>')
+                  .children('.ui-multiselectlistbox-list').addClass('ui-corner-bottom');
 
               this.element.append(groupContainer);
 
@@ -7579,7 +7792,7 @@ PUI.resolveUserAgent();/**
                 return;
             }
 
-            var ancestors = item.parentsUntil('.pui-multiselectlistbox-list'),
+            var ancestors = item.parentsUntil('.ui-multiselectlistbox-list'),
             selectedIndexMap = [];
 
             for(var i = (ancestors.length - 1); i >= 0; i--) {
@@ -7589,27 +7802,27 @@ PUI.resolveUserAgent();/**
                     selectedIndexMap.push(ancestor.index());
                 }
                 else if(ancestor.is('ul')) {
-                    var groupContainer = $('<div class="pui-multiselectlistbox-listcontainer" style="display:none"></div>');
-                    ancestor.clone(true).appendTo(groupContainer).addClass('pui-multiselectlistbox-list ui-widget-content ui-corner-all').removeClass('ui-helper-hidden');
+                    var groupContainer = $('<div class="ui-multiselectlistbox-listcontainer" style="display:none"></div>');
+                    ancestor.clone(true).appendTo(groupContainer).addClass('ui-multiselectlistbox-list ui-widget-content ui-corner-all').removeClass('ui-helper-hidden');
 
-                    groupContainer.prepend('<div class="pui-multiselectlistbox-header ui-widget-header ui-corner-top">' + ancestor.prev('span').text() + '</div>')
-                           .children('.pui-multiselectlistbox-list').addClass('ui-corner-bottom').removeClass('ui-corner-all');
+                    groupContainer.prepend('<div class="ui-multiselectlistbox-header ui-widget-header ui-corner-top">' + ancestor.prev('span').text() + '</div>')
+                           .children('.ui-multiselectlistbox-list').addClass('ui-corner-bottom').removeClass('ui-corner-all');
 
                     $this.element.append(groupContainer);
                 }
             }
 
             //highlight item
-            var lists = this.element.children('div.pui-multiselectlistbox-listcontainer'),
-            clonedItem = lists.find(' > ul.pui-multiselectlistbox-list > li.pui-multiselectlistbox-item').filter('[data-value="' + value + '"]');
+            var lists = this.element.children('div.ui-multiselectlistbox-listcontainer'),
+            clonedItem = lists.find(' > ul.ui-multiselectlistbox-list > li.ui-multiselectlistbox-item').filter('[data-value="' + value + '"]');
             clonedItem.addClass('ui-state-highlight');
 
             //highlight ancestors
             for(var i = 0; i < selectedIndexMap.length; i++) {
-                lists.eq(i).find('> .pui-multiselectlistbox-list > li.pui-multiselectlistbox-item').eq(selectedIndexMap[i]).addClass('ui-state-highlight');
+                lists.eq(i).find('> .ui-multiselectlistbox-list > li.ui-multiselectlistbox-item').eq(selectedIndexMap[i]).addClass('ui-state-highlight');
             }
 
-            $this.element.children('div.pui-multiselectlistbox-listcontainer:hidden').show();
+            $this.element.children('div.ui-multiselectlistbox-listcontainer:hidden').show();
         }
     });
     
@@ -7631,10 +7844,10 @@ PUI.resolveUserAgent();/**
         },
         
         _create: function() {
-            this.element.addClass('pui-notify pui-notify-' + this.options.position + ' ui-widget ui-widget-content pui-shadow')
-                    .wrapInner('<div class="pui-notify-content" />').appendTo(document.body);
-            this.content = this.element.children('.pui-notify-content');
-            this.closeIcon = $('<span class="pui-notify-close fa fa-close"></span>').appendTo(this.element);
+            this.element.addClass('ui-notify ui-notify-' + this.options.position + ' ui-widget ui-widget-content ui-shadow')
+                    .wrapInner('<div class="ui-notify-content" />').appendTo(document.body);
+            this.content = this.element.children('.ui-notify-content');
+            this.closeIcon = $('<span class="ui-notify-close fa fa-close"></span>').appendTo(this.element);
             
             this._bindEvents();
             
@@ -7732,20 +7945,20 @@ PUI.resolveUserAgent();/**
         _createDom: function() {
             this.element.addClass('ui-helper-hidden');
             if(this.options.controlsLocation !== 'none')
-                this.element.wrap('<div class="pui-grid-col-10"></div>');
+                this.element.wrap('<div class="ui-grid-col-10"></div>');
             else
-                this.element.wrap('<div class="pui-grid-col-12"></div>');
+                this.element.wrap('<div class="ui-grid-col-12"></div>');
 
-            this.element.parent().wrap('<div class="pui-orderlist pui-grid ui-widget"><div class="pui-grid-row"></div></div>')
-            this.container = this.element.closest('.pui-orderlist');
+            this.element.parent().wrap('<div class="ui-orderlist ui-grid ui-widget"><div class="ui-grid-row"></div></div>')
+            this.container = this.element.closest('.ui-orderlist');
             
             if(this.options.controlsLocation !== 'none') {
-                this.element.parent().before('<div class="pui-orderlist-controls pui-grid-col-2"></div>');
+                this.element.parent().before('<div class="ui-orderlist-controls ui-grid-col-2"></div>');
                 this._createButtons();
             }
             
             if(this.options.responsive) {
-                this.container.addClass('pui-grid-responsive');
+                this.container.addClass('ui-grid-responsive');
             }
         },
         
@@ -7760,12 +7973,12 @@ PUI.resolveUserAgent();/**
         },
         
         _createListElement: function() {
-            this.list = $('<ul class="ui-widget-content pui-orderlist-list"></ul>').insertBefore(this.element);
+            this.list = $('<ul class="ui-widget-content ui-orderlist-list"></ul>').insertBefore(this.element);
                     
             for(var i = 0; i < this.optionElements.length; i++) {
                 var optionElement = this.optionElements.eq(i),
                 itemContent = this._createItemContent(optionElement.get(0)),
-                listItem = $('<li class="pui-orderlist-item ui-corner-all"></li>');
+                listItem = $('<li class="ui-orderlist-item ui-corner-all"></li>');
         
                 if($.type(itemContent) === 'string')
                     listItem.html(itemContent);
@@ -7775,23 +7988,24 @@ PUI.resolveUserAgent();/**
                 listItem.data('item-value', optionElement.attr('value')).appendTo(this.list);
             }
             
-            this.items = this.list.children('.pui-orderlist-item');
+            this.items = this.list.children('.ui-orderlist-item');
             
             if(this.options.caption) {
-                this.list.addClass('ui-corner-bottom').before('<div class="pui-orderlist-caption ui-widget-header ui-corner-top">' + this.options.caption + '</div>')
+                this.list.addClass('ui-corner-bottom').before('<div class="ui-orderlist-caption ui-widget-header ui-corner-top">' + this.options.caption + '</div>')
             } else {
                 this.list.addClass('ui-corner-all')
             }
         },
         
         _createButtons: function() {
-            var $this = this,
-            buttonContainer = this.element.parent().prev();
-            
-            buttonContainer.append(this._createButton('fa-angle-up', 'pui-orderlist-button-moveup', function(){$this._moveUp();}))
-                            .append(this._createButton('fa-angle-double-up', 'pui-orderlist-button-move-top', function(){$this._moveTop();}))
-                            .append(this._createButton('fa-angle-down', 'pui-orderlist-button-move-down', function(){$this._moveDown();}))
-                            .append(this._createButton('fa-angle-double-down', 'pui-orderlist-move-bottom', function(){$this._moveBottom();}));
+            var $this = this;
+            this.buttonContainer = this.element.parent().prev();
+            this.moveUpButton = this._createButton('fa-angle-up', 'ui-orderlist-button-moveup', function(){$this._moveUp();});
+            this.moveTopButton = this._createButton('fa-angle-double-up', 'ui-orderlist-button-move-top', function(){$this._moveTop();});
+            this.moveDownButton = this._createButton('fa-angle-down', 'ui-orderlist-button-move-down', function(){$this._moveDown();});
+            this.moveBottomButton = this._createButton('fa-angle-double-down', 'ui-orderlist-move-bottom', function(){$this._moveBottom();});
+
+            this.buttonContainer.append(this.moveUpButton).append(this.moveTopButton).append(this.moveDownButton).append(this.moveBottomButton);
         },
         
         _createButton: function(icon, cssClass, fn) {
@@ -7807,53 +8021,26 @@ PUI.resolveUserAgent();/**
         },
         
         _bindEvents: function() {
-            var $this = this;
-            
-            this.items.on('mouseover.puiorderlist', function(e) {
-                var element = $(this);
-
-                if(!element.hasClass('ui-state-highlight'))
-                    $(this).addClass('ui-state-hover');
-            })
-            .on('mouseout.puiorderlist', function(e) {
-                var element = $(this);
-
-                if(!element.hasClass('ui-state-highlight'))
-                    $(this).removeClass('ui-state-hover');
-            })
-            .on('mousedown.puiorderlist', function(e) {
-                var element = $(this),
-                metaKey = (e.metaKey||e.ctrlKey);
-
-                if(!metaKey) {
-                    element.removeClass('ui-state-hover').addClass('ui-state-highlight')
-                            .siblings('.ui-state-highlight').removeClass('ui-state-highlight');
-
-                    //$this.fireItemSelectEvent(element, e);
-                }
-                else {
-                    if(element.hasClass('ui-state-highlight')) {
-                        element.removeClass('ui-state-highlight');
-                        //$this.fireItemUnselectEvent(element);
-                    }
-                    else {
-                        element.removeClass('ui-state-hover').addClass('ui-state-highlight');
-                        //$this.fireItemSelectEvent(element, e);
-                    }
-                }
-            });
+            this._bindButtonEvents();
+            this._bindItemEvents(this.items);
 
             if(this.options.dragdrop) {
-                this.list.sortable({
-                    revert: 1,
-                    start: function(event, ui) {
-                        //PrimeFaces.clearSelection();
-                    }
-                    ,update: function(event, ui) {
-                        $this.onDragDrop(event, ui);
-                    }
-                });
+                this._initDragDrop();
             }
+        },
+
+        _initDragDrop: function() {
+            var $this = this;
+
+            this.list.sortable({
+                revert: 1,
+                start: function(event, ui) {
+                    PUI.clearSelection();
+                }
+                ,update: function(event, ui) {
+                    $this.onDragDrop(event, ui);
+                }
+            });
         },
         
         _moveUp: function() {
@@ -7982,7 +8169,7 @@ PUI.resolveUserAgent();/**
         _generateOptions: function() {
             var $this = this;
 
-            this.list.children('.pui-orderlist-item').each(function() {
+            this.list.children('.ui-orderlist-item').each(function() {
                 var item = $(this),
                 itemValue = item.data('item-value');
 
@@ -8002,6 +8189,153 @@ PUI.resolveUserAgent();/**
             else {
                 return choice.label;
             }
+        },
+
+        addOption: function(value,label) {
+            var newListItem;
+
+            if(this.options.content) {
+                var option = (label) ? {'label':label,'value':value}: {'label':value,'value':value};
+                newListItem = $('<li class="ui-orderlist-item ui-corner-all"></li>').append(this.options.content(option)).appendTo(this.list);
+            }
+            else {
+                var listLabel = (label) ? label: value;
+                newListItem = $('<li class="ui-orderlist-item ui-corner-all">' + listLabel + '</li>').appendTo(this.list);
+            }
+
+            if(label)
+                this.element.append('<option value="' + value + '">' + label + '</option>');
+            else
+                this.element.append('<option value="' + value + '">' + value + '</option>');
+
+            this._bindItemEvents(newListItem);
+
+            this.optionElements = this.element.children('option');
+            this.items = this.items.add(newListItem);
+
+            if(this.options.dragdrop) {
+                this.list.sortable('refresh');
+            }
+        },
+
+        removeOption: function(value) {
+            for (var i = 0; i < this.optionElements.length; i++) {
+                if(this.optionElements[i].value == value) {
+                    this.optionElements[i].remove(i);
+                    this._unbindItemEvents(this.items.eq(i));
+                    this.items[i].remove(i);
+                }
+            }
+
+            this.optionElements = this.element.children('option');
+            this.items = this.list.children('.ui-orderlist-item');
+
+            if(this.options.dragdrop) {
+                this.list.sortable('refresh');
+            }
+        },
+
+        _unbindEvents: function() {
+            this._unbindItemEvents(this.items);
+            this._unbindButtonEvents();
+        },
+
+        _unbindItemEvents: function(item) {
+            item.off('mouseover.puiorderlist mouseout.puiorderlist mousedown.puiorderlist');
+        },
+
+        _bindItemEvents: function(item) {
+            var $this = this;
+
+            item.on('mouseover.puiorderlist', function(e) {
+                var element = $(this);
+
+                if(!element.hasClass('ui-state-highlight'))
+                    $(this).addClass('ui-state-hover');
+            })
+            .on('mouseout.puiorderlist', function(e) {
+                var element = $(this);
+
+                if(!element.hasClass('ui-state-highlight'))
+                    $(this).removeClass('ui-state-hover');
+            })
+            .on('mousedown.puiorderlist', function(e) {
+                var element = $(this),
+                metaKey = (e.metaKey||e.ctrlKey);
+
+                if(!metaKey) {
+                    element.removeClass('ui-state-hover').addClass('ui-state-highlight')
+                            .siblings('.ui-state-highlight').removeClass('ui-state-highlight');
+
+                    //$this.fireItemSelectEvent(element, e);
+                }
+                else {
+                    if(element.hasClass('ui-state-highlight')) {
+                        element.removeClass('ui-state-highlight');
+                        //$this.fireItemUnselectEvent(element);
+                    }
+                    else {
+                        element.removeClass('ui-state-hover').addClass('ui-state-highlight');
+                        //$this.fireItemSelectEvent(element, e);
+                    }
+                }
+            });
+        },
+
+        getSelection: function() {
+            var selectedItems = [];
+            this.items.filter('.ui-state-highlight').each(function() {
+                selectedItems.push($(this).data('item-value'));
+            });
+            return selectedItems;
+        },
+
+        setSelection: function(value) {
+            for (var i = 0; i < this.items.length; i++) {
+                for (var j = 0; j < value.length; j++) {
+                    if(this.items.eq(i).data('item-value') == value[j]) {
+                        this.items.eq(i).addClass('ui-state-highlight');
+                    }  
+                }
+            }
+        },
+
+        disable: function() {
+            this._unbindEvents();
+            this.items.addClass('ui-state-disabled');
+            this.container.addClass('ui-state-disabled');
+
+            if(this.options.dragdrop) {
+                this.list.sortable('destroy');
+            }
+        },
+
+        enable: function() {
+            this._bindEvents();
+            this.items.removeClass('ui-state-disabled');
+            this.container.removeClass('ui-state-disabled');
+
+            if(this.options.dragdrop) {
+                this._initDragDrop();
+            }
+        },
+
+        _unbindButtonEvents: function() {
+            if(this.buttonContainer) {
+                this.moveUpButton.puibutton('disable');
+                this.moveTopButton.puibutton('disable');
+                this.moveDownButton.puibutton('disable');
+                this.moveBottomButton.puibutton('disable');
+            }
+        },
+
+        _bindButtonEvents: function() {
+            if(this.buttonContainer) {
+                this.moveUpButton.puibutton('enable');
+                this.moveTopButton.puibutton('enable');
+                this.moveDownButton.puibutton('enable');
+                this.moveBottomButton.puibutton('enable');
+            }
         }
         
     });
@@ -8014,7 +8348,7 @@ PUI.resolveUserAgent();/**
     var ElementHandlers = {
         
         '{FirstPageLink}': {
-            markup: '<span class="pui-paginator-first pui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-step-backward"></span></span>',
+            markup: '<span class="ui-paginator-first ui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-step-backward"></span></span>',
             
             create: function(paginator) {
                 var element = $(this.markup);
@@ -8043,7 +8377,7 @@ PUI.resolveUserAgent();/**
         },
                 
         '{PreviousPageLink}': {
-            markup: '<span class="pui-paginator-prev pui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-backward"></span></span>',
+            markup: '<span class="ui-paginator-prev ui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-backward"></span></span>',
                     
             create: function(paginator) {
                 var element = $(this.markup);
@@ -8072,7 +8406,7 @@ PUI.resolveUserAgent();/**
         },
                 
         '{NextPageLink}': {
-            markup: '<span class="pui-paginator-next pui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-forward"></span></span>',
+            markup: '<span class="ui-paginator-next ui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-forward"></span></span>',
                     
             create: function(paginator) {
                 var element = $(this.markup);
@@ -8101,7 +8435,7 @@ PUI.resolveUserAgent();/**
         },
                 
         '{LastPageLink}': {
-            markup: '<span class="pui-paginator-last pui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-step-forward"></span></span>',
+            markup: '<span class="ui-paginator-last ui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-step-forward"></span></span>',
                     
             create: function(paginator) {
                 var element = $(this.markup);
@@ -8130,7 +8464,7 @@ PUI.resolveUserAgent();/**
         },
                 
         '{PageLinks}': {
-            markup: '<span class="pui-paginator-pages"></span>',
+            markup: '<span class="ui-paginator-pages"></span>',
                     
             create: function(paginator) {
                 var element = $(this.markup),
@@ -8144,7 +8478,7 @@ PUI.resolveUserAgent();/**
                 
                 for(var i = start; i <= end; i++) {
                     var pageLinkNumber = (i + 1),
-                    pageLinkElement = $('<span class="pui-paginator-page pui-paginator-element ui-state-default ui-corner-all">' + pageLinkNumber + "</span>");
+                    pageLinkElement = $('<span class="ui-paginator-page ui-paginator-element ui-state-default ui-corner-all">' + pageLinkNumber + "</span>");
                     
                     if(i === paginator.options.page) {
                         pageLinkElement.addClass('ui-state-active');
@@ -8178,7 +8512,7 @@ PUI.resolveUserAgent();/**
         
                 for(var i = start; i <= end; i++) {
                     var pageLinkNumber = (i + 1),
-                    pageLinkElement = $('<span class="pui-paginator-page pui-paginator-element ui-state-default ui-corner-all">' + pageLinkNumber + "</span>");
+                    pageLinkElement = $('<span class="ui-paginator-page ui-paginator-element ui-state-default ui-corner-all">' + pageLinkNumber + "</span>");
                     
                     if(i === state.page) {
                         pageLinkElement.addClass('ui-state-active');
@@ -8229,7 +8563,7 @@ PUI.resolveUserAgent();/**
         },
         
         _create: function() {
-            this.element.addClass('pui-paginator ui-widget-header');
+            this.element.addClass('ui-paginator ui-widget-header');
             this.paginatorElements = [];
             
             var elementKeys = this.options.template.split(/[ ]+/);
@@ -8248,7 +8582,7 @@ PUI.resolveUserAgent();/**
         },
                 
         _bindEvents: function() {
-            this._bindHover(this.element.find('span.pui-paginator-element'));
+            this._bindHover(this.element.find('span.ui-paginator-element'));
         },
         
         _bindHover: function(elements) {
@@ -8338,29 +8672,29 @@ PUI.resolveUserAgent();/**
         
         _create: function() {
             if(!this.options.enhanced) {
-                this.element.addClass('pui-panel ui-widget ui-widget-content ui-corner-all')
-                    .contents().wrapAll('<div class="pui-panel-content ui-widget-content" />');
+                this.element.addClass('ui-panel ui-widget ui-widget-content ui-corner-all')
+                    .contents().wrapAll('<div class="ui-panel-content ui-widget-content" />');
 
                 var title = this.element.attr('title')||this.options.title;
                 if(title) {
-                    this.element.prepend('<div class="pui-panel-titlebar ui-widget-header ui-helper-clearfix ui-corner-all"><span class="ui-panel-title">' +
+                    this.element.prepend('<div class="ui-panel-titlebar ui-widget-header ui-helper-clearfix ui-corner-all"><span class="ui-panel-title">' +
                             title + "</span></div>").removeAttr('title');
                 }
             }
                 
-            this.header = this.element.children('div.pui-panel-titlebar');
+            this.header = this.element.children('div.ui-panel-titlebar');
             this.title = this.header.children('span.ui-panel-title');
-            this.content = this.element.children('div.pui-panel-content');
+            this.content = this.element.children('div.ui-panel-content');
             
             var $this = this;
             
             if(this.options.closable) {
                 if(!this.options.enhanced) {
-                    this.closer = $('<a class="pui-panel-titlebar-icon pui-panel-titlebar-closer ui-corner-all ui-state-default" href="#"><span class="pui-icon fa fa-fw fa-close"></span></a>')
+                    this.closer = $('<a class="ui-panel-titlebar-icon ui-panel-titlebar-closer ui-corner-all ui-state-default" href="#"><span class="ui-icon fa fa-fw fa-close"></span></a>')
                                 .appendTo(this.header);
                 }
                 else {
-                    this.closer = this.header.children('.pui-panel-titlebar-closer');
+                    this.closer = this.header.children('.ui-panel-titlebar-closer');
                 }
 
                 this.closer.on('click.puipanel', function(e) {
@@ -8373,12 +8707,12 @@ PUI.resolveUserAgent();/**
                 var icon = this.options.collapsed ? 'fa-plus' : 'fa-minus';
                 
                 if(!this.options.enhanced) {
-                    this.toggler = $('<a class="pui-panel-titlebar-icon pui-panel-titlebar-toggler ui-corner-all ui-state-default" href="#"><span class="pui-icon fa fa-fw ' + icon + '"></span></a>')
+                    this.toggler = $('<a class="ui-panel-titlebar-icon ui-panel-titlebar-toggler ui-corner-all ui-state-default" href="#"><span class="ui-icon fa fa-fw ' + icon + '"></span></a>')
                                 .appendTo(this.header);
                 }
                 else {
-                    this.toggler = this.header.children('.pui-panel-titlebar-toggler');
-                    this.toggler.children('.pui-icon').addClass(icon);
+                    this.toggler = this.header.children('.ui-panel-titlebar-toggler');
+                    this.toggler.children('.ui-icon').addClass(icon);
                 }
                 
                 this.toggler.on('click.puipanel', function(e) {
@@ -8395,7 +8729,7 @@ PUI.resolveUserAgent();/**
         },
 
         _bindEvents: function() {
-            this.header.children('a.pui-panel-titlebar-icon').on('mouseenter.puipanel', function() {
+            this.header.children('a.ui-panel-titlebar-icon').on('mouseenter.puipanel', function() {
                 $(this).addClass('ui-state-hover');
             })
             .on('mouseleave.puipanel', function() {
@@ -8404,7 +8738,7 @@ PUI.resolveUserAgent();/**
         },
 
         _unbindEvents: function() {
-            this.header.children('a.pui-panel-titlebar-icon').off();
+            this.header.children('a.ui-panel-titlebar-icon').off();
         },
         
         close: function() {
@@ -8429,7 +8763,7 @@ PUI.resolveUserAgent();/**
         },
         
         expand: function() {
-            this.toggler.children('.pui-icon').removeClass('fa-plus').addClass('fa-minus');
+            this.toggler.children('.ui-icon').removeClass('fa-plus').addClass('fa-minus');
             
             if(this.options.toggleOrientation === 'vertical') {
                 this._slideDown();
@@ -8440,7 +8774,7 @@ PUI.resolveUserAgent();/**
         },
 
         collapse: function() {
-            this.toggler.children('.pui-icon').removeClass('fa-minus').addClass('fa-plus');
+            this.toggler.children('.ui-icon').removeClass('fa-minus').addClass('fa-plus');
             
             if(this.options.toggleOrientation === 'vertical') {
                 this._slideUp();
@@ -8485,7 +8819,7 @@ PUI.resolveUserAgent();/**
                 width: '42px'
             }, this.options.toggleSpeed, 'easeInOutCirc', function() {
                 $this.toggler.show();
-                $this.element.addClass('pui-panel-collapsed-h');
+                $this.element.addClass('ui-panel-collapsed-h');
                 $this.options.collapsed = !$this.options.collapsed;
             });
         },
@@ -8499,7 +8833,7 @@ PUI.resolveUserAgent();/**
             this.element.animate({
                 width: expandWidth
             }, this.options.toggleSpeed, 'easeInOutCirc', function() {
-                $this.element.removeClass('pui-panel-collapsed-h');
+                $this.element.removeClass('ui-panel-collapsed-h');
                 $this.title.show();
                 $this.toggler.show();
                 $this.options.collapsed = !$this.options.collapsed;
@@ -8515,7 +8849,7 @@ PUI.resolveUserAgent();/**
         _destroy: function() {
             this._unbindEvents();
             if(this.toggler) {
-                this.toggler.children('.pui-icon').removeClass('fa-minus fa-plus');
+                this.toggler.children('.ui-icon').removeClass('fa-minus fa-plus');
             }
         }
     });
@@ -8540,22 +8874,22 @@ PUI.resolveUserAgent();/**
                 this.id = this.element.uniqueId().attr('id');
             }
 
-            this.element.puiinputtext().addClass('pui-password');
+            this.element.puiinputtext().addClass('ui-password');
             
             if(!this.element.prop(':disabled')) {
-                var panelMarkup = '<div class="pui-password-panel ui-widget ui-state-highlight ui-corner-all ui-helper-hidden">';
-                panelMarkup += '<div class="pui-password-meter" style="background-position:0pt 0pt">&nbsp;</div>';
-                panelMarkup += '<div class="pui-password-info">' + this.options.promptLabel + '</div>';
+                var panelMarkup = '<div class="ui-password-panel ui-widget ui-state-highlight ui-corner-all ui-helper-hidden">';
+                panelMarkup += '<div class="ui-password-meter" style="background-position:0pt 0pt">&nbsp;</div>';
+                panelMarkup += '<div class="ui-password-info">' + this.options.promptLabel + '</div>';
                 panelMarkup += '</div>';
 
                 this.panel = $(panelMarkup).insertAfter(this.element);
-                this.meter = this.panel.children('div.pui-password-meter');
-                this.infoText = this.panel.children('div.pui-password-info');
+                this.meter = this.panel.children('div.ui-password-meter');
+                this.infoText = this.panel.children('div.ui-password-info');
 
                 if(this.options.inline) {
-                    this.panel.addClass('pui-password-panel-inline');
+                    this.panel.addClass('ui-password-panel-inline');
                 } else {
-                    this.panel.addClass('pui-password-panel-overlay').appendTo('body');
+                    this.panel.addClass('ui-password-panel-overlay').appendTo('body');
                 }
 
                 this._bindEvents();
@@ -8563,7 +8897,7 @@ PUI.resolveUserAgent();/**
         },
         
         _destroy: function() {
-            this.element.puiinputtext('destroy').removeClass('pui-password');
+            this.element.puiinputtext('destroy').removeClass('ui-password');
             this._unbindEvents();
             this.panel.remove();
             $(window).off('resize.' + this.id);
@@ -8736,9 +9070,9 @@ PUI.resolveUserAgent();/**
         },
 
         _create: function() {
-            this.element.uniqueId().addClass('pui-picklist ui-widget ui-helper-clearfix');
+            this.element.uniqueId().addClass('ui-picklist ui-widget ui-helper-clearfix');
             if(this.options.responsive) {
-                this.element.addClass('pui-picklist-responsive');
+                this.element.addClass('ui-picklist-responsive');
             }
             this.inputs = this.element.children('select');
             this.items = $();
@@ -8753,16 +9087,16 @@ PUI.resolveUserAgent();/**
                 this._populateInputFromData(this.targetInput, this.options.targetData);
             }
                         
-            this.sourceList = this._createList(this.sourceInput, 'pui-picklist-source', this.options.sourceCaption);
+            this.sourceList = this._createList(this.sourceInput, 'ui-picklist-source', this.options.sourceCaption);
             this._createButtons();
-            this.targetList = this._createList(this.targetInput, 'pui-picklist-target', this.options.targetCaption);
+            this.targetList = this._createList(this.targetInput, 'ui-picklist-target', this.options.targetCaption);
             
             if(this.options.showSourceControls) {
-                this.element.prepend(this._createListControls(this.sourceList, 'pui-picklist-source-controls'));
+                this.element.prepend(this._createListControls(this.sourceList, 'ui-picklist-source-controls'));
             }
             
             if(this.options.showTargetControls) {
-                this.element.append(this._createListControls(this.targetList, 'pui-picklist-target-controls'));
+                this.element.append(this._createListControls(this.targetList, 'ui-picklist-target-controls'));
             }
             
             this._bindEvents();
@@ -8779,16 +9113,16 @@ PUI.resolveUserAgent();/**
         },
                 
         _createList: function(input, cssClass, caption) {                        
-            var listWrapper = $('<div class="pui-picklist-listwrapper ' + cssClass + '-wrapper"></div>'),
-                listContainer = $('<ul class="ui-widget-content pui-picklist-list ' + cssClass + '"></ul>');
+            var listWrapper = $('<div class="ui-picklist-listwrapper ' + cssClass + '-wrapper"></div>'),
+                listContainer = $('<ul class="ui-widget-content ui-picklist-list ' + cssClass + '"></ul>');
 
             if(this.options.filter) {
-                listWrapper.append('<div class="pui-picklist-filter-container"><input type="text" class="pui-picklist-filter" /><span class="pui-icon fa fa-fw fa-search"></span></div>');
-                listWrapper.find('> .pui-picklist-filter-container > input').puiinputtext();
+                listWrapper.append('<div class="ui-picklist-filter-container"><input type="text" class="ui-picklist-filter" /><span class="ui-icon fa fa-fw fa-search"></span></div>');
+                listWrapper.find('> .ui-picklist-filter-container > input').puiinputtext();
             } 
     
             if(caption) {
-                listWrapper.append('<div class="pui-picklist-caption ui-widget-header ui-corner-tl ui-corner-tr">' + caption + '</div>');
+                listWrapper.append('<div class="ui-picklist-caption ui-widget-header ui-corner-tl ui-corner-tr">' + caption + '</div>');
                 listContainer.addClass('ui-corner-bottom');
             }
             else {
@@ -8810,7 +9144,7 @@ PUI.resolveUserAgent();/**
             for(var i = 0; i < choices.length; i++) {
                 var choice = choices.eq(i),
                 content = this._createItemContent(choice.get(0)),
-                item = $('<li class="pui-picklist-item ui-corner-all"></li>').data({
+                item = $('<li class="ui-picklist-item ui-corner-all"></li>').data({
                     'item-label': choice.text(),
                     'item-value': choice.val()
                 });
@@ -8827,24 +9161,24 @@ PUI.resolveUserAgent();/**
 
         _createButtons: function() {
             var $this = this,
-            buttonContainer = $('<div class="pui-picklist-buttons"><div class="pui-picklist-buttons-cell"></div>');
+            buttonContainer = $('<div class="ui-picklist-buttons"><div class="ui-picklist-buttons-cell"></div>');
             
-            buttonContainer.children('div').append(this._createButton('fa-angle-right', 'pui-picklist-button-add', function(){$this._add();}))
-                            .append(this._createButton('fa-angle-double-right', 'pui-picklist-button-addall', function(){$this._addAll();}))
-                            .append(this._createButton('fa-angle-left', 'pui-picklist-button-remove', function(){$this._remove();}))
-                            .append(this._createButton('fa-angle-double-left', 'pui-picklist-button-removeall', function(){$this._removeAll();}));
+            buttonContainer.children('div').append(this._createButton('fa-angle-right', 'ui-picklist-button-add', function(){$this._add();}))
+                            .append(this._createButton('fa-angle-double-right', 'ui-picklist-button-addall', function(){$this._addAll();}))
+                            .append(this._createButton('fa-angle-left', 'ui-picklist-button-remove', function(){$this._remove();}))
+                            .append(this._createButton('fa-angle-double-left', 'ui-picklist-button-removeall', function(){$this._removeAll();}));
                     
             this.element.append(buttonContainer);
         },
                 
         _createListControls: function(list, cssClass) {
             var $this = this,
-            buttonContainer = $('<div class="' + cssClass + ' pui-picklist-buttons"><div class="pui-picklist-buttons-cell"></div>');
+            buttonContainer = $('<div class="' + cssClass + ' ui-picklist-buttons"><div class="ui-picklist-buttons-cell"></div>');
             
-            buttonContainer.children('div').append(this._createButton('fa-angle-up', 'pui-picklist-button-move-up', function(){$this._moveUp(list);}))
-                            .append(this._createButton('fa-angle-double-up', 'pui-picklist-button-move-top', function(){$this._moveTop(list);}))
-                            .append(this._createButton('fa-angle-down', 'pui-picklist-button-move-down', function(){$this._moveDown(list);}))
-                            .append(this._createButton('fa-angle-double-down', 'pui-picklist-button-move-bottom', function(){$this._moveBottom(list);}));
+            buttonContainer.children('div').append(this._createButton('fa-angle-up', 'ui-picklist-button-move-up', function(){$this._moveUp(list);}))
+                            .append(this._createButton('fa-angle-double-up', 'ui-picklist-button-move-top', function(){$this._moveTop(list);}))
+                            .append(this._createButton('fa-angle-down', 'ui-picklist-button-move-down', function(){$this._moveDown(list);}))
+                            .append(this._createButton('fa-angle-double-down', 'ui-picklist-button-move-bottom', function(){$this._moveBottom(list);}));
                     
             return buttonContainer;
         },
@@ -8915,7 +9249,7 @@ PUI.resolveUserAgent();/**
             .on('dblclick.pickList', function() {
                 var item = $(this);
 
-                if($(this).closest('.pui-picklist-listwrapper').hasClass('pui-picklist-source-wrapper'))
+                if($(this).closest('.ui-picklist-listwrapper').hasClass('ui-picklist-source-wrapper'))
                     $this._transfer(item, $this.sourceList, $this.targetList, 'dblclick');
                 else
                     $this._transfer(item, $this.targetList, $this.sourceList, 'dblclick');
@@ -8926,19 +9260,19 @@ PUI.resolveUserAgent();/**
             if(this.options.filter) {
                 this._setupFilterMatcher();
                 
-                this.element.find('> .pui-picklist-source-wrapper > .pui-picklist-filter-container > input').on('keyup', function(e) {
+                this.element.find('> .ui-picklist-source-wrapper > .ui-picklist-filter-container > input').on('keyup', function(e) {
                     $this._filter(this.value, $this.sourceList);
                 });
 
-                this.element.find('> .pui-picklist-target-wrapper > .pui-picklist-filter-container > input').on('keyup', function(e) {
+                this.element.find('> .ui-picklist-target-wrapper > .ui-picklist-filter-container > input').on('keyup', function(e) {
                     $this._filter(this.value, $this.targetList);
                 });
             }
             
             if(this.options.dragdrop) {                
-                this.element.find('> .pui-picklist-listwrapper > ul.pui-picklist-list').sortable({
+                this.element.find('> .ui-picklist-listwrapper > ul.ui-picklist-list').sortable({
                     cancel: '.ui-state-disabled',
-                    connectWith: '#' + this.element.attr('id') + ' .pui-picklist-list',
+                    connectWith: '#' + this.element.attr('id') + ' .ui-picklist-list',
                     revert: 1,
                     update: function(event, ui) {
                         $this.unselectItem(ui.item);
@@ -8946,7 +9280,7 @@ PUI.resolveUserAgent();/**
                         $this._saveState();
                     },
                     receive: function(event, ui) {
-                        $this._triggerTransferEvent(ui.item, ui.sender, ui.item.closest('ul.pui-picklist-list'), 'dragdrop');
+                        $this._triggerTransferEvent(ui.item, ui.sender, ui.item.closest('ul.ui-picklist-list'), 'dragdrop');
                     }
                 });
             }
@@ -8968,25 +9302,25 @@ PUI.resolveUserAgent();/**
         },
                 
         _add: function() {
-            var items = this.sourceList.children('li.pui-picklist-item.ui-state-highlight');
+            var items = this.sourceList.children('li.ui-picklist-item.ui-state-highlight');
 
             this._transfer(items, this.sourceList, this.targetList, 'command');
         },
 
         _addAll: function() {
-            var items = this.sourceList.children('li.pui-picklist-item:visible:not(.ui-state-disabled)');
+            var items = this.sourceList.children('li.ui-picklist-item:visible:not(.ui-state-disabled)');
 
             this._transfer(items, this.sourceList, this.targetList, 'command');
         },
 
         _remove: function() {
-            var items = this.targetList.children('li.pui-picklist-item.ui-state-highlight');
+            var items = this.targetList.children('li.ui-picklist-item.ui-state-highlight');
 
             this._transfer(items, this.targetList, this.sourceList, 'command');
         },
 
         _removeAll: function() {
-            var items = this.targetList.children('li.pui-picklist-item:visible:not(.ui-state-disabled)');
+            var items = this.targetList.children('li.ui-picklist-item:visible:not(.ui-state-disabled)');
 
             this._transfer(items, this.targetList, this.sourceList, 'command');
         },
@@ -9176,7 +9510,7 @@ PUI.resolveUserAgent();/**
         },
                 
         _generateItems: function(list, input) {   
-            list.children('.pui-picklist-item').each(function() {
+            list.children('.ui-picklist-item').each(function() {
                 var item = $(this),
                 itemValue = item.data('item-value'),
                 itemLabel = item.data('item-label');
@@ -9198,7 +9532,7 @@ PUI.resolveUserAgent();/**
                 
         _filter: function(value, list) {
             var filterValue = $.trim(value).toLowerCase(),
-            items = list.children('li.pui-picklist-item');
+            items = list.children('li.ui-picklist-item');
 
             if(filterValue === '') {
                 items.filter(':hidden').show();
@@ -9254,7 +9588,7 @@ PUI.resolveUserAgent();/**
         disable: function () {
             this._unbindEvents();
             this.items.addClass('ui-state-disabled');
-            this.element.find('.pui-picklist-buttons > button').each(function (idx, btn) {
+            this.element.find('.ui-picklist-buttons > button').each(function (idx, btn) {
                 $(btn).puibutton('disable');
             });
         },
@@ -9262,7 +9596,7 @@ PUI.resolveUserAgent();/**
         enable: function () {
             this._bindEvents();
             this.items.removeClass('ui-state-disabled');
-            this.element.find('.pui-picklist-buttons > button').each(function (idx, btn) {
+            this.element.find('.ui-picklist-buttons > button').each(function (idx, btn) {
                 $(btn).puibutton('enable');
             });
         },
@@ -9299,12 +9633,12 @@ PUI.resolveUserAgent();/**
         },
        
         _create: function() {
-            this.element.addClass('pui-progressbar ui-widget ui-widget-content ui-corner-all')
-                    .append('<div class="pui-progressbar-value ui-widget-header ui-corner-all"></div>')
-                    .append('<div class="pui-progressbar-label"></div>');
+            this.element.addClass('ui-progressbar ui-widget ui-widget-content ui-corner-all')
+                    .append('<div class="ui-progressbar-value ui-widget-header ui-corner-all"></div>')
+                    .append('<div class="ui-progressbar-label"></div>');
             
-            this.jqValue = this.element.children('.pui-progressbar-value');
-            this.jqLabel = this.element.children('.pui-progressbar-label');
+            this.jqValue = this.element.children('.ui-progressbar-value');
+            this.jqLabel = this.element.children('.ui-progressbar-label');
             
             if(this.options.value !==0) {
                 this._setValue(this.options.value, false);
@@ -9383,10 +9717,10 @@ PUI.resolveUserAgent();/**
     $.widget("primeui.puiradiobutton", {
        
         _create: function() {
-            this.element.wrap('<div class="pui-radiobutton ui-widget"><div class="ui-helper-hidden-accessible"></div></div>');
+            this.element.wrap('<div class="ui-radiobutton ui-widget"><div class="ui-helper-hidden-accessible"></div></div>');
             this.container = this.element.parent().parent();
-            this.box = $('<div class="pui-radiobutton-box ui-widget pui-radiobutton-relative ui-state-default">').appendTo(this.container);
-            this.icon = $('<span class="pui-radiobutton-icon pui-icon"></span>').appendTo(this.box);
+            this.box = $('<div class="ui-radiobutton-box ui-widget ui-radiobutton-relative ui-state-default">').appendTo(this.container);
+            this.icon = $('<span class="ui-radiobutton-icon"></span>').appendTo(this.box);
             this.disabled = this.element.prop('disabled');
             this.label = $('label[for="' + this.element.attr('id') + '"]');
             
@@ -9447,7 +9781,7 @@ PUI.resolveUserAgent();/**
             .on('change.puiradiobutton', function(e) {
                 var name = $this.element.attr('name');
                 if(checkedRadios[name]) {
-                    checkedRadios[name].removeClass('ui-state-active ui-state-focus ui-state-hover').children('.pui-radiobutton-icon').removeClass('fa fa-fw fa-circle');
+                    checkedRadios[name].removeClass('ui-state-active ui-state-focus ui-state-hover').children('.ui-radiobutton-icon').removeClass('fa fa-fw fa-circle');
                 }
 
                 $this.icon.addClass('fa fa-fw fa-circle');
@@ -9486,7 +9820,7 @@ PUI.resolveUserAgent();/**
 
         _destroy: function () {
             this._unbindEvents();
-            this.container.removeClass('pui-radiobutton ui-widget');
+            this.container.removeClass('ui-radiobutton ui-widget');
             this.box.remove();
             this.element.unwrap().unwrap();
         }
@@ -9512,22 +9846,22 @@ PUI.resolveUserAgent();/**
             
             input.wrap('<div />');
             this.container = input.parent();
-            this.container.addClass('pui-rating');
+            this.container.addClass('ui-rating');
             
             var inputVal = input.val(),
             value = inputVal === '' ? this.options.value : parseInt(inputVal, 10);
             
             if(this.options.cancel) {
-                this.container.append('<div class="pui-rating-cancel"><a></a></div>');
+                this.container.append('<div class="ui-rating-cancel"><a></a></div>');
             }
 
             for(var i = 0; i < this.options.stars; i++) {
-                var styleClass = (value > i) ? "pui-rating-star pui-rating-star-on" : "pui-rating-star";
+                var styleClass = (value > i) ? "ui-rating-star ui-rating-star-on" : "ui-rating-star";
 
                 this.container.append('<div class="' + styleClass + '"><a></a></div>');
             }
             
-            this.stars = this.container.children('.pui-rating-star');
+            this.stars = this.container.children('.ui-rating-star');
 
             if(input.prop('disabled')||this.options.disabled) {
                 this.container.addClass('ui-state-disabled');
@@ -9546,8 +9880,8 @@ PUI.resolveUserAgent();/**
                 $this.setValue(value);
             });
 
-            this.container.children('.pui-rating-cancel').hover(function() {
-                $(this).toggleClass('pui-rating-cancel-hover');
+            this.container.children('.ui-rating-cancel').hover(function() {
+                $(this).toggleClass('ui-rating-cancel-hover');
             })
             .click(function() {
                 $this.cancel();
@@ -9557,7 +9891,7 @@ PUI.resolveUserAgent();/**
         cancel: function() {
             this.element.val('');
         
-            this.stars.filter('.pui-rating-star-on').removeClass('pui-rating-star-on');
+            this.stars.filter('.ui-rating-star-on').removeClass('ui-rating-star-on');
             
             this._trigger('oncancel', null);
         },
@@ -9572,9 +9906,9 @@ PUI.resolveUserAgent();/**
             this.element.val(value);
 
             //update visuals
-            this.stars.removeClass('pui-rating-star-on');
+            this.stars.removeClass('ui-rating-star-on');
             for(var i = 0; i < value; i++) {
-                this.stars.eq(i).addClass('pui-rating-star-on');
+                this.stars.eq(i).addClass('ui-rating-star-on');
             }
             
             this._trigger('rate', null, value);
@@ -9593,15 +9927,15 @@ PUI.resolveUserAgent();/**
         _unbindEvents: function() {
             this.stars.off();
 
-            this.container.children('.pui-rating-cancel').off();
+            this.container.children('.ui-rating-cancel').off();
         },
 
         _updateValue: function(value) {
-            var stars = this.container.children('div.pui-rating-star');
-            stars.removeClass('pui-rating-star-on');
+            var stars = this.container.children('div.ui-rating-star');
+            stars.removeClass('ui-rating-star-on');
             for(var i = 0; i < stars.length; i++) {
                 if(i < value) {
-                    stars.eq(i).addClass('pui-rating-star-on');
+                    stars.eq(i).addClass('ui-rating-star-on');
                 }
             }
 
@@ -9621,7 +9955,7 @@ PUI.resolveUserAgent();/**
         _destroy: function() {
             this._unbindEvents();
             this.stars.remove();
-            this.container.children('.pui-rating-cancel').remove();
+            this.container.children('.ui-rating-cancel').remove();
             this.element.unwrap();
         }
     });
@@ -9644,14 +9978,14 @@ PUI.resolveUserAgent();/**
 
         _create: function() {
             if(!this.options.enhanced) {
-                this.element.addClass('pui-selectbutton pui-buttonset ui-widget ui-corner-all').attr('tabindex');
+                this.element.addClass('ui-selectbutton ui-buttonset ui-widget ui-corner-all').attr('tabindex');
 
                 if(this.options.choices) {
-                    this.element.addClass('pui-buttonset-' + this.options.choices.length);
+                    this.element.addClass('ui-buttonset-' + this.options.choices.length);
                     for(var i = 0; i < this.options.choices.length; i++) {
-                        this.element.append('<div class="pui-button ui-widget ui-state-default pui-button-text-only" tabindex="' + this.options.tabindex + '" data-value="'
+                        this.element.append('<div class="ui-button ui-widget ui-state-default ui-button-text-only" tabindex="' + this.options.tabindex + '" data-value="'
                             + this.options.choices[i].value + '">' +
-                            '<span class="pui-button-text ui-c">' +
+                            '<span class="ui-button-text ui-c">' +
                             this.options.choices[i].label +
                             '</span></div>');
                     }
@@ -9661,7 +9995,7 @@ PUI.resolveUserAgent();/**
                 var $this = this;
                 this.options.choices = [];
 
-                this.element.children('.pui-button').each(function() {
+                this.element.children('.ui-button').each(function() {
                     var btn = $(this),
                         value = btn.attr('data-value'),
                         label = btn.children('span').text();
@@ -9670,7 +10004,7 @@ PUI.resolveUserAgent();/**
             }
 
             //cornering
-            this.buttons = this.element.children('div.pui-button');
+            this.buttons = this.element.children('div.ui-button');
 
             this.buttons.filter(':first-child').addClass('ui-corner-left');
             this.buttons.filter(':last-child').addClass('ui-corner-right');
@@ -9703,7 +10037,7 @@ PUI.resolveUserAgent();/**
             this._unbindEvents();
             if(!this.options.enhanced) {
                 this.buttons.remove();
-                this.element.removeClass('pui-selectbutton pui-buttonset ui-widget ui-corner-all').removeAttr('tabindex');
+                this.element.removeClass('ui-selectbutton ui-buttonset ui-widget ui-corner-all').removeAttr('tabindex');
             }
             else {
                 this.buttons.removeClass('ui-state-focus ui-state-hover ui-state-active ui-corner-left ui-corner-right');
@@ -9795,7 +10129,7 @@ PUI.resolveUserAgent();/**
         },
 
         selectOption: function(value) {
-            var btn = $.isNumeric(value) ? this.element.children('.pui-button').eq(value) : value;
+            var btn = $.isNumeric(value) ? this.element.children('.ui-button').eq(value) : value;
 
             if(this.options.multiple) {
                 this.selectOptions.eq(btn.index()).prop('selected',true);
@@ -9807,7 +10141,7 @@ PUI.resolveUserAgent();/**
         },
 
         unselectOption: function(value){
-            var btn = $.isNumeric(value) ? this.element.children('.pui-button').eq(value) : value;
+            var btn = $.isNumeric(value) ? this.element.children('.ui-button').eq(value) : value;
 
             if(this.options.multiple)
                 this.selectOptions.eq(btn.index()).prop('selected',false);
@@ -9873,11 +10207,11 @@ PUI.resolveUserAgent();/**
             var input = this.element,
             disabled = input.prop('disabled');
             
-            input.puiinputtext().addClass('pui-spinner-input').wrap('<span class="pui-spinner ui-widget ui-corner-all" />');
+            input.puiinputtext().addClass('ui-spinner-input').wrap('<span class="ui-spinner ui-widget ui-corner-all" />');
             this.wrapper = input.parent();
-            this.wrapper.append('<a class="pui-spinner-button pui-spinner-up ui-corner-tr pui-button ui-widget ui-state-default pui-button-text-only"><span class="pui-button-text"><span class="pui-icon fa fa-fw fa-caret-up"></span></span></a><a class="pui-spinner-button pui-spinner-down ui-corner-br pui-button ui-widget ui-state-default pui-button-text-only"><span class="pui-button-text"><span class="pui-icon fa fa-fw fa-caret-down"></span></span></a>');
-            this.upButton = this.wrapper.children('a.pui-spinner-up');
-            this.downButton = this.wrapper.children('a.pui-spinner-down');
+            this.wrapper.append('<a class="ui-spinner-button ui-spinner-up ui-corner-tr ui-button ui-widget ui-state-default ui-button-text-only"><span class="ui-button-text"><span class="ui-icon fa fa-fw fa-caret-up"></span></span></a><a class="ui-spinner-button ui-spinner-down ui-corner-br ui-button ui-widget ui-state-default ui-button-text-only"><span class="ui-button-text"><span class="ui-icon fa fa-fw fa-caret-down"></span></span></a>');
+            this.upButton = this.wrapper.children('a.ui-spinner-up');
+            this.downButton = this.wrapper.children('a.ui-spinner-down');
             this.options.step = this.options.step||1;
             
             if(parseInt(this.options.step, 10) === 0) {
@@ -9903,8 +10237,8 @@ PUI.resolveUserAgent();/**
         },
 
         _destroy: function() {
-            this.element.puiinputtext('destroy').removeClass('pui-spinner-input').off('keydown.puispinner keyup.puispinner blur.puispinner focus.puispinner mousewheel.puispinner');
-            this.wrapper.children('.pui-spinner-button').off().remove();
+            this.element.puiinputtext('destroy').removeClass('ui-spinner-input').off('keydown.puispinner keyup.puispinner blur.puispinner focus.puispinner mousewheel.puispinner');
+            this.wrapper.children('.ui-spinner-button').off().remove();
             this.element.unwrap();
         },
 
@@ -9912,7 +10246,7 @@ PUI.resolveUserAgent();/**
             var $this = this;
             
             //visuals for spinner buttons
-            this.wrapper.children('.pui-spinner-button')
+            this.wrapper.children('.ui-spinner-button')
                 .mouseover(function() {
                     $(this).addClass('ui-state-hover');
                 }).mouseout(function() {
@@ -9926,7 +10260,7 @@ PUI.resolveUserAgent();/**
                     $(this).removeClass('ui-state-active').addClass('ui-state-hover');
                 }).mousedown(function(e) {
                     var element = $(this),
-                    dir = element.hasClass('pui-spinner-up') ? 1 : -1;
+                    dir = element.hasClass('ui-spinner-up') ? 1 : -1;
 
                     element.removeClass('ui-state-hover').addClass('ui-state-active');
 
@@ -10094,7 +10428,7 @@ PUI.resolveUserAgent();/**
 
         _unbindEvents: function() {
             //visuals for spinner buttons
-            this.wrapper.children('.pui-spinner-button').off();
+            this.wrapper.children('.ui-spinner-button').off();
 
             this.element.off();
         },
@@ -10137,9 +10471,9 @@ PUI.resolveUserAgent();/**
         },
         
         _create: function() {
-            this.element.wrap('<div class="pui-splitbutton pui-buttonset ui-widget"></div>');
+            this.element.wrap('<div class="ui-splitbutton ui-buttonset ui-widget"></div>');
             this.container = this.element.parent().uniqueId();
-            this.menuButton = this.container.append('<button class="pui-splitbutton-menubutton" type="button"></button>').children('.pui-splitbutton-menubutton');
+            this.menuButton = this.container.append('<button class="ui-splitbutton-menubutton" type="button"></button>').children('.ui-splitbutton-menubutton');
             this.options.disabled = this.element.prop('disabled');
             
             if(this.options.disabled) {
@@ -10159,14 +10493,14 @@ PUI.resolveUserAgent();/**
         },
                 
         _renderPanel: function() {
-            this.menu = $('<div class="pui-menu pui-menu-dynamic ui-widget ui-widget-content ui-corner-all ui-helper-clearfix pui-shadow"></div>').
-                    append('<ul class="pui-menu-list ui-helper-reset"></ul>');
-            this.menuList = this.menu.children('.pui-menu-list');
+            this.menu = $('<div class="ui-menu ui-menu-dynamic ui-widget ui-widget-content ui-corner-all ui-helper-clearfix ui-shadow"></div>').
+                    append('<ul class="ui-menu-list ui-helper-reset"></ul>');
+            this.menuList = this.menu.children('.ui-menu-list');
             
             for(var i = 0; i < this.options.items.length; i++) {
                 var item = this.options.items[i],
-                menuitem = $('<li class="pui-menuitem ui-widget ui-corner-all" role="menuitem"></li>'),
-                link = $('<a class="pui-menuitem-link ui-corner-all"><span class="pui-menuitem-icon fa fa-fw ' + item.icon +'"></span><span class="pui-menuitem-text">' + item.text +'</span></a>');
+                menuitem = $('<li class="ui-menuitem ui-widget ui-corner-all" role="menuitem"></li>'),
+                link = $('<a class="ui-menuitem-link ui-corner-all"><span class="ui-menuitem-icon fa fa-fw ' + item.icon +'"></span><span class="ui-menuitem-text">' + item.text +'</span></a>');
                 
                 if(item.url) {
                     link.attr('href', item.url);
@@ -10309,9 +10643,9 @@ PUI.resolveUserAgent();/**
                     'top': 0,
                     'z-index': 10000
                 })
-                .addClass('pui-shadow pui-sticky');
+                .addClass('ui-shadow ui-sticky');
         
-                this.ghost = $('<div class="pui-sticky-ghost"></div>').height(this.initialState.height).insertBefore(this.element);
+                this.ghost = $('<div class="ui-sticky-ghost"></div>').height(this.initialState.height).insertBefore(this.element);
                 this.element.width(this.ghost.outerWidth() - (this.element.outerWidth() - this.element.width()));
                 this.fixed = true;
             }
@@ -10324,7 +10658,7 @@ PUI.resolveUserAgent();/**
                     top: 'auto',
                     width: 'auto'
                 })
-                .removeClass('pui-shadow pui-sticky');
+                .removeClass('ui-shadow ui-sticky');
 
                 this.ghost.remove();
                 this.fixed = false;
@@ -10351,32 +10685,32 @@ PUI.resolveUserAgent();/**
 
         _create: function() {
             if(!this.options.enhanced) {
-                this.element.wrap('<div class="pui-inputswitch ui-widget ui-widget-content ui-corner-all"></div>');
+                this.element.wrap('<div class="ui-inputswitch ui-widget ui-widget-content ui-corner-all"></div>');
                 this.container = this.element.parent();
 
                 this.element.wrap('<div class="ui-helper-hidden-accessible"></div>');
-                this.container.prepend('<div class="pui-inputswitch-off"></div>' +
-                    '<div class="pui-inputswitch-on ui-state-active"></div>' +
-                    '<div class="pui-inputswitch-handle ui-state-default"></div>');
+                this.container.prepend('<div class="ui-inputswitch-off"></div>' +
+                    '<div class="ui-inputswitch-on ui-state-active"></div>' +
+                    '<div class="ui-inputswitch-handle ui-state-default"></div>');
 
-                this.onContainer = this.container.children('.pui-inputswitch-on');
-                this.offContainer = this.container.children('.pui-inputswitch-off');
+                this.onContainer = this.container.children('.ui-inputswitch-on');
+                this.offContainer = this.container.children('.ui-inputswitch-off');
                 this.onContainer.append('<span>'+ this.options.onLabel +'</span>');
                 this.offContainer.append('<span>'+ this.options.offLabel +'</span>');
             }
             else {
-                this.container = this.element.closest('.pui-inputswitch');
-                this.onContainer = this.container.children('.pui-inputswitch-on');
-                this.offContainer = this.container.children('.pui-inputswitch-off');
+                this.container = this.element.closest('.ui-inputswitch');
+                this.onContainer = this.container.children('.ui-inputswitch-on');
+                this.offContainer = this.container.children('.ui-inputswitch-off');
             }
 
             this.onLabel = this.onContainer.children('span');
             this.offLabel = this.offContainer.children('span');
-            this.handle = this.container.children('.pui-inputswitch-handle');
+            this.handle = this.container.children('.ui-inputswitch-handle');
 
-            var onContainerWidth = this.onContainer.width(),
+            var	onContainerWidth = this.onContainer.width(),
                 offContainerWidth = this.offContainer.width(),
-                spanPadding = this.offLabel.innerWidth() - this.offLabel.width(),
+                spanPadding	= this.offLabel.innerWidth() - this.offLabel.width(),
                 handleMargins = this.handle.outerWidth() - this.handle.innerWidth();
 
             var containerWidth = (onContainerWidth > offContainerWidth) ? onContainerWidth : offContainerWidth,
@@ -10538,24 +10872,24 @@ PUI.resolveUserAgent();/**
             this._resolvePanelMode();
             this.panels = this._findPanels();
 
-            element.addClass('pui-tabview ui-widget ui-widget-content ui-corner-all ui-hidden-container pui-tabview-' + this.options.orientation);
-            this.navContainer.addClass('pui-tabview-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all');
+            element.addClass('ui-tabview ui-widget ui-widget-content ui-corner-all ui-hidden-container ui-tabview-' + this.options.orientation);
+            this.navContainer.addClass('ui-tabview-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all');
             this.tabHeaders.addClass('ui-state-default ui-corner-top');
-            this.panelContainer.addClass('pui-tabview-panels');
-            this.panels.addClass('pui-tabview-panel ui-widget-content ui-corner-bottom');
+            this.panelContainer.addClass('ui-tabview-panels');
+            this.panels.addClass('ui-tabview-panel ui-widget-content ui-corner-bottom');
 
-            this.tabHeaders.eq(this.options.activeIndex).addClass('pui-tabview-selected ui-state-active');
+            this.tabHeaders.eq(this.options.activeIndex).addClass('ui-tabview-selected ui-state-active');
             this.panels.filter(':not(:eq(' + this.options.activeIndex + '))').addClass('ui-helper-hidden');
             
             this._bindEvents();
         },
 
         _destroy: function() {
-            this.element.removeClass('pui-tabview ui-widget ui-widget-content ui-corner-all ui-hidden-container pui-tabview-' + this.options.orientation);
-            this.navContainer.removeClass('pui-tabview-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all');
-            this.tabHeaders.removeClass('ui-state-default ui-corner-top pui-tabview-selected ui-state-active');
-            this.panelContainer.removeClass('pui-tabview-panels');
-            this.panels.removeClass('pui-tabview-panel ui-widget-content ui-corner-bottom ui-helper-hidden').removeData('loaded');
+            this.element.removeClass('ui-tabview ui-widget ui-widget-content ui-corner-all ui-hidden-container ui-tabview-' + this.options.orientation);
+            this.navContainer.removeClass('ui-tabview-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all');
+            this.tabHeaders.removeClass('ui-state-default ui-corner-top ui-tabview-selected ui-state-active');
+            this.panelContainer.removeClass('ui-tabview-panels');
+            this.panels.removeClass('ui-tabview-panel ui-widget-content ui-corner-bottom ui-helper-hidden').removeData('loaded');
 
             this._unbindEvents();
         },
@@ -10612,7 +10946,7 @@ PUI.resolveUserAgent();/**
            var newPanel = this.panels.eq(index),
            oldHeader = this.tabHeaders.filter('.ui-state-active'),
            newHeader = this._getHeaderOfPanel(newPanel),
-           oldPanel = this.panels.filter('.pui-tabview-panel:visible'),
+           oldPanel = this.panels.filter('.ui-tabview-panel:visible'),
            $this = this;
 
            //aria
@@ -10623,19 +10957,19 @@ PUI.resolveUserAgent();/**
 
            if(this.options.effect) {
                 oldPanel.hide(this.options.effect.name, null, this.options.effect.duration, function() {
-                   oldHeader.removeClass('pui-tabview-selected ui-state-active');
+                   oldHeader.removeClass('ui-tabview-selected ui-state-active');
 
-                   newHeader.removeClass('ui-state-hover').addClass('pui-tabview-selected ui-state-active');
+                   newHeader.removeClass('ui-state-hover').addClass('ui-tabview-selected ui-state-active');
                    newPanel.show($this.options.name, null, $this.options.effect.duration, function() {
                        $this._trigger('change', null, {'index':index});
                    });
                });
            }
            else {
-               oldHeader.removeClass('pui-tabview-selected ui-state-active');
+               oldHeader.removeClass('ui-tabview-selected ui-state-active');
                oldPanel.hide();
 
-               newHeader.removeClass('ui-state-hover').addClass('pui-tabview-selected ui-state-active');
+               newHeader.removeClass('ui-state-hover').addClass('ui-tabview-selected ui-state-active');
                newPanel.show();
 
                $this._trigger('change', null, {'index':index});
@@ -10662,7 +10996,7 @@ PUI.resolveUserAgent();/**
                newHeader = this.tabHeaders.eq(newIndex),
                newPanel = this.panels.eq(newIndex);
                
-               newHeader.removeClass('ui-state-hover').addClass('pui-tabview-selected ui-state-active');
+               newHeader.removeClass('ui-state-hover').addClass('ui-tabview-selected ui-state-active');
                newPanel.show(); 
            }
        },
@@ -10740,14 +11074,14 @@ PUI.resolveUserAgent();/**
         },
         
         _create: function() {
-            this.element.addClass('pui-terminal ui-widget ui-widget-content ui-corner-all')
+            this.element.addClass('ui-terminal ui-widget ui-widget-content ui-corner-all')
                         .append('<div>' + this.options.welcomeMessage + '</div>')
-                        .append('<div class="pui-terminal-content"></div>')
-                        .append('<div><span class="pui-terminal-prompt">' + this.options.prompt + '</span>' +
-                                 '<input type="text" class="pui-terminal-input" autocomplete="off"></div>' );
+                        .append('<div class="ui-terminal-content"></div>')
+                        .append('<div><span class="ui-terminal-prompt">' + this.options.prompt + '</span>' +
+                                 '<input type="text" class="ui-terminal-input" autocomplete="off"></div>' );
                          
-            this.promptContainer = this.element.find('> div:last-child > span.pui-terminal-prompt');
-            this.content = this.element.children('.pui-terminal-content');
+            this.promptContainer = this.element.find('> div:last-child > span.ui-terminal-prompt');
+            this.content = this.element.children('.ui-terminal-content');
             this.input = this.promptContainer.next();
             this.commands = [];
             this.commandIndex = 0;
@@ -10808,7 +11142,7 @@ PUI.resolveUserAgent();/**
 
         _updateContent: function(content) {
             var commandResponseContainer = $('<div></div>');
-            commandResponseContainer.append('<span>' + this.options.prompt + '</span><span class="pui-terminal-command">' +  this.input.val() + '</span>')
+            commandResponseContainer.append('<span>' + this.options.prompt + '</span><span class="ui-terminal-command">' +  this.input.val() + '</span>')
                                     .append('<div>' + content + '</div>').appendTo(this.content);
 
             this.input.val('');
@@ -10836,18 +11170,18 @@ PUI.resolveUserAgent();/**
         },
        
         _create: function() {
-            this.element.wrap('<div class="pui-button pui-togglebutton ui-widget ui-state-default ui-corner-all" />');
+            this.element.wrap('<div class="ui-button ui-togglebutton ui-widget ui-state-default ui-corner-all" />');
             this.container = this.element.parent();
             
             this.element.addClass('ui-helper-hidden-accessible');
             if(this.options.onIcon && this.options.offIcon) {
-                this.container.addClass('pui-button-text-icon-left');
-                this.container.append('<span class="pui-button-icon-left pui-icon fa fa-fw"></span>');
+                this.container.addClass('ui-button-text-icon-left');
+                this.container.append('<span class="ui-button-icon-left ui-icon fa fa-fw"></span>');
             }
             else {
-                this.container.addClass('pui-button-text-only');
+                this.container.addClass('ui-button-text-only');
             }
-            this.container.append('<span class="pui-button-text"></span>');
+            this.container.append('<span class="ui-button-text"></span>');
             
             if(this.options.style) {
                 this.container.attr('style', this.options.style);
@@ -10857,8 +11191,8 @@ PUI.resolveUserAgent();/**
                 this.container.attr('class', this.options.styleClass);
             }
             
-            this.label = this.container.children('.pui-button-text');
-            this.icon = this.container.children('.pui-icon');
+            this.label = this.container.children('.ui-button-text');
+            this.icon = this.container.children('.ui-icon');
             
             //initial state
             if(this.element.prop('checked')||this.options.checked) {
@@ -11027,7 +11361,7 @@ PUI.resolveUserAgent();/**
         },
         
         _bindGlobal: function() {
-            this.container = $('<div class="pui-tooltip pui-tooltip-global ui-widget ui-widget-content ui-corner-all pui-shadow" />').appendTo(document.body);
+            this.container = $('<div class="ui-tooltip ui-tooltip-global ui-widget ui-widget-content ui-corner-all ui-shadow" />').appendTo(document.body);
             this.globalSelector = 'a,:input,:button,img';
             var $this = this;
 
@@ -11064,7 +11398,7 @@ PUI.resolveUserAgent();/**
         },
         
         _bindTarget: function() {
-            this.container = $('<div class="pui-tooltip ui-widget ui-widget-content ui-corner-all pui-shadow" />').appendTo(document.body);
+            this.container = $('<div class="ui-tooltip ui-widget ui-widget-content ui-corner-all ui-shadow" />').appendTo(document.body);
 
             var $this = this;
             this.element.off(this.options.showEvent + ' ' + this.options.hideEvent)
@@ -11134,9 +11468,9 @@ PUI.resolveUserAgent();/**
         },
         
         _create: function() {
-            this.element.uniqueId().addClass('pui-tree ui-widget ui-widget-content ui-corner-all')
-                    .append('<ul class="pui-tree-container"></ul>');
-            this.rootContainer = this.element.children('.pui-tree-container');
+            this.element.uniqueId().addClass('ui-tree ui-widget ui-widget-content ui-corner-all')
+                    .append('<ul class="ui-tree-container"></ul>');
+            this.rootContainer = this.element.children('.ui-tree-container');
             
             if(this.options.selectionMode) {
                 this.selection = [];
@@ -11166,32 +11500,32 @@ PUI.resolveUserAgent();/**
             iconType = node.iconType||'def',
             expanded = node.expanded,
             selectable = this.options.selectionMode ? (node.selectable === false ? false : true) : false,
-            toggleIcon = leaf ? 'pui-treenode-leaf-icon' : 
-                        (node.expanded ? 'pui-tree-toggler fa fa-fw fa-caret-down' : 'pui-tree-toggler fa fa-fw fa-caret-right'),
-            styleClass = leaf ? 'pui-treenode pui-treenode-leaf' : 'pui-treenode pui-treenode-parent',
+            toggleIcon = leaf ? 'ui-treenode-leaf-icon' : 
+                        (node.expanded ? 'ui-tree-toggler fa fa-fw fa-caret-down' : 'ui-tree-toggler fa fa-fw fa-caret-right'),
+            styleClass = leaf ? 'ui-treenode ui-treenode-leaf' : 'ui-treenode ui-treenode-parent',
             nodeElement = $('<li class="' + styleClass + '"></li>'),
-            contentElement = $('<span class="pui-treenode-content"></span>');
+            contentElement = $('<span class="ui-treenode-content"></span>');
     
             nodeElement.data('puidata', node.data).appendTo(container);
 
             if(selectable) {
-                contentElement.addClass('pui-treenode-selectable');
+                contentElement.addClass('ui-treenode-selectable');
             }
        
             contentElement.append('<span class="' + toggleIcon + '"></span>')
-                            .append('<span class="pui-treenode-icon"></span>')
-                            .append('<span class="pui-treenode-label ui-corner-all">' + node.label + '</span>')
+                            .append('<span class="ui-treenode-icon"></span>')
+                            .append('<span class="ui-treenode-label ui-corner-all">' + node.label + '</span>')
                             .appendTo(nodeElement);
                     
             var iconConfig = this.options.icons && this.options.icons[iconType];
             if(iconConfig) {
-                var iconContainer = contentElement.children('.pui-treenode-icon'),
+                var iconContainer = contentElement.children('.ui-treenode-icon'),
                 icon = ($.type(iconConfig) === 'string') ? iconConfig : (expanded ? iconConfig.expanded : iconConfig.collapsed);
                 iconContainer.addClass('fa fa-fw ' + icon);
             }
                     
             if(!leaf) {
-                var childrenContainer = $('<ul class="pui-treenode-children"></ul>');
+                var childrenContainer = $('<ul class="ui-treenode-children"></ul>');
                 if(!node.expanded) {
                     childrenContainer.hide();
                 }
@@ -11211,7 +11545,7 @@ PUI.resolveUserAgent();/**
         },
                 
         _handleNodeData: function(data, node) {
-            this._renderNodes(data, node.children('.pui-treenode-children'));    
+            this._renderNodes(data, node.children('.ui-treenode-children'));    
             this._showNodeChildren(node);
             node.data('puiloaded', true);
         },
@@ -11219,22 +11553,22 @@ PUI.resolveUserAgent();/**
         _bindEvents: function() {
             var $this = this,
             elementId = this.element.attr('id'),
-            togglerSelector = '#' + elementId + ' .pui-tree-toggler';
+            togglerSelector = '#' + elementId + ' .ui-tree-toggler';
     
             $(document).off('click.puitree-' + elementId, togglerSelector)
                 .on('click.puitree-' + elementId, togglerSelector, null, function(e) {
                     var toggleIcon = $(this),
                     node = toggleIcon.closest('li');
 
-                    if(node.hasClass('pui-treenode-expanded'))
+                    if(node.hasClass('ui-treenode-expanded'))
                         $this.collapseNode(node);
                     else
                         $this.expandNode(node);
                 });
                 
             if(this.options.selectionMode) {
-                var nodeLabelSelector = '#' + elementId + ' .pui-treenode-selectable .pui-treenode-label',
-                nodeContentSelector = '#' + elementId + ' .pui-treenode-selectable.pui-treenode-content';
+                var nodeLabelSelector = '#' + elementId + ' .ui-treenode-selectable .ui-treenode-label',
+                nodeContentSelector = '#' + elementId + ' .ui-treenode-selectable.ui-treenode-content';
 
                 $(document).off('mouseout.puitree-' + elementId + ' mouseover.puitree-' + elementId, nodeLabelSelector)
                         .on('mouseout.puitree-' + elementId, nodeLabelSelector, null, function() {
@@ -11268,16 +11602,16 @@ PUI.resolveUserAgent();/**
         collapseNode: function(node) {
             this._trigger('beforeCollapse', null, {'node': node, 'data': node.data('puidata')});
     
-            node.removeClass('pui-treenode-expanded');
+            node.removeClass('ui-treenode-expanded');
             
             var iconType = node.iconType||'def',
             iconConfig = this.options.icons && this.options.icons[iconType];
             if(iconConfig && $.type(iconConfig) !== 'string') {
-                node.find('> .pui-treenode-content > .pui-treenode-icon').removeClass(iconConfig.expanded).addClass(iconConfig.collapsed);
+                node.find('> .ui-treenode-content > .ui-treenode-icon').removeClass(iconConfig.expanded).addClass(iconConfig.collapsed);
             }
             
-            var toggleIcon = node.find('> .pui-treenode-content > .pui-tree-toggler'),
-            childrenContainer = node.children('.pui-treenode-children');
+            var toggleIcon = node.find('> .ui-treenode-content > .ui-tree-toggler'),
+            childrenContainer = node.children('.ui-treenode-children');
 
             toggleIcon.addClass('fa-caret-right').removeClass('fa-caret-down');
 
@@ -11292,22 +11626,22 @@ PUI.resolveUserAgent();/**
         },
                 
         _showNodeChildren: function(node) {
-            node.addClass('pui-treenode-expanded').attr('aria-expanded', true);
+            node.addClass('ui-treenode-expanded').attr('aria-expanded', true);
             
             var iconType = node.iconType||'def',
             iconConfig = this.options.icons && this.options.icons[iconType];
             if(iconConfig && $.type(iconConfig) !== 'string') {
-                node.find('> .pui-treenode-content > .pui-treenode-icon').removeClass(iconConfig.collapsed).addClass(iconConfig.expanded);
+                node.find('> .ui-treenode-content > .ui-treenode-icon').removeClass(iconConfig.collapsed).addClass(iconConfig.expanded);
             }
 
-            var toggleIcon = node.find('> .pui-treenode-content > .pui-tree-toggler');
+            var toggleIcon = node.find('> .ui-treenode-content > .ui-tree-toggler');
             toggleIcon.addClass('fa-caret-down').removeClass('fa-caret-right');
 
             if(this.options.animate) {
-                node.children('.pui-treenode-children').slideDown('fast');
+                node.children('.ui-treenode-children').slideDown('fast');
             }
             else {
-                node.children('.pui-treenode-children').show();
+                node.children('.ui-treenode-children').show();
             }
             
             this._trigger('afterExpand', null, {'node': node, 'data': node.data('puidata')});
@@ -11316,7 +11650,7 @@ PUI.resolveUserAgent();/**
         _nodeClick: function(event, nodeContent) {
             PUI.clearSelection();
         
-            if($(event.target).is(':not(.pui-tree-toggler)')) {
+            if($(event.target).is(':not(.ui-tree-toggler)')) {
                 var node = nodeContent.parent();
 
                 var selected = this._isNodeSelected(node.data('puidata')),
@@ -11336,20 +11670,20 @@ PUI.resolveUserAgent();/**
         },
                 
         selectNode: function(node) {
-            node.attr('aria-selected', true).find('> .pui-treenode-content > .pui-treenode-label').removeClass('ui-state-hover').addClass('ui-state-highlight');
+            node.attr('aria-selected', true).find('> .ui-treenode-content > .ui-treenode-label').removeClass('ui-state-hover').addClass('ui-state-highlight');
             this._addToSelection(node.data('puidata'));
             this._trigger('nodeSelect', null, {'node': node, 'data': node.data('puidata')});
         },
                 
         unselectNode: function(node) {           
-            node.attr('aria-selected', false).find('> .pui-treenode-content > .pui-treenode-label').removeClass('ui-state-highlight ui-state-hover');
+            node.attr('aria-selected', false).find('> .ui-treenode-content > .ui-treenode-label').removeClass('ui-state-highlight ui-state-hover');
             this._removeFromSelection(node.data('puidata'));
             this._trigger('nodeUnselect', null, {'node': node, 'data': node.data('puidata')});
         },
                 
         unselectAllNodes: function() {
             this.selection = [];
-            this.element.find('.pui-treenode-label.ui-state-highlight').each(function() {
+            this.element.find('.ui-treenode-label.ui-state-highlight').each(function() {
                 $(this).removeClass('ui-state-highlight').closest('.ui-treenode').attr('aria-selected', false);
             });
         },
@@ -11426,11 +11760,11 @@ PUI.resolveUserAgent();/**
                 this.id = this.element.uniqueId().attr('id');
             }
             
-            this.element.addClass('pui-treetable ui-widget');
-            this.tableWrapper = $('<div class="pui-treetable-tablewrapper" />').appendTo(this.element);
+            this.element.addClass('ui-treetable ui-widget');
+            this.tableWrapper = $('<div class="ui-treetable-tablewrapper" />').appendTo(this.element);
             this.table = $('<table><thead></thead><tbody></tbody></table>').appendTo(this.tableWrapper);
             this.thead = this.table.children('thead');
-            this.tbody = this.table.children('tbody').addClass('pui-treetable-data');
+            this.tbody = this.table.children('tbody').addClass('ui-treetable-data');
             
             var $this = this;
             
@@ -11455,11 +11789,11 @@ PUI.resolveUserAgent();/**
             }
             
             if(this.options.header) {
-                this.element.prepend('<div class="pui-treetable-header ui-widget-header ui-corner-top">' + this.options.header + '</div>');
+                this.element.prepend('<div class="ui-treetable-header ui-widget-header ui-corner-top">' + this.options.header + '</div>');
             }
             
             if(this.options.footer) {
-                this.element.append('<div class="pui-treetable-footer ui-widget-header ui-corner-bottom">' + this.options.footer + '</div>');
+                this.element.append('<div class="ui-treetable-footer ui-widget-header ui-corner-bottom">' + this.options.footer + '</div>');
             }
             
             if($.isArray(this.options.nodes)) {
@@ -11513,7 +11847,7 @@ PUI.resolveUserAgent();/**
                     }
                     
                     if(j === 0) {
-                        var toggler = $('<span class="pui-treetable-toggler pui-icon fa fa-fw fa-caret-right pui-c"></span>');
+                        var toggler = $('<span class="ui-treetable-toggler ui-icon fa fa-fw fa-caret-right ui-c"></span>');
                         
                         toggler.css('margin-left', depth * 16 + 'px');
                         if(leaf) {
@@ -11548,7 +11882,7 @@ PUI.resolveUserAgent();/**
         
         _bindEvents: function() {
             var $this = this,
-            togglerSelector = '> tr > td:first-child > .pui-treetable-toggler';
+            togglerSelector = '> tr > td:first-child > .ui-treetable-toggler';
 
             //expand and collapse
             this.tbody.off('click.puitreetable', togglerSelector)
@@ -11615,7 +11949,7 @@ PUI.resolveUserAgent();/**
         _showNodeChildren: function(row, showOnly) {
             if(!showOnly) {
                 row.data('expanded', true).attr('aria-expanded', true)
-                        .find('.pui-treetable-toggler:first').addClass('fa-caret-down').removeClass('fa-caret-right');
+                        .find('.ui-treetable-toggler:first').addClass('fa-caret-down').removeClass('fa-caret-right');
             }
             
             var children = this._getChildren(row);
@@ -11644,7 +11978,7 @@ PUI.resolveUserAgent();/**
         _hideNodeChildren: function(row, hideOnly) {
             if(!hideOnly) {
                 row.data('expanded', false).attr('aria-expanded', false)
-                        .find('.pui-treetable-toggler:first').addClass('fa-caret-right').removeClass('fa-caret-down');
+                        .find('.ui-treetable-toggler:first').addClass('fa-caret-right').removeClass('fa-caret-down');
             }
             
             var children = this._getChildren(row);
@@ -11659,7 +11993,7 @@ PUI.resolveUserAgent();/**
         },
         
         onRowClick: function(event, row) {
-            if(!$(event.target).is(':input,:button,a,.pui-c')) {
+            if(!$(event.target).is(':input,:button,a,.ui-c')) {
                 var selected = row.hasClass('ui-state-highlight'),
                 metaKey = event.metaKey||event.ctrlKey;
 

@@ -1,5 +1,5 @@
 /*
- * PrimeUI 3.0.2
+ * PrimeUI 4.0.0
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -1010,7 +1010,7 @@ if(!xtag.tags['p-datagrid']) {
                     effectSpeed: this.effectspeed||'normal',
                     closeOnEscape: this.closeoneescape ? JSON.parse(this.closeoneescape) : true,
                     rtl: this.rtl,
-                    closable: this.closable ? JSON.parse(closable) : true,
+                    closable: this.closable ? JSON.parse(this.closable) : true,
                     minimizable: this.minimizable,
                     maximizable: this.maximizable,
                     appendTo: this.appendto,
@@ -1022,8 +1022,8 @@ if(!xtag.tags['p-datagrid']) {
                 });
                 
                 if(buttonsFacet.length) {
-                    $('<div class="pui-dialog-buttonpane ui-widget-content ui-helper-clearfix"></div>').append(buttonsFacet.html())
-                            .insertAfter($(this.xtag.container).children('div.pui-dialog-content'));
+                    $('<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"></div>').append(buttonsFacet.html())
+                            .insertAfter($(this.xtag.container).children('div.ui-dialog-content'));
                 }      
             }
         }
