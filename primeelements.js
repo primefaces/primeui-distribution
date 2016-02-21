@@ -1,5 +1,5 @@
 /*
- * PrimeUI 4.0.0
+ * PrimeUI 4.1.0
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -267,7 +267,7 @@ if(!xtag.tags['p-accordion']) {
                     autoplayInterval: this.autoplayinterval ? parseInt(this.autoplayinterval) : 0,
                     easing: this.easing||'easeInOutCirc',
                     pageLinks: this.pagelinks ? parseInt(this.pagelinks): 3,
-                    template: $(this).children('script'),
+                    template: $(this).children('template'),
                     pageChange: this.onpagechange ? function(event, param) {PUI.executeFunctionByName($this.onpagechange, event, param);} : null,
                     style: this.style,
                     styleClass: this.styleClass
@@ -506,8 +506,8 @@ if(!xtag.tags['p-accordion']) {
                     col.editor = columnElement.attr('editor') !== undefined;
                     col.rowToggler = columnElement.attr('rowToggler') !== undefined;
 
-                    if(columnElement.children('script').length) {
-                        col.contentTemplate = columnElement.children('script').text();
+                    if(columnElement.children('template').length) {
+                        col.contentTemplate = columnElement.children('template').html();
                         col.content = function(data, _col) {
                             return Mustache.render(_col.contentTemplate, data);
                         };
@@ -610,7 +610,7 @@ if(!xtag.tags['p-datagrid']) {
                     columns: this.columns||3,
                     paginator: this.paginator ? {rows: this.rows ? parseInt(this.rows) : 0, totalRecords: this.totalrecords ? parseInt(this.totalrecords) : 0} : null,
                     datasource: PUI.resolveObjectByName(this.datasource)||this.datasource,
-                    template: $(this).children('script')
+                    template: $(this).children('template')
                 });
             }
         }
@@ -661,7 +661,7 @@ if(!xtag.tags['p-datagrid']) {
                     mode: this.mode||'document',
                     loader: this.loader ? $('#' + loader) : null,
                     scrollHeight: this.scrollheight ? parseInt(this.scrollheight) : null,
-                    template: $(this).children('script'),
+                    template: $(this).children('template'),
                     totalSize: this.totalsize  ? parseInt(this.totalsize) : null
                 });
             }
@@ -1466,7 +1466,7 @@ if(!xtag.tags['p-datagrid']) {
                     this.xtag.select.attr('name', this.name);
                 }
                 
-                var itemTemplate = element.children('script');
+                var itemTemplate = element.children('template');
                 
                 this.xtag.select.puilistbox({
                     multiple: this.multiple,
@@ -2072,7 +2072,7 @@ if(!xtag.tags['p-messages']) {
             created: function() {
                 var $this = this,
                 element = $(this),
-                itemTemplate = element.children('script');
+                itemTemplate = element.children('template');
                 element.children('option').wrapAll('<select></select>'),
                 
                 this.xtag.select = element.children('select');
@@ -2236,16 +2236,16 @@ if(!xtag.tags['p-messages']) {
         extends: 'input',
 
         accessors: {
-            promptLabel:{
+            promptlabel:{
                 attribute:{}
             },
-            weakLabel:{
+            weaklabel:{
                 attribute:{}
             },
-            goodLabel:{
+            mediumlabel:{
                 attribute:{}
             },
-            strongLabel:{
+            stronglabel:{
                 attribute:{}
             },
             inline:{
@@ -2258,11 +2258,11 @@ if(!xtag.tags['p-messages']) {
         lifecycle: {
             created: function() {
                 $(this).puipassword({
-                    promptLabel: this.promptLabel || 'Please enter a password',
-                    weakLabel: this.weakLabel || 'Weak',
-                    goodLabel: this.goodLabel || 'Medium',
-                    strongLabel: this.strongLabel || 'Strong',
-                    inline: this.inline || false,
+                    promptLabel: this.promptlabel||'Please enter a password',
+                    weakLabel: this.weaklabel||'Weak',
+                    mediumLabel: this.mediumlabel||'Medium',
+                    strongLabel: this.stronglabel||'Strong',
+                    inline: this.inline
                 });
             }
         },
@@ -2341,7 +2341,7 @@ if(!xtag.tags['p-messages']) {
         lifecycle: {
             created: function() {
                 var element = $(this),
-                itemTemplate = element.children('script'),
+                itemTemplate = element.children('template'),
                 $this = this;
         
                 element.children('select').wrapAll('<div></div>');
@@ -2564,7 +2564,7 @@ if(!xtag.tags['p-messages']) {
             selectOption: function(value) {
                 $(this).puiselectbutton('selectOption', value);
             },
-            unselectOption: function() {
+            unselectOption: function(value) {
                 $(this).puiselectbutton('unselectOption', value);
             }
         }
@@ -2650,7 +2650,7 @@ if(!xtag.tags['p-messages']) {
                     step: this.step ? parseInt(this.step) : 1,
                     value: this.value ? parseInt(this.value) : 0,
                     values: rangeValues,
-                    change: this.onchange ? function(event, value){;PUI.executeFunctionByName($this.onchange, event, value);} : null,
+                    change: this.onchange ? function(event, value){PUI.executeFunctionByName($this.onchange, event, value);} : null,
                     slide: this.onslide ? function(event, value){PUI.executeFunctionByName($this.onslide, event, value);} : null,
                     start: this.onstart ? function(event, value){PUI.executeFunctionByName($this.onstart, event, value);} : null,
                     stop: this.onstop ? function(event, value){PUI.executeFunctionByName($this.onstop, event, value);} : null
