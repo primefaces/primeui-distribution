@@ -1,5 +1,5 @@
 /*
- * PrimeUI 4.1.0
+ * PrimeUI 4.1.1
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -120,8 +120,6 @@ button.ui-button::-moz-focus-inner{border:0;padding:0;}
 .ui-datatable-scrollable-header{overflow:hidden;border:0 none;}
 .ui-datatable-scrollable .ui-datatable-scrollable-header{position:relative;}
 .ui-datatable-scrollable .ui-datatable-scrollable-header td{font-weight:normal;}
-.ui-datatable-scrollable-body::-webkit-scrollbar{-webkit-appearance:none;width:15px;background-color:transparent;}
-.ui-datatable-scrollable-body::-webkit-scrollbar-thumb{border-radius:8px;border:1px solid white;background-color:rgba(194,194,194,.5);}
 .ui-datatable .ui-datatable-scrollable-body{min-height:0;}
 .ui-datatable .ui-datatable-data tr.ui-state-hover{border-color:inherit;font-weight:inherit;cursor:pointer;}
 .ui-datatable-scrollable-theadclone{height:0;}
@@ -138,7 +136,7 @@ button.ui-button::-moz-focus-inner{border:0;padding:0;}
 .ui-datatable-resizable thead th,.ui-datatable-resizable tbody td,.ui-datatable-resizable tfoot td{white-space:nowrap;}
 .ui-datatable-resizable th.ui-resizable-column{background-clip:padding-box;position:relative;}
 .ui-datatable-reflow .ui-datatable-data td .ui-column-title{display:none;}
-.ui-datatable .ui-column-filter{display:block;margin:auto;width:100%;box-sizing:border-box;}
+.ui-datatable .ui-column-filter{display:block;width:100%;box-sizing:border-box;margin-top:4px;}
 .ui-datatable td.ui-cell-editing{padding:0;}
 .ui-datatable td.ui-cell-editing input{box-sizing:border-box;width:100%;border:0 none;outline:0;}
 .ui-datatable .ui-editable-column .ui-cell-editor{display:none;}

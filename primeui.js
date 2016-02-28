@@ -1,5 +1,5 @@
 /*
- * PrimeUI 4.1.0
+ * PrimeUI 4.1.1
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -30,6 +30,8 @@ var PUI = {
         '6': 'ui-grid-col-2',
         '12': 'ui-grid-col-11'
     },
+    
+    charSet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
         
     /**
      *  Aligns container scrollbar to keep item in container viewport, algorithm copied from jquery-ui menu widget
@@ -48,6 +50,15 @@ var PUI = {
         else if((offset + itemHeight) > elementHeight) {
             container.scrollTop(scroll + offset - elementHeight + itemHeight);
         }
+    },
+    
+    generateRandomId: function() {
+        var id = '';
+        for (var i = 1; i <= 10; i++) {
+            var randPos = Math.floor(Math.random() * this.charSet.length);
+            id += this.charSet[randPos];
+        }
+        return id;
     },
     
     isIE: function(version) {
@@ -1517,7 +1528,6 @@ PUI.resolveUserAgent();/**
             footer: null,
             sortField: null,
             sortOrder: null,
-            keepSelectionInLazyMode: false,
             scrollable: false,
             scrollHeight: null,
             scrollWidth: null,
@@ -1543,7 +1553,7 @@ PUI.resolveUserAgent();/**
             colReorder: null,
             colResize: null,
             rowReorder: null,
-            cellEdit: null,
+            cellEdit: null
         },
 
         _create: function() {
@@ -1637,6 +1647,12 @@ PUI.resolveUserAgent();/**
 
                 this.options.paginator.totalRecords = this.options.lazy ? this.options.paginator.totalRecords : this.data.length;
                 this.paginator = $('<div></div>').insertAfter(this.tableWrapper).puipaginator(this.options.paginator);
+                if(this.options.paginator.contentLeft) {
+                    this.paginator.prepend(this.options.paginator.contentLeft.call());
+                }
+                if(this.options.paginator.contentRight) {
+                    this.paginator.append(this.options.paginator.contentRight.call());
+                }
             }
 
             if(this.options.footer) {
@@ -1901,9 +1917,6 @@ PUI.resolveUserAgent();/**
 
         paginate: function() {
             if(this.options.lazy) {
-                if(this.options.selectionMode && ! this.options.keepSelectionInLazyMode) {
-                    this.selection = [];
-                }
                 this.options.datasource.call(this, this._onLazyLoad, this._createStateMeta());
             }
             else {
@@ -1983,16 +1996,11 @@ PUI.resolveUserAgent();/**
                         rowIndex = i;
 
                         row.addClass(zebraStyle);
+                        row.data('rowdata', rowData);
 
-                        if(this.options.lazy) {
-                            rowIndex += firstNonLazy; // Selection is kept as it is non lazy data
-                        }
-
-                        if(this.options.selectionMode && PUI.inArray(this.selection, rowIndex)) {
+                        if(this.options.selectionMode && this._isSelected(rowData)) {
                             row.addClass("ui-state-highlight");
                         }
-
-                        row.data('rowindex', rowIndex);
 
                         for(var j = 0; j < this.options.columns.length; j++) {
                             var column = $('<td />').appendTo(row),
@@ -2143,8 +2151,7 @@ PUI.resolveUserAgent();/**
 
         onRowRightClick: function(event, rowElement) {
             var row = $(rowElement),
-            rowIndex = this._getRowIndex(row),
-            selectedData = this.data[rowIndex],
+            selectedData = row.data('rowdata'),
             selected = row.hasClass('ui-state-highlight');
 
             if(this._isSingleSelection() || !selected) {
@@ -2230,61 +2237,45 @@ PUI.resolveUserAgent();/**
         },
 
         unselectRow: function(row, silent) {
-            var rowIndex = this._getRowIndex(row);
+            var unselectedData = row.data('rowdata');
             row.removeClass('ui-state-highlight').attr('aria-selected', false);
 
-            this._removeSelection(rowIndex);
+            this._removeSelection(unselectedData);
 
             if(!silent) {
-                this._trigger('rowUnselect', null, this.data[rowIndex]);
+                this._trigger('rowUnselect', null, unselectedData);
             }
         },
 
         selectRow: function(row, silent, event) {
-            var rowIndex = this._getRowIndex(row),
-            selectedData = this.data[rowIndex];
+            var selectedData = row.data('rowdata');
             row.removeClass('ui-state-hover').addClass('ui-state-highlight').attr('aria-selected', true);
 
-            this._addSelection(rowIndex);
+            this._addSelection(selectedData);
 
             if(!silent) {
-                if (this.options.lazy) {
-                    selectedData = this.data[rowIndex - this._getFirst()];
-                }
-
                 this._trigger('rowSelect', event, selectedData);
             }
         },
 
         getSelection: function() {
-            var first = this.options.lazy ? this._getFirst() : 0,
-                selections = [];
-            for(var i = 0; i < this.selection.length; i++) {
-                if(this.data.length > this.selection[i]-first && this.selection[i]-first > 0) {
-                    selections.push(this.data[this.selection[i]-first]);
-                }
-            }
-            return selections;
+            return this.selection;
         },
 
-        _removeSelection: function(rowIndex) {
+        _removeSelection: function(rowData) {
             this.selection = $.grep(this.selection, function(value) {
-                return value !== rowIndex;
+                return value !== rowData;
             });
         },
 
-        _addSelection: function(rowIndex) {
-            if(!this._isSelected(rowIndex)) {
-                this.selection.push(rowIndex);
+        _addSelection: function(rowData) {
+            if(!this._isSelected(rowData)) {
+                this.selection.push(rowData);
             }
         },
 
-        _isSelected: function(rowIndex) {
-            return PUI.inArray(this.selection, rowIndex);
-        },
-
-        _getRowIndex: function(row) {
-            return row.data('rowindex');
+        _isSelected: function(rowData) {
+            return PUI.inArray(this.selection, rowData);
         },
 
         _initExpandableRows: function() {
@@ -2314,7 +2305,7 @@ PUI.resolveUserAgent();/**
                 toggler.addClass('fa-chevron-circle-right').removeClass('fa-chevron-circle-down').attr('aria-expanded', false);
 
                 this.collapseRow(row);
-                this._trigger('rowCollapse', null, this.data[this._getRowIndex(row)]);
+                this._trigger('rowCollapse', null, row.data('rowdata'));
             }
             else {
                 if(this.options.rowExpandMode === 'single') {
@@ -2328,12 +2319,11 @@ PUI.resolveUserAgent();/**
         },
 
         loadExpandedRowContent: function(row) {
-            var rowIndex = this._getRowIndex(row),
-            expandedRow = $('<tr class="ui-expanded-row-content ui-datatable-unselectable ui-widget-content"><td colspan="' + this.options.columns.length + '"></td></tr>');
-            expandedRow.children('td').append(this.options.expandedRowContent.call(this, this.data[rowIndex]));
+            var expandedRow = $('<tr class="ui-expanded-row-content ui-datatable-unselectable ui-widget-content"><td colspan="' + this.options.columns.length + '"></td></tr>');
+            expandedRow.children('td').append(this.options.expandedRowContent.call(this, row.data('rowdata')));
 
             row.addClass('ui-expanded-row').after(expandedRow);
-            this._trigger('rowExpand', null, this.data[this._getRowIndex(row)]);
+            this._trigger('rowExpand', null, row.data('rowdata'));
         },
 
         collapseRow: function(row) {
@@ -3961,6 +3951,7 @@ PUI.resolveUserAgent();/**
 
             this.closeIcon.on('click.puidialog', function(e) {
                 $this.hide();
+                $this._trigger('clickClose');
                 e.preventDefault();
             });
 
@@ -4257,46 +4248,41 @@ PUI.resolveUserAgent();/**
             if(!this.id) {
                 this.id = this.element.uniqueId().attr('id');
             }
-
+            
             if(!this.options.enhanced) {
                 if(this.options.data) {
-                    for(var i = 0; i < this.options.data.length; i++) {
-                        var choice = this.options.data[i];
-                        if(choice.label)
-                            this.element.append('<option value="' + choice.value + '">' + choice.label + '</option>');
-                        else
-                            this.element.append('<option value="' + choice + '">' + choice + '</option>');
+                    if($.isArray(this.options.data)) {
+                        this._generateOptionElements(this.options.data);
+                    }
+                    else {
+                        if($.type(this.options.data) === 'function') {
+                            this.options.data.call(this, this._onRemoteOptionsLoad);
+                            return;
+                        }
+                        else {
+                            if($.type(this.options.data) === 'string') {
+                                var $this = this,
+                                dataURL = this.options.data;
+                                
+                                var loader = function() {
+                                    $.ajax({
+                                        type: 'GET',
+                                        url: dataURL,
+                                        dataType: "json",
+                                        context: $this,
+                                        success: function (response) {
+                                            this._onRemoteOptionsLoad(response);
+                                        }
+                                    });
+                                };
+                                loader.call(this);
+                            }
+                        }
+                        return;
                     }
                 }
-                this.choices = this.element.children('option');
-                this.element.attr('tabindex', '-1').wrap('<div class="ui-dropdown ui-widget ui-state-default ui-corner-all ui-helper-clearfix" />')
-                    .wrap('<div class="ui-helper-hidden-accessible" />');
-
-                this.container = this.element.closest('.ui-dropdown');
-                this.focusElementContainer = $('<div class="ui-helper-hidden-accessible"><input type="text" /></div>').appendTo(this.container);
-                this.focusElement = this.focusElementContainer.children('input');
-                this.label = this.options.editable ? $('<input type="text" class="ui-dropdown-label ui-inputtext ui-corner-all"">')
-                    : $('<label class="ui-dropdown-label ui-inputtext ui-corner-all"/>');
-                this.label.appendTo(this.container);
-                this.menuIcon = $('<div class="ui-dropdown-trigger ui-state-default ui-corner-right"><span class="fa fa-fw fa-caret-down"></span></div>')
-                    .appendTo(this.container);
-
-                //panel
-                this.panel = $('<div class="ui-dropdown-panel ui-widget-content ui-corner-all ui-helper-hidden ui-shadow" />');
-                this.itemsWrapper = $('<div class="ui-dropdown-items-wrapper" />').appendTo(this.panel);
-                this.itemsContainer = $('<ul class="ui-dropdown-items ui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>')
-                    .appendTo(this.itemsWrapper);
-
-                this.optGroupsSize = this.itemsContainer.children('li.puiselectonemenu-item-group').length;
-
-                if(this.options.filter) {
-                    this.filterContainer = $('<div class="ui-dropdown-filter-container" />').prependTo(this.panel);
-                    this.filterInput = $('<input type="text" autocomplete="off" class="ui-dropdown-filter ui-inputtext ui-widget ui-state-default ui-corner-all" />')
-                        .appendTo(this.filterContainer);
-                    this.filterContainer.append('<span class="fa fa-search"></span>');
-                }
-
-                this._generateItems();
+                
+                this._render();
             }
             else {
                 this.choices = this.element.children('option');
@@ -4311,12 +4297,53 @@ PUI.resolveUserAgent();/**
                 this.itemsContainer.addClass('ui-dropdown-items ui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset');
                 this.items = this.itemsContainer.children('li').addClass('ui-dropdown-item ui-dropdown-list-item ui-corner-all');
 
+                var $this = this;
+                this.items.each(function(i) {
+                    $(this).data('label', $this.choices.eq(i).text());
+                });
+
                 if(this.options.filter) {
                     this.filterContainer = this.panel.children('.ui-dropdown-filter-container');
                     this.filterInput = this.filterContainer.children('input');
                 }
             }
 
+            this._postRender();
+        },
+        
+        _render: function() {
+            this.choices = this.element.children('option');
+            this.element.attr('tabindex', '-1').wrap('<div class="ui-dropdown ui-widget ui-state-default ui-corner-all ui-helper-clearfix" />')
+                .wrap('<div class="ui-helper-hidden-accessible" />');
+
+            this.container = this.element.closest('.ui-dropdown');
+            this.focusElementContainer = $('<div class="ui-helper-hidden-accessible"><input type="text" /></div>').appendTo(this.container);
+            this.focusElement = this.focusElementContainer.children('input');
+            this.label = this.options.editable ? $('<input type="text" class="ui-dropdown-label ui-inputtext ui-corner-all"">')
+                : $('<label class="ui-dropdown-label ui-inputtext ui-corner-all"/>');
+            this.label.appendTo(this.container);
+            this.menuIcon = $('<div class="ui-dropdown-trigger ui-state-default ui-corner-right"><span class="fa fa-fw fa-caret-down"></span></div>')
+                .appendTo(this.container);
+
+            //panel
+            this.panel = $('<div class="ui-dropdown-panel ui-widget-content ui-corner-all ui-helper-hidden ui-shadow" />');
+            this.itemsWrapper = $('<div class="ui-dropdown-items-wrapper" />').appendTo(this.panel);
+            this.itemsContainer = $('<ul class="ui-dropdown-items ui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>')
+                .appendTo(this.itemsWrapper);
+
+            this.optGroupsSize = this.itemsContainer.children('li.puiselectonemenu-item-group').length;
+
+            if(this.options.filter) {
+                this.filterContainer = $('<div class="ui-dropdown-filter-container" />').prependTo(this.panel);
+                this.filterInput = $('<input type="text" autocomplete="off" class="ui-dropdown-filter ui-inputtext ui-widget ui-state-default ui-corner-all" />')
+                    .appendTo(this.filterContainer);
+                this.filterContainer.append('<span class="fa fa-search"></span>');
+            }
+
+            this._generateItems();
+        },
+        
+        _postRender: function() {
             if(this.options.style) {
                 this.container.attr('style', this.options.style);
             }
@@ -4375,6 +4402,22 @@ PUI.resolveUserAgent();/**
             if(!this.disabled) {
                 this._bindEvents();
                 this._bindConstantEvents();
+            }
+        },
+        
+        _onRemoteOptionsLoad: function(data) {
+            this._generateOptionElements(data);
+            this._render();
+            this._postRender();
+        },
+        
+        _generateOptionElements: function(data) {
+            for(var i = 0; i < data.length; i++) {
+                var choice = data[i];
+                if(choice.label)
+                    this.element.append('<option value="' + choice.value + '">' + choice.label + '</option>');
+                else
+                    this.element.append('<option value="' + choice + '">' + choice + '</option>');
             }
         },
 
@@ -4657,7 +4700,7 @@ PUI.resolveUserAgent();/**
 
             if(item.length) {
                 item.addClass('ui-state-highlight');
-
+                
                 this._setLabel(item.data('label'));
             }
             else {
@@ -6415,7 +6458,7 @@ PUI.resolveUserAgent();/**
             var $this = this;
 
             //items
-            this._bindItemEvents();
+            this._bindItemEvents(this.items);
 
             //input
             this.element.on('focus.puilistbox', function() {
@@ -6425,9 +6468,10 @@ PUI.resolveUserAgent();/**
             });
         },
 
-        _bindItemEvents: function() {
+        _bindItemEvents: function(item) {
             var $this = this;
-            this.items.on('mouseover.puilistbox', function() {
+
+            item.on('mouseover.puilistbox', function() {
                     var item = $(this);
                     if(!item.hasClass('ui-state-highlight')) {
                         item.addClass('ui-state-hover');
@@ -6649,7 +6693,7 @@ PUI.resolveUserAgent();/**
                 $this.items = $this.listContainer.children('li').addClass('ui-listbox-item ui-corner-all');
                 $this.choices = $this.element.children('option');
                 $this._unbindItemEvents();
-                $this._bindItemEvents();
+                $this._bindItemEvents(this.items);
             }, 50);
         },
 
@@ -6676,10 +6720,43 @@ PUI.resolveUserAgent();/**
             if(this.choices) {
                 this.choices.prop('selected', false);
             }
+        },
+
+        removeAllOptions: function() {
+            this.element.empty();
+            this.listContainer.empty();
+            this.container.empty();
+            this.element.val('');
+        },
+
+        addOption: function(value,label) {
+            var newListItem;
+
+            if(this.options.content) {
+                var option = (label) ? {'label':label,'value':value}: {'label':value,'value':value};
+                newListItem = $('<li class="ui-listbox-item ui-corner-all"></li>').append(this.options.content(option)).appendTo(this.listContainer);
+            }
+            else {
+                var listLabel = (label) ? label: value;
+                newListItem = $('<li class="ui-listbox-item ui-corner-all">' + listLabel + '</li>').appendTo(this.listContainer);
+            }
+
+            if(label)
+                this.element.append('<option value="' + value + '">' + label + '</option>');
+            else
+                this.element.append('<option value="' + value + '">' + value + '</option>');
+
+            this._bindItemEvents(newListItem);
+
+            this.choices = this.element.children('option');
+            this.items = this.items.add(newListItem);
+
+
         }
     });
 
-})();/**
+})();
+/**
  * PrimeUI BaseMenu widget
  */
 (function() {
@@ -13137,4 +13214,335 @@ PUI.resolveUserAgent();/**
     });
     
 })();
-            
+            /**
+ * PrimeUI ColResize widget
+ */
+(function() {
+
+    $.widget("primeui.puicolresize", {
+
+        options: {
+            mode: 'fit'
+        },
+
+        _create: function() {
+            this.element.addClass('ui-datatable-resizable');
+            this.thead = this.element.find('> .ui-datatable-tablewrapper > table > thead');
+            this.thead.find('> tr > th').addClass('ui-resizable-column');
+            this.resizerHelper = $('<div class="ui-column-resizer-helper ui-state-highlight"></div>').appendTo(this.element);
+            this.addResizers();
+
+            var resizers = this.thead.find('> tr > th > span.ui-column-resizer'),
+            $this = this;
+
+            setTimeout(function() {
+                $this.fixColumnWidths();
+            }, 5);
+
+            resizers.draggable({
+                axis: 'x',
+                start: function(event, ui) {
+                    ui.helper.data('originalposition', ui.helper.offset());
+
+                    var height = $this.options.scrollable ? $this.scrollBody.height() : $this.thead.parent().height() - $this.thead.height() - 1;
+                    $this.resizerHelper.height(height);
+                    $this.resizerHelper.show();
+                },
+                drag: function(event, ui) {
+                    $this.resizerHelper.offset({
+                        left: ui.helper.offset().left + ui.helper.width() / 2,
+                        top: $this.thead.offset().top + $this.thead.height()
+                    });
+                },
+                stop: function(event, ui) {
+                    ui.helper.css({
+                        'left': '',
+                        'top': '0px',
+                        'right': '0px'
+                    });
+
+                    $this.resize(event, ui);
+                    $this.resizerHelper.hide();
+
+                    if($this.options.mode === 'expand') {
+                        setTimeout(function() {
+                            $this._trigger('colResize', null, {element: ui.helper.parent().get(0)});
+                        }, 5);
+                    }
+                    else {
+                        $this._trigger('colResize', null, {element: ui.helper.parent().get(0)});
+                    }
+                },
+                containment: this.element
+            });
+        },
+
+        resize: function(event, ui) {
+            var columnHeader, nextColumnHeader, change = null, newWidth = null, nextColumnWidth = null,
+            expandMode = (this.options.mode === 'expand'),
+            table = this.thead.parent(),
+            columnHeader = ui.helper.parent(),
+            nextColumnHeader = columnHeader.next();
+
+            change = (ui.position.left - ui.originalPosition.left),
+            newWidth = (columnHeader.width() + change),
+            nextColumnWidth = (nextColumnHeader.width() - change);
+
+            if((newWidth > 15 && nextColumnWidth > 15) || (expandMode && newWidth > 15)) {
+                if(expandMode) {
+                    table.width(table.width() + change);
+                    setTimeout(function() {
+                        columnHeader.width(newWidth);
+                    }, 1);
+                }
+                else {
+                    columnHeader.width(newWidth);
+                    nextColumnHeader.width(nextColumnWidth);
+                }
+            }
+        },
+
+        addResizers: function() {
+            var resizableColumns = this.thead.find('> tr > th.ui-resizable-column');
+            resizableColumns.prepend('<span class="ui-column-resizer">&nbsp;</span>');
+
+            if(this.options.columnResizeMode === 'fit') {
+                resizableColumns.filter(':last-child').children('span.ui-column-resizer').hide();
+            }
+        },
+
+        fixColumnWidths: function() {
+            if(!this.columnWidthsFixed) {
+                this.element.find('> .ui-datatable-tablewrapper > table > thead > tr > th').each(function() {
+                    var col = $(this);
+                    col.width(col.width());
+                });
+
+                this.columnWidthsFixed = true;
+            }
+        },
+
+        _destroy: function() {
+            this.element.removeClass('ui-datatable-resizable');
+            this.thead.find('> tr > th').removeClass('ui-resizable-column');
+            this.resizerHelper.remove();
+            this.thead.find('> tr > th > span.ui-column-resizer').draggable('destroy').remove();
+        }
+    });
+})();
+
+/**
+ * PrimeUI ColReorder widget
+ */
+(function() {
+
+    $.widget("primeui.puicolreorder", {
+
+        _create: function() {
+            var $this = this;
+
+            this.thead = this.element.find('> .ui-datatable-tablewrapper > table > thead');
+            this.tbody = this.element.find('> .ui-datatable-tablewrapper > table > tbody');
+            this.dragIndicatorTop = $('<span class="fa fa-arrow-down" style="position:absolute"/></span>').hide().appendTo(this.element);
+            this.dragIndicatorBottom = $('<span class="fa fa-arrow-up" style="position:absolute"/></span>').hide().appendTo(this.element);
+
+            this.thead.find('> tr > th').draggable({
+                appendTo: 'body',
+                opacity: 0.75,
+                cursor: 'move',
+                scope: this.id,
+                cancel: ':input,.ui-column-resizer',
+                drag: function(event, ui) {
+                    var droppable = ui.helper.data('droppable-column');
+
+                    if(droppable) {
+                        var droppableOffset = droppable.offset(),
+                            topArrowY = droppableOffset.top - 10,
+                            bottomArrowY = droppableOffset.top + droppable.height() + 8,
+                            arrowX = null;
+
+                        //calculate coordinates of arrow depending on mouse location
+                        if(event.originalEvent.pageX >= droppableOffset.left + (droppable.width() / 2)) {
+                            var nextDroppable = droppable.next();
+                            if(nextDroppable.length == 1)
+                                arrowX = nextDroppable.offset().left - 9;
+                            else
+                                arrowX = droppable.offset().left + droppable.innerWidth() - 9;
+
+                            ui.helper.data('drop-location', 1);     //right
+                        }
+                        else {
+                            arrowX = droppableOffset.left  - 9;
+                            ui.helper.data('drop-location', -1);    //left
+                        }
+
+                        $this.dragIndicatorTop.offset({
+                            'left': arrowX,
+                            'top': topArrowY - 3
+                        }).show();
+
+                        $this.dragIndicatorBottom.offset({
+                            'left': arrowX,
+                            'top': bottomArrowY - 3
+                        }).show();
+                    }
+                },
+                stop: function(event, ui) {
+                    //hide dnd arrows
+                    $this.dragIndicatorTop.css({
+                        'left':0,
+                        'top':0
+                    }).hide();
+
+                    $this.dragIndicatorBottom.css({
+                        'left':0,
+                        'top':0
+                    }).hide();
+                },
+                helper: function() {
+                    var header = $(this),
+                    helper = $('<div class="ui-widget ui-state-default" style="padding:4px 10px;text-align:center;"></div>');
+
+                    helper.width(header.width());
+                    helper.height(header.height());
+
+                    helper.html(header.html());
+
+                    return helper.get(0);
+                }
+            })
+            .droppable({
+                hoverClass:'ui-state-highlight',
+                tolerance:'pointer',
+                scope: this.id,
+                over: function(event, ui) {
+                    ui.helper.data('droppable-column', $(this));
+                },
+                drop: function(event, ui) {
+                    var draggedColumnHeader = ui.draggable,
+                        droppedColumnHeader =  $(this),
+                        dropLocation = ui.helper.data('drop-location');
+
+                    $this._trigger('colReorder', null, {
+                        dragIndex: draggedColumnHeader.index(),
+                        dropIndex: droppedColumnHeader.index(),
+                        dropSide: dropLocation
+                    });
+                }
+            });
+        },
+
+        _destroy: function() {
+            this.dragIndicatorTop.remove();
+            this.dragIndicatorBottom.remove();
+            this.thead.find('> tr > th').draggable('destroy').droppable('destroy');
+        }
+    });
+
+})();
+
+
+/**
+ * PrimeUI TableScroll widget
+ */
+(function() {
+
+    $.widget("primeui.puitablescroll", {
+
+        options: {
+            scrollHeight: null,
+            scrollWidth: null
+        },
+
+        _create: function() {
+            this.id = PUI.generateRandomId();
+            this.scrollHeader = this.element.children('.ui-datatable-scrollable-header');
+            this.scrollBody = this.element.children('.ui-datatable-scrollable-body');
+            this.scrollHeaderBox = this.scrollHeader.children('.ui-datatable-scrollable-header-box');
+            this.bodyTable = this.scrollBody.children('table');
+            this.percentageScrollHeight = this.options.scrollHeight && (this.options.scrollHeight.indexOf('%') !== -1);
+            this.percentageScrollWidth = this.options.scrollWidth && (this.options.scrollWidth.indexOf('%') !== -1);
+            var $this = this,
+                scrollBarWidth = this.getScrollbarWidth() + 'px';
+
+            if(this.options.scrollHeight) {
+                if(this.percentageScrollHeight)
+                    this.adjustScrollHeight();
+                else
+                    this.scrollBody.css('max-height', this.options.scrollHeight + 'px');
+
+                this.scrollHeaderBox.css('margin-right', scrollBarWidth);
+            }
+
+            if(this.options.scrollWidth) {
+                if(this.percentageScrollWidth)
+                    this.adjustScrollWidth();
+                else
+                    this.setScrollWidth(parseInt(this.options.scrollWidth));
+            }
+
+            this.scrollBody.on('scroll.dataTable', function() {
+                var scrollLeft = $this.scrollBody.scrollLeft();
+                $this.scrollHeaderBox.css('margin-left', -scrollLeft);
+            });
+
+            this.scrollHeader.on('scroll.dataTable', function() {
+                $this.scrollHeader.scrollLeft(0);
+            });
+
+            $(window).on('resize.' + this.id, function() {
+                if($this.element.is(':visible')) {
+                    if($this.percentageScrollHeight)
+                        $this.adjustScrollHeight();
+
+                    if($this.percentageScrollWidth)
+                        $this.adjustScrollWidth();
+                }
+            });
+        },
+
+        _destroy: function() {
+            $(window).off('resize.' + this.id);
+            this.scrollHeader.off('scroll.dataTable');
+            this.scrollBody.off('scroll.dataTable');
+        },
+
+        adjustScrollHeight: function() {
+            var relativeHeight = this.element.parent().parent().innerHeight() * (parseInt(this.options.scrollHeight) / 100),
+                tableHeaderHeight = this.element.children('.ui-datatable-header').outerHeight(true),
+                tableFooterHeight = this.element.children('.ui-datatable-footer').outerHeight(true),
+                scrollersHeight = (this.scrollHeader.outerHeight(true) + this.scrollFooter.outerHeight(true)),
+                paginatorsHeight = this.paginator ? this.paginator.getContainerHeight(true) : 0,
+                height = (relativeHeight - (scrollersHeight + paginatorsHeight + tableHeaderHeight + tableFooterHeight));
+
+            this.scrollBody.css('max-height', height + 'px');
+        },
+
+        adjustScrollWidth: function() {
+            var width = parseInt((this.element.parent().parent().innerWidth() * (parseInt(this.options.scrollWidth) / 100)));
+            this.setScrollWidth(width);
+        },
+
+        setOuterWidth: function(element, width) {
+            var diff = element.outerWidth() - element.width();
+            element.width(width - diff);
+        },
+
+        setScrollWidth: function(width) {
+            var $this = this;
+            this.element.children('.ui-widget-header').each(function() {
+                $this.setOuterWidth($(this), width);
+            });
+            this.scrollHeader.width(width);
+            this.scrollBody.css('margin-right', 0).width(width);
+        },
+
+        getScrollbarWidth: function() {
+            if(!this.scrollbarWidth) {
+                this.scrollbarWidth = PUI.calculateScrollbarWidth();
+            }
+
+            return this.scrollbarWidth;
+        }
+    });
+})();

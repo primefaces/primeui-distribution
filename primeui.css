@@ -1,5 +1,5 @@
 /*
- * PrimeUI 4.1.0
+ * PrimeUI 4.1.1
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -572,18 +572,6 @@ button.ui-button::-moz-focus-inner {
     font-weight: normal;
 }
 
-.ui-datatable-scrollable-body::-webkit-scrollbar {
-    -webkit-appearance: none;
-    width: 15px;
-    background-color: transparent;
-}
-
-.ui-datatable-scrollable-body::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-    border: 1px solid white;
-    background-color: rgba(194,194,194,.5);
-}
-
 .ui-datatable .ui-datatable-scrollable-body  {
     min-height: 0%;
 }
@@ -679,9 +667,9 @@ button.ui-button::-moz-focus-inner {
 /* Filter */
 .ui-datatable .ui-column-filter {
     display: block;
-    margin:auto;
     width: 100%;
     box-sizing: border-box;
+    margin-top: 4px;
 }
 
 /* Editing */
