@@ -1,5 +1,5 @@
 /*
- * PrimeUI 4.1.1
+ * PrimeUI 4.1.2
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -2166,7 +2166,7 @@ button.ui-button::-moz-focus-inner {
     width: 100%;
 }
 
-.ui-picklist.ui-picklist-responsive .ui-picklist-list-wrapper {
+.ui-picklist.ui-picklist-responsive .ui-picklist-listwrapper {
     width: 35%;
 }
 

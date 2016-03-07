@@ -1,5 +1,5 @@
 /*
- * PrimeUI 4.1.1
+ * PrimeUI 4.1.2
  * 
  * Copyright 2009-2015 PrimeTek.
  *
@@ -1523,11 +1523,14 @@ PUI.resolveUserAgent();/**
             columns: null,
             datasource: null,
             paginator: null,
+            globalFilter:null,
             selectionMode: null,
             caption: null,
             footer: null,
             sortField: null,
-            sortOrder: null,
+            sortOrder: 1,
+            sortMeta: [],
+            sortMode: null,
             scrollable: false,
             scrollHeight: null,
             scrollWidth: null,
@@ -1666,7 +1669,7 @@ PUI.resolveUserAgent();/**
             if(this.hasFiltering) {
                 this._initFiltering();
             }
-
+            
             if(this.options.selectionMode) {
                 this._initSelection();
             }
@@ -1683,9 +1686,8 @@ PUI.resolveUserAgent();/**
                 this._initStickyHeader();
             }
 
-            if (this.options.sortField && this.options.sortOrder) {
-                this._indicateInitialSortColumn();
-                this.sort(this.options.sortField, this.options.sortOrder);
+            if ((this.options.sortField && this.options.sortOrder) || this.options.sortMeta.length) {
+                this.sortByDefault();
             }
             else {
                 this._renderData();
@@ -1804,23 +1806,32 @@ PUI.resolveUserAgent();/**
             });
         },
 
-        _indicateInitialSortColumn: function() {
-            this.sortableColumns = this.thead.find('> tr > th.ui-sortable-column');
+        _indicateInitialSortColumn: function(sortField, sortOrder) {
             var $this = this;
-
+            
             $.each(this.sortableColumns, function(i, column) {
                 var $column = $(column),
                     data = $column.data();
-                if ($this.options.sortField === data.field) {
+                    
+                if (sortField === data.field) {
                     var sortIcon = $column.children('.ui-sortable-column-icon');
-                    $column.data('order', $this.options.sortOrder).removeClass('ui-state-hover').addClass('ui-state-active');
-                    if($this.options.sortOrder === -1)
+                        $column.data('order', sortOrder).removeClass('ui-state-hover').addClass('ui-state-active');
+                    
+                    if(sortOrder == -1)
                         sortIcon.removeClass('fa-sort fa-sort-asc').addClass('fa-sort-desc');
-                    else if($this.options.sortOrder === 1)
+                    else if(sortOrder == 1)
                         sortIcon.removeClass('fa-sort fa-sort-desc').addClass('fa-sort-asc');
                 }
             });
-
+        },
+        
+        _indicateInitialSortColumns: function() {
+            var $this = this;
+            
+            for(var i = 0; i < this.options.sortMeta.length; i++) {
+                var meta = this.options.sortMeta[i];
+                this._indicateInitialSortColumn(meta.field, meta.order);
+            }
         },
 
         _onDataInit: function(data) {
@@ -1867,14 +1878,26 @@ PUI.resolveUserAgent();/**
             this.thead.find('> tr > th.ui-sortable-column').data('order', 0).filter('.ui-state-active').removeClass('ui-state-active')
                                 .children('span.ui-sortable-column-icon').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
         },
+        
+        _isMultiSort: function() {
+            if(this.options.sortMode === 'multiple')
+                return true;
+            else 
+                return false;
+        },
+        
+        _resetSortState: function(column) {
+            this.sortableColumns.filter('.ui-state-active').data('order', 0).removeClass('ui-state-active').children('span.ui-sortable-column-icon')
+                                                        .removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
+        },
 
         _initSorting: function() {
-            var $this = this,
-            sortableColumns = this.thead.find('> tr > th.ui-sortable-column');
-
-            sortableColumns.on('mouseover.puidatatable', function() {
+            var $this = this;
+            this.sortableColumns = this.thead.find('> tr > th.ui-sortable-column');
+            
+            this.sortableColumns.on('mouseover.puidatatable', function() {
                 var column = $(this);
-
+                
                 if(!column.hasClass('ui-state-active'))
                     column.addClass('ui-state-hover');
             })
@@ -1888,31 +1911,58 @@ PUI.resolveUserAgent();/**
                 if(!$(event.target).is('th,span')) {
                     return;
                 }
-
+                
                 var column = $(this),
                 sortField = column.data('field'),
                 order = column.data('order'),
                 sortOrder = (order === 0) ? 1 : (order * -1),
-                sortIcon = column.children('.ui-sortable-column-icon');
+                sortIcon = column.children('.ui-sortable-column-icon'),
+                metaKey = event.metaKey||event.ctrlKey;
+                                            
+                if($this._isMultiSort()) {
+                    if(metaKey) {
+                        $this._addSortMeta({field: sortField, order: sortOrder});
+                        $this.sort();    
+                    }
+                    else {
+                        $this.options.sortMeta = [];
+                        $this._addSortMeta({field: sortField, order: sortOrder});
+                        $this._resetSortState(column);
+                        $this.sort();
+                    }
+                }
+                else {
+                    //update state
+                    $this.options.sortField = sortField;
+                    $this.options.sortOrder = sortOrder;
+                    
+                    $this._resetSortState(column);
+                    $this.sort();
+                }
 
-                //clean previous sort state
-                column.siblings().filter('.ui-state-active').data('order', 0).removeClass('ui-state-active').children('span.ui-sortable-column-icon')
-                                                            .removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
-
-                //update state
-                $this.options.sortField = sortField;
-                $this.options.sortOrder = sortOrder;
-
-                $this.sort(sortField, sortOrder);
-
+                //update visuals
                 column.data('order', sortOrder).removeClass('ui-state-hover').addClass('ui-state-active');
                 if(sortOrder === -1)
                     sortIcon.removeClass('fa-sort fa-sort-asc').addClass('fa-sort-desc');
                 else if(sortOrder === 1)
                     sortIcon.removeClass('fa-sort fa-sort-desc').addClass('fa-sort-asc');
 
-                $this._trigger('sort', event, {'sortOrder' : sortOrder, 'sortField' : sortField});
+                $this._trigger('sort', event, {'sortOrder': sortOrder, 'sortField': sortField});
             });
+        },
+        
+        _addSortMeta: function(meta) {
+            var index = -1;
+            for(var i = 0; i < this.options.sortMeta.length; i++) {
+                if(this.options.sortMeta[i].field === meta.field) {
+                    index = i;
+                }
+            }
+            
+            if(index >= 0)
+                this.options.sortMeta[index] = meta;
+            else
+                this.options.sortMeta.push(meta);
         },
 
         paginate: function() {
@@ -1923,53 +1973,84 @@ PUI.resolveUserAgent();/**
                this._renderData();
             }
         },
+        
+        _multipleSort: function() {
+            var $this = this;
+            
+            function multisort(data1,data2,sortMeta,index) {
+                var value1 = data1[sortMeta[index].field], 
+                value2 = data2[sortMeta[index].field],
+                result = null;
+                                
+                if (typeof value1 == 'string' || value1 instanceof String) {
+                    if (value1.localeCompare && (value1 != value2)) {
+                        return (sortMeta[index].order * value1.localeCompare(value2));
+                    }
+                }
+                else {
+                    result = (value1 < value2) ? -1 : 1;    
+                }
 
-        sort: function(field, order) {
-            if(this.options.selectionMode) {
-                this.selection = [];
+                if(value1 == value2)  {
+                    return (sortMeta.length - 1) > (index) ? (multisort(data1, data2, sortMeta, index + 1)) : 0;
+                }
+                
+                return (sortMeta[index].order * result);
             }
+            
+            this.data.sort(function (data1,data2) {
+                return multisort(data1, data2, $this.options.sortMeta, 0);
+            });
+            
+            this._renderData();
+        },
 
+        sort: function() {
             if(this.options.lazy) {
                 this.options.datasource.call(this, this._onLazyLoad, this._createStateMeta());
             }
             else {
-                this.data.sort(function(data1, data2) {
-                    var value1 = data1[field], value2 = data2[field],
-                    result = null;
-
-                    if (typeof value1 == 'string' || value1 instanceof String) {
-                    	if ( value1.localeCompare ) {
-                    		return (order * value1.localeCompare(value2));
-                    	}
-                    	else {
-                        	if (value1.toLowerCase) {
-                            	value1 = value1.toLowerCase();
-                            }
-                            if (value2.toLowerCase) {
-                            	value2 = value2.toLowerCase();
-                            }
-                            result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
-
-
-                    	}
+                if(this._isMultiSort())
+                    this._multipleSort();
+                else
+                    this._singleSort();
+            }
+        },
+        
+        _singleSort: function() {
+            var $this = this;
+            
+            this.data.sort(function(data1, data2) {
+                var value1 = data1[$this.options.sortField], value2 = data2[$this.options.sortField],
+                result = null;
+                
+                if (typeof value1 == 'string' || value1 instanceof String) {
+                    if ( value1.localeCompare ) {
+                        return ($this.options.sortOrder * value1.localeCompare(value2));
                     }
                     else {
+                        if (value1.toLowerCase) {
+                            value1 = value1.toLowerCase();
+                        }
+                        if (value2.toLowerCase) {
+                            value2 = value2.toLowerCase();
+                        }
                         result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
+
                     }
-
-                    return (order * result);
-                });
-
-                if(this.options.selectionMode) {
-                    this.selection = [];
+                }
+                else {
+                    result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
                 }
 
-                if(this.paginator) {
-                    this.paginator.puipaginator('option', 'page', 0);
-                }
+                return ($this.options.sortOrder * result);
+            });
 
-                this._renderData();
+            if(this.paginator) {
+                this.paginator.puipaginator('option', 'page', 0);
             }
+
+            this._renderData();
         },
 
         sortByField: function(a, b) {
@@ -1977,10 +2058,23 @@ PUI.resolveUserAgent();/**
             var bName = b.name.toLowerCase();
             return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
         },
+        
+        sortByDefault: function() {
+            if(this._isMultiSort()) {
+                if(this.options.sortMeta) {
+                    this._indicateInitialSortColumns();
+                    this.sort();
+                }
+            }
+            else {
+                this._indicateInitialSortColumn(this.options.sortField, this.options.sortOrder);
+                this.sort();
+            }
+        },
 
         _renderData: function() {
             this.tbody.html('');
-
+            
             var dataToRender = this.filteredData||this.data;
             if(dataToRender && dataToRender.length) {
                 var firstNonLazy = this._getFirst(),
@@ -2359,6 +2453,7 @@ PUI.resolveUserAgent();/**
                 rows: this._getRows(),
                 sortField: this.options.sortField,
                 sortOrder: this.options.sortOrder,
+                sortMeta: this.options.sortMeta,
                 filters: this.filterMetaMap
             };
 
@@ -2922,7 +3017,7 @@ PUI.resolveUserAgent();/**
         _initFiltering: function() {
             var $this = this;
             this.filterElements = this.thead.find('.ui-column-filter');
-
+            
             this.filterElements.on('keyup', function() {
                         if($this.filterTimeout) {
                             clearTimeout($this.filterTimeout);
@@ -2934,62 +3029,83 @@ PUI.resolveUserAgent();/**
                         },
                         $this.options.filterDelay);
                     });
+                    
+            if(this.options.globalFilter) {
+                $(this.options.globalFilter).on('keyup.puidatatable', function() {
+                    $this.filter();
+                });
+            }
         },
-
+        
         filter: function() {
             this.filterMetaMap = [];
-
+            
             for(var i = 0; i < this.filterElements.length; i++) {
                 var filterElement = this.filterElements.eq(i),
                 filterElementValue = filterElement.val();
-
-                if(filterElementValue && $.trim(filterElementValue) !== '') {
-                    this.filterMetaMap.push({
-                        field: filterElement.data('field'),
-                        filterMatchMode: filterElement.data('filtermatchmode'),
-                        value: filterElementValue.toLowerCase(),
-                        element: filterElement
-                    });
-                }
+                 
+                this.filterMetaMap.push({
+                    field: filterElement.data('field'),
+                    filterMatchMode: filterElement.data('filtermatchmode'),
+                    value: filterElementValue.toLowerCase(),
+                    element: filterElement
+                });
             }
-
+                        
             if(this.options.lazy) {
                 this.options.datasource.call(this, this._onLazyLoad, this._createStateMeta());
             }
             else {
-                if(this.filterMetaMap.length) {
-                    this.filteredData = [];
+                var globalFilterValue = $(this.options.globalFilter).val();
+                this.filteredData = [];
+                
+                for(var i = 0; i < this.data.length; i++) {
+                    var localMatch = true;
+                    var globalMatch = false;
+                    
+                    for(var j = 0; j < this.filterMetaMap.length; j++) {
+                        var filterMeta = this.filterMetaMap[j],
+                        filterValue = filterMeta.value,
+                        filterField = filterMeta.field,
+                        dataFieldValue = this.data[i][filterField];
 
-                    for(var i = 0; i < this.data.length; i++) {
-                        var localMatch = true;
+                        var filterConstraint = this.filterConstraints[filterMeta.filterMatchMode];
 
-                        for(var j = 0; j < this.filterMetaMap.length; j++) {
-                            var filterMeta = this.filterMetaMap[j],
-                            filterValue = filterMeta.value,
-                            filterField = filterMeta.field,
-                            dataFieldValue = this.data[i][filterField];
-
-                            if(filterMeta.filterMatchMode === 'custom') {
-                                localMatch = filterMeta.element.triggerHandler('filter', [dataFieldValue, filterValue]);
-                            }
-                            else {
-                                var filterConstraint = this.filterConstraints[filterMeta.filterMatchMode];
-                                if(!filterConstraint(dataFieldValue, filterValue)) {
-                                    localMatch = false;
-                                }
-                            }
-
-                            if(!localMatch) {
-                                break;
+                        //global
+                        if(this.options.globalFilter && !globalMatch) {
+                            var filterConstraint = this.filterConstraints['contains'];
+                            globalMatch = filterConstraint(dataFieldValue, globalFilterValue);
+                            
+                        }
+                        
+                        //local
+                        if(filterMeta.filterMatchMode === 'custom') {
+                            localMatch = filterMeta.element.triggerHandler('filter', [dataFieldValue, filterValue]);
+                        }
+                        else {
+                            var filterConstraint = this.filterConstraints[filterMeta.filterMatchMode];
+                            if(!filterConstraint(dataFieldValue, filterValue)) {
+                                localMatch = false;
                             }
                         }
-
-                        if(localMatch) {
-                            this.filteredData.push(this.data[i]);
+                                                                        
+                        if(!localMatch) {
+                            break;
                         }
                     }
+                                        
+                    var matches = localMatch;
+                    
+                    if(this.options.globalFilter) {
+                        matches = localMatch && globalMatch;
+                    }
+
+                    if(matches) {
+                        this.filteredData.push(this.data[i]);
+                    }
                 }
-                else {
+                
+                if(this.filteredData.length === this.data.length) {
                     this.filteredData = null;
                 }
 
@@ -3023,7 +3139,7 @@ PUI.resolveUserAgent();/**
                 if(value === undefined || value === null) {
                     return false;
                 }
-
+                
                 return value.toString().toLowerCase().indexOf(filter) !== -1;
             }
 
