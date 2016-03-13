@@ -1,20 +1,3 @@
-/*
- * PrimeUI 4.1.2
- * 
- * Copyright 2009-2015 PrimeTek.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 if(!xtag.tags['p-accordion']) {
     
     xtag.register('p-accordion', {
@@ -70,7 +53,8 @@ if(!xtag.tags['p-accordion']) {
 
     });
     
-}if(!xtag.tags['p-autocomplete']) {
+}
+if(!xtag.tags['p-autocomplete']) {
 
     xtag.register('p-autocomplete', {
 
@@ -149,7 +133,8 @@ if(!xtag.tags['p-accordion']) {
         
     });
     
-}if(!xtag.tags['p-button']) {
+}
+if(!xtag.tags['p-button']) {
 
     xtag.register('p-button', {
 
@@ -184,7 +169,8 @@ if(!xtag.tags['p-accordion']) {
 
     });
 
-}if(!xtag.tags['p-carousel']) {
+}
+if(!xtag.tags['p-carousel']) {
 
     xtag.register('p-carousel', {
 
@@ -276,7 +262,8 @@ if(!xtag.tags['p-accordion']) {
         }
     });
     
-}if(!xtag.tags['p-checkbox']) {
+}
+if(!xtag.tags['p-checkbox']) {
  
     xtag.register('p-checkbox', {
     
@@ -290,7 +277,8 @@ if(!xtag.tags['p-accordion']) {
         
     });
     
-}if(!xtag.tags['p-column']) {
+}
+if(!xtag.tags['p-column']) {
 
     xtag.register('p-column', {
 
@@ -352,7 +340,112 @@ if(!xtag.tags['p-accordion']) {
         
     });
 
-}if(!xtag.tags['p-datatable']) {
+}
+if(!xtag.tags['p-datagrid']) {
+
+    xtag.register('p-datagrid', {
+
+        accessors: {
+            columns: {
+                attribute: {}
+            },
+            datasource: {
+                attribute: {}
+            },
+            paginator: {
+                attribute: {
+                    boolean: true
+                }
+            },
+            rows: {
+                attribute: {}
+            },
+            totalrecords: {
+                attribute: {}
+            },
+            header: {
+                attribute: {}
+            },
+            footer: {
+                attribute: {}
+            },
+            lazy: {
+                attribute: {}
+            }
+        },
+
+        lifecycle: {
+            created: function() {
+                this.xtag.container = $(this).append('<div></div>').children('div');
+
+                $(this.xtag.container).puidatagrid({
+                    header: this.header,
+                    footer: this.footer,
+                    lazy: this.lazy,
+                    columns: this.columns||3,
+                    paginator: this.paginator ? {rows: this.rows ? parseInt(this.rows) : 0, totalRecords: this.totalrecords ? parseInt(this.totalrecords) : 0} : null,
+                    datasource: PUI.resolveObjectByName(this.datasource)||this.datasource,
+                    template: $(this).children('template')
+                });
+            }
+        }
+    });
+    
+}
+if(!xtag.tags['p-datascroller']) {
+
+    xtag.register('p-datascroller', {
+
+        accessors: {
+            header: {
+                attribute: {}
+            },
+            datasource: {
+                attribute: {}
+            },
+            lazy: {
+                attribute: {
+                    boolean: true
+                }
+            },
+            chunksize: {
+                attribute: {}
+            },
+            mode: {
+                attribute: {}
+            },
+            loader: {
+                attribute: {}
+            },
+            scrollheight: {
+                attribute: {}
+            },
+            totalsize: {
+                attribute: {}
+            }
+        },
+
+        lifecycle: {
+            created: function() {
+                this.xtag.container = $(this).append('<div></div>').children('div');
+
+                $(this.xtag.container).puidatascroller({
+                    header: this.header,
+                    datasource: PUI.resolveObjectByName(this.datasource),
+                    lazy: this.lazy,
+                    chunkSize: this.chunksize ? parseInt(this.chunksize): 10,
+                    mode: this.mode||'document',
+                    loader: this.loader ? $('#' + loader) : null,
+                    scrollHeight: this.scrollheight ? parseInt(this.scrollheight) : null,
+                    template: $(this).children('template'),
+                    totalSize: this.totalsize  ? parseInt(this.totalsize) : null
+                });
+            }
+        }
+    });
+    
+}
+if(!xtag.tags['p-datatable']) {
 
     xtag.register('p-datatable', {
 
@@ -566,110 +659,9 @@ if(!xtag.tags['p-accordion']) {
     });
 
 }
-if(!xtag.tags['p-datagrid']) {
 
-    xtag.register('p-datagrid', {
+if(!xtag.tags['p-datepicker']) {
 
-        accessors: {
-            columns: {
-                attribute: {}
-            },
-            datasource: {
-                attribute: {}
-            },
-            paginator: {
-                attribute: {
-                    boolean: true
-                }
-            },
-            rows: {
-                attribute: {}
-            },
-            totalrecords: {
-                attribute: {}
-            },
-            header: {
-                attribute: {}
-            },
-            footer: {
-                attribute: {}
-            },
-            lazy: {
-                attribute: {}
-            }
-        },
-
-        lifecycle: {
-            created: function() {
-                this.xtag.container = $(this).append('<div></div>').children('div');
-
-                $(this.xtag.container).puidatagrid({
-                    header: this.header,
-                    footer: this.footer,
-                    lazy: this.lazy,
-                    columns: this.columns||3,
-                    paginator: this.paginator ? {rows: this.rows ? parseInt(this.rows) : 0, totalRecords: this.totalrecords ? parseInt(this.totalrecords) : 0} : null,
-                    datasource: PUI.resolveObjectByName(this.datasource)||this.datasource,
-                    template: $(this).children('template')
-                });
-            }
-        }
-    });
-    
-}if(!xtag.tags['p-datascroller']) {
-
-    xtag.register('p-datascroller', {
-
-        accessors: {
-            header: {
-                attribute: {}
-            },
-            datasource: {
-                attribute: {}
-            },
-            lazy: {
-                attribute: {
-                    boolean: true
-                }
-            },
-            chunksize: {
-                attribute: {}
-            },
-            mode: {
-                attribute: {}
-            },
-            loader: {
-                attribute: {}
-            },
-            scrollheight: {
-                attribute: {}
-            },
-            totalsize: {
-                attribute: {}
-            }
-        },
-
-        lifecycle: {
-            created: function() {
-                this.xtag.container = $(this).append('<div></div>').children('div');
-
-                $(this.xtag.container).puidatascroller({
-                    header: this.header,
-                    datasource: PUI.resolveObjectByName(this.datasource),
-                    lazy: this.lazy,
-                    chunkSize: this.chunksize ? parseInt(this.chunksize): 10,
-                    mode: this.mode||'document',
-                    loader: this.loader ? $('#' + loader) : null,
-                    scrollHeight: this.scrollheight ? parseInt(this.scrollheight) : null,
-                    template: $(this).children('template'),
-                    totalSize: this.totalsize  ? parseInt(this.totalsize) : null
-                });
-            }
-        }
-    });
-    
-}if(!xtag.tags['p-datepicker']) {
- 
     xtag.register('p-datepicker', {
 
         accessors: {
@@ -873,12 +865,16 @@ if(!xtag.tags['p-datagrid']) {
             },
             getDate: function() {
                 return this.xtag.container.datepicker('getDate');
+            },
+            setDate: function(date) {
+                return this.xtag.container.datepicker('setDate', date);
             }
         }
-        
+
     });
-    
-}if(!xtag.tags['p-dialog']) {
+
+}
+if(!xtag.tags['p-dialog']) {
  
     xtag.register('p-dialog', {
 
@@ -1030,7 +1026,8 @@ if(!xtag.tags['p-datagrid']) {
         
     });
     
-}if(!xtag.tags['p-dropdown']) {
+}
+if(!xtag.tags['p-dropdown']) {
 
     xtag.register('p-dropdown', {
 
@@ -1116,7 +1113,8 @@ if(!xtag.tags['p-datagrid']) {
         
     });
     
-}if(!xtag.tags['p-fieldset']) {
+}
+if(!xtag.tags['p-fieldset']) {
 
     xtag.register('p-fieldset', {
 
@@ -1167,7 +1165,8 @@ if(!xtag.tags['p-datagrid']) {
         
     });
     
-}if(!xtag.tags['p-galleria']) {
+}
+if(!xtag.tags['p-galleria']) {
 
     xtag.register('p-galleria', {
 
@@ -1237,7 +1236,8 @@ if(!xtag.tags['p-datagrid']) {
         
     });
 
-}if(!xtag.tags['p-growl']) {
+}
+if(!xtag.tags['p-growl']) {
  
     xtag.register('p-growl', {
     
@@ -1277,7 +1277,8 @@ if(!xtag.tags['p-datagrid']) {
         }    
     });
     
-}if(!xtag.tags['p-inputtext']) {
+}
+if(!xtag.tags['p-inputtext']) {
  
     xtag.register('p-inputtext', {
     
@@ -1303,7 +1304,8 @@ if(!xtag.tags['p-datagrid']) {
         
     });
     
-}if(!xtag.tags['p-textarea']) {
+}
+if(!xtag.tags['p-textarea']) {
 
     xtag.register('p-textarea', {
 
@@ -1369,7 +1371,8 @@ if(!xtag.tags['p-datagrid']) {
         
     });
 
-}if(!xtag.tags['p-lightbox']) {
+}
+if(!xtag.tags['p-lightbox']) {
  
     xtag.register('p-lightbox', {
     
@@ -1428,7 +1431,8 @@ if(!xtag.tags['p-datagrid']) {
         
     });
     
-}if(!xtag.tags['p-listbox']) {
+}
+if(!xtag.tags['p-listbox']) {
  
     xtag.register('p-listbox', {
     
@@ -1490,7 +1494,8 @@ if(!xtag.tags['p-datagrid']) {
         
     });
     
-}PUI.createNestedMenuDom = function(tag, element) {
+}
+PUI.createNestedMenuDom = function(tag, element) {
     var children = tag.children();
 
     for(var i = 0; i < children.length; i++) {
@@ -1857,6 +1862,7 @@ if(!xtag.tags['p-contextmenu']) {
     
 }
 
+
 if(!xtag.tags['p-messages']) {
  
     xtag.register('p-messages', {
@@ -1888,7 +1894,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-multiselectlistbox']) {
+}
+if(!xtag.tags['p-multiselectlistbox']) {
  
     xtag.register('p-multiselectlistbox', {
 
@@ -1969,7 +1976,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-notify']) {
+}
+if(!xtag.tags['p-notify']) {
  
     xtag.register('p-notify', {
     
@@ -2038,7 +2046,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-orderlist']) {
+}
+if(!xtag.tags['p-orderlist']) {
  
     xtag.register('p-orderlist', {
     
@@ -2094,7 +2103,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-paginator']) {
+}
+if(!xtag.tags['p-paginator']) {
  
     xtag.register('p-paginator', {
     
@@ -2143,7 +2153,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-panel']) {
+}
+if(!xtag.tags['p-panel']) {
 
     xtag.register('p-panel', {
 
@@ -2229,7 +2240,8 @@ if(!xtag.tags['p-messages']) {
 
     });
 
-}if(!xtag.tags['p-password']) {
+}
+if(!xtag.tags['p-password']) {
  
     xtag.register('p-password', {
 
@@ -2287,7 +2299,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-picklist']) {
+}
+if(!xtag.tags['p-picklist']) {
  
     xtag.register('p-picklist', {
 
@@ -2370,7 +2383,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-progressbar']) {
+}
+if(!xtag.tags['p-progressbar']) {
  
     xtag.register('p-progressbar', {
 
@@ -2423,7 +2437,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-radiobutton']) {
+}
+if(!xtag.tags['p-radiobutton']) {
  
     xtag.register('p-radiobutton', {
     
@@ -2437,7 +2452,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-rating']) {
+}
+if(!xtag.tags['p-rating']) {
 
     xtag.register('p-rating', {
 
@@ -2511,7 +2527,8 @@ if(!xtag.tags['p-messages']) {
         
     });
 
-}if(!xtag.tags['p-selectbutton']) {
+}
+if(!xtag.tags['p-selectbutton']) {
  
     xtag.register('p-selectbutton', {
     
@@ -2571,7 +2588,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-slider']) {
+}
+if(!xtag.tags['p-slider']) {
  
     xtag.register('p-slider', {
 
@@ -2684,7 +2702,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-spinner']) {
+}
+if(!xtag.tags['p-spinner']) {
  
     xtag.register('p-spinner', {
 
@@ -2731,7 +2750,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-splitbutton']) {
+}
+if(!xtag.tags['p-splitbutton']) {
  
     xtag.register('p-splitbutton', {
     
@@ -2810,7 +2830,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-sticky']) {
+}
+if(!xtag.tags['p-sticky']) {
 
     xtag.register('p-sticky', {
 
@@ -2845,7 +2866,8 @@ if(!xtag.tags['p-messages']) {
         
     });
 
-}if(!xtag.tags['p-switch']) {
+}
+if(!xtag.tags['p-switch']) {
  
     xtag.register('p-switch', {
     
@@ -2917,7 +2939,20 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-tabview']) {
+}
+if(!xtag.tags['p-tab']) {
+
+    xtag.register('p-tab', {
+
+        accessors: {
+            title: {
+                attribute: {}
+            }
+        }
+    });
+
+}
+if(!xtag.tags['p-tabview']) {
 
     xtag.register('p-tabview', {
 
@@ -2989,7 +3024,8 @@ if(!xtag.tags['p-messages']) {
 
     });
 
-}if(!xtag.tags['p-terminal']) {
+}
+if(!xtag.tags['p-terminal']) {
  
     xtag.register('p-terminal', {
     
@@ -3028,7 +3064,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-togglebutton']) {
+}
+if(!xtag.tags['p-togglebutton']) {
  
     xtag.register('p-togglebutton', {
     
@@ -3106,7 +3143,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-tooltip']) {
+}
+if(!xtag.tags['p-tooltip']) {
  
     xtag.register('p-tooltip', {
     
@@ -3170,7 +3208,8 @@ if(!xtag.tags['p-messages']) {
         
     });
     
-}if(!xtag.tags['p-treeicon']) {
+}
+if(!xtag.tags['p-treeicon']) {
  
     xtag.register('p-treeicon', {
     
@@ -3304,7 +3343,8 @@ if(!xtag.tags['p-tree']) {
         
     });
     
-}if(!xtag.tags['p-treetable']) {
+}
+if(!xtag.tags['p-treetable']) {
  
     xtag.register('p-treetable', {
     

@@ -1,20 +1,3 @@
-/*
- * PrimeUI 4.1.2
- * 
- * Copyright 2009-2015 PrimeTek.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /**
  * PUI Object 
  */
@@ -261,7 +244,8 @@ var PUI = {
 
 };
 
-PUI.resolveUserAgent();/**
+PUI.resolveUserAgent();
+/**
  * PrimeUI Accordion widget
  */
 (function() {
@@ -434,7 +418,8 @@ PUI.resolveUserAgent();/**
         }
         
     });
-})();/**
+})();
+/**
  * PrimeUI autocomplete widget
  */
 (function() {
@@ -877,7 +862,8 @@ PUI.resolveUserAgent();/**
         }
     });
     
-})();/**
+})();
+/**
  * PrimeFaces Button Widget
  */
 (function() {
@@ -994,7 +980,8 @@ PUI.resolveUserAgent();/**
         }
         
     });
-})();/**
+})();
+/**
  * PrimeUI Carousel widget
  */
 (function() {
@@ -1365,7 +1352,8 @@ PUI.resolveUserAgent();/**
 
     });
     
-})();/**
+})();
+/**
  * PrimeUI checkbox widget
  */
 (function() {
@@ -1512,7 +1500,419 @@ PUI.resolveUserAgent();/**
 
     });
     
-})();/**
+})();
+/**
+ * PrimeUI Datagrid Widget
+ */
+(function() {
+
+    $.widget("primeui.puidatagrid", {
+       
+        options: {
+            columns: 3,
+            datasource: null,
+            paginator: null,
+            header: null,
+            footer: null,
+            content: null,
+            lazy: false,
+            template: null
+        },
+        
+        _create: function() {
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+                        
+            this.element.addClass('ui-datagrid ui-widget');
+            
+            //header
+            if(this.options.header) {
+                this.element.append('<div class="ui-datagrid-header ui-widget-header ui-corner-top">' + this.options.header + '</div>');
+            }
+            
+            //content
+            this.content = $('<div class="ui-datagrid-content ui-widget-content ui-datagrid-col-' + this.options.columns + '"></div>').appendTo(this.element);
+            
+            //footer
+            if(this.options.footer) {
+                this.element.append('<div class="ui-datagrid-footer ui-widget-header ui-corner-top">' + this.options.footer + '</div>');
+            }
+            
+            //data
+            if(this.options.datasource) {
+                this._initDatasource();
+            }
+        },
+        
+        _onDataInit: function(data) {
+            this._onDataUpdate(data);
+            this._initPaginator();
+        },
+                
+        _onDataUpdate: function(data) {
+            this.data = data;
+            if(!this.data) {
+                this.data = [];
+            }
+            
+            this.reset();
+                
+            this._renderData();
+        },
+        
+        _onLazyLoad: function(data) {
+            this.data = data;
+            if(!this.data) {
+                this.data = [];
+            }
+            
+            this._renderData();
+        },
+        
+        reset: function() {            
+            if(this.paginator) {
+                this.paginator.puipaginator('setState', {
+                    page: 0,
+                    totalRecords: this.options.lazy ? this.options.paginator.totalRecords : this.data.length
+                });
+            }
+        },
+                
+        paginate: function() {
+            if(this.options.lazy) {
+                this.options.datasource.call(this, this._onLazyLoad, this._createStateMeta());
+            }
+            else {
+               this._renderData();
+            }
+        },
+               
+        _renderData: function() {
+            if(this.data) {
+                this.content.html('');
+                
+                var firstNonLazy = this._getFirst(),
+                first = this.options.lazy ? 0 : firstNonLazy,
+                rows = this._getRows(),
+                gridRow = null;
+
+                for(var i = first; i < (first + rows); i++) {
+                    var dataValue = this.data[i];
+                    
+                    if(dataValue) {                        
+                        var gridColumn = $('<div></div>').appendTo(this.content),
+                        markup = this._createItemContent(dataValue);
+                        gridColumn.append(markup);
+                    }
+                }
+            }
+        },
+                                
+        _getFirst: function() {
+            if(this.paginator) {
+                var page = this.paginator.puipaginator('option', 'page'),
+                rows = this.paginator.puipaginator('option', 'rows');
+                
+                return (page * rows);
+            }
+            else {
+                return 0;
+            }
+        },
+        
+        _getRows: function() {
+            if(this.options.paginator)
+                return this.paginator ? this.paginator.puipaginator('option', 'rows') : this.options.paginator.rows; 
+            else
+                return this.data ? this.data.length : 0;
+        },
+            
+        _createStateMeta: function() {
+            var state = {
+                first: this._getFirst(),
+                rows: this._getRows()
+            };
+            
+            return state;
+        },
+        
+        _initPaginator: function() {
+            var $this = this;
+            if(this.options.paginator) {
+                this.options.paginator.paginate = function(event, state) {
+                    $this.paginate();
+                };
+                
+                this.options.paginator.totalRecords = this.options.lazy ? this.options.paginator.totalRecords : this.data.length;
+                this.paginator = $('<div></div>').insertAfter(this.content).puipaginator(this.options.paginator);
+            }
+        },
+        
+        _initDatasource: function() {
+            if($.isArray(this.options.datasource)) {
+                this._onDataInit(this.options.datasource);
+            }
+            else {
+                if($.type(this.options.datasource) === 'string') {
+                    var $this = this,
+                    dataURL = this.options.datasource;
+
+                    this.options.datasource = function() {
+                        $.ajax({
+                            type: 'GET',
+                            url: dataURL,
+                            dataType: "json",
+                            context: $this,
+                            success: function (response) {
+                                this._onDataInit(response);
+                            }
+                        });
+                    };
+                }
+                
+                if($.type(this.options.datasource) === 'function') {
+                    if(this.options.lazy)
+                        this.options.datasource.call(this, this._onDataInit, {first:0, rows: this._getRows()});
+                    else
+                        this.options.datasource.call(this, this._onDataInit);
+                }
+            }
+        },
+                
+        _updateDatasource: function(datasource) {
+            this.options.datasource = datasource;
+            
+            if($.isArray(this.options.datasource)) {
+                this._onDataUpdate(this.options.datasource);
+            }
+            else if($.type(this.options.datasource) === 'function') {
+                if(this.options.lazy)
+                    this.options.datasource.call(this, this._onDataUpdate, {first:0, rows: this._getRows()});
+                else
+                    this.options.datasource.call(this, this._onDataUpdate);
+            }
+        },
+                
+        _setOption: function(key, value) {
+            if(key === 'datasource') {
+                this._updateDatasource(value);
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
+        },
+        
+        _createItemContent: function(obj) {
+            if(this.options.template) {
+                var templateContent = this.options.template.html();
+                Mustache.parse(templateContent);
+                return Mustache.render(templateContent, obj);
+            }
+            else {
+                return this.options.content.call(this, obj);
+            }
+        }
+        
+    });
+})();
+/**
+ * PrimeUI Datascroller Widget
+ */
+(function() {
+
+    $.widget("primeui.puidatascroller", {
+       
+        options: {
+            header: null,
+            buffer: 0.9,
+            chunkSize: 10,
+            datasource: null,
+            lazy: false,
+            content: null,
+            template: null,
+            mode: 'document',
+            loader: null,
+            scrollHeight: null,
+            totalSize: null
+        },
+        
+        _create: function() {
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+            
+            this.element.addClass('ui-datascroller ui-widget');
+            if(this.options.header) {
+                this.header = this.element.append('<div class="ui-datascroller-header ui-widget-header ui-corner-top">' + this.options.header + '</div>').children('.ui-datascroller-header');
+            }
+            
+            this.content = this.element.append('<div class="ui-datascroller-content ui-widget-content ui-corner-bottom"></div>').children('.ui-datascroller-content');
+            this.list = this.content.append('<ul class="ui-datascroller-list"></ul>').children('.ui-datascroller-list');
+            this.loaderContainer = this.content.append('<div class="ui-datascroller-loader"></div>').children('.ui-datascroller-loader');
+            this.loadStatus = $('<div class="ui-datascroller-loading"></div>');
+            this.loading = false;
+            this.allLoaded = false;
+            this.offset = 0;
+            
+            if(this.options.mode === 'self') {
+                this.element.addClass('ui-datascroller-inline');
+                
+                if(this.options.scrollHeight) {
+                    this.content.css('height', this.options.scrollHeight);
+                }
+            }
+            
+            if(this.options.loader) {
+                this.bindManualLoader();
+            }
+            else {
+                this.bindScrollListener();
+            }
+
+            if(this.options.datasource) {
+                if($.isArray(this.options.datasource)) {
+                    this._onDataInit(this.options.datasource);
+                }
+                else {
+                    if($.type(this.options.datasource) === 'string') {
+                        var $this = this,
+                        dataURL = this.options.datasource;
+                
+                        this.options.datasource = function() {
+                            $.ajax({
+                                type: 'GET',
+                                url: dataURL,
+                                dataType: "json",
+                                context: $this,
+                                success: function (response) {
+                                    this._onDataInit(response);
+                                }
+                            });
+                        };
+                    }
+                    
+                    if($.type(this.options.datasource) === 'function') {
+                        if(this.options.lazy)
+                            this.options.datasource.call(this, this._onLazyLoad, {first:this.offset});
+                        else
+                            this.options.datasource.call(this, this._onDataInit);
+                    }
+                }
+            }
+        },
+        
+        _onDataInit: function(data) {
+            this.data = data||[];
+            this.options.totalSize = this.data.length;
+            
+            this._load();
+        },
+        
+        _onLazyLoad: function(data) {
+            this._renderData(data, 0, this.options.chunkSize);
+            
+            this._onloadComplete();
+        },
+        
+        bindScrollListener: function() {
+            var $this = this;
+
+            if(this.options.mode === 'document') {
+                var win = $(window),
+                doc = $(document),
+                $this = this,
+                NS = 'scroll.' + this.id;
+
+                win.off(NS).on(NS, function () {
+                    if(win.scrollTop() >= ((doc.height() * $this.options.buffer) - win.height()) && $this.shouldLoad()) {
+                        $this._load();
+                    }
+                });
+            }
+            else {
+                this.content.on('scroll', function () {
+                    var scrollTop = this.scrollTop,
+                    scrollHeight = this.scrollHeight,
+                    viewportHeight = this.clientHeight;
+
+                    if((scrollTop >= ((scrollHeight * $this.options.buffer) - (viewportHeight))) && $this.shouldLoad()) {
+                        $this._load();
+                    }
+                });
+            }
+        },
+
+        bindManualLoader: function() {
+            var $this = this;
+
+            this.options.loader.on('click.dataScroller', function(e) {
+                $this._load();
+                e.preventDefault();
+            });
+        },
+
+        _load: function() {
+            this.loading = true;
+            this.loadStatus.appendTo(this.loaderContainer);
+            if(this.options.loader) {
+                this.options.loader.hide();
+            }
+
+            if(this.options.lazy) {
+                this.options.datasource.call(this, this._onLazyLoad, {first: this.offset});
+            }
+            else {
+               this._renderData(this.data, this.offset, (this.offset + this.options.chunkSize));
+               this._onloadComplete();
+            }
+        },
+        
+        _renderData: function(data, start, end) {
+            if(data && data.length) {
+                for(var i = start; i < end; i++) {
+                    var listItem = $('<li class="ui-datascroller-item"></li>'),
+                    content = this._createItemContent(data[i]);
+                    listItem.append(content);
+                    
+                    this.list.append(listItem); 
+                }
+            }
+        },
+        
+        shouldLoad: function() {
+            return (!this.loading && !this.allLoaded);
+        },
+        
+        _createItemContent: function(obj) {
+            if(this.options.template) {
+                var template = this.options.template.html();
+                Mustache.parse(template);
+                return Mustache.render(template, obj);
+            }
+            else {
+                return this.options.content.call(this, obj);
+            }
+        },
+        
+        _onloadComplete: function() {
+            this.offset += this.options.chunkSize;
+            this.loading = false;
+            this.allLoaded = this.offset >= this.options.totalSize;
+
+            this.loadStatus.remove();
+
+            if(this.options.loader && !this.allLoaded) {
+                this.options.loader.show();
+            }
+        }
+        
+    });
+    
+})();
+/**
  * PrimeUI Datatable Widget
  */
 (function() {
@@ -3319,420 +3719,8 @@ PUI.resolveUserAgent();/**
 
     });
 })();
+
 /**
- * PrimeUI Datagrid Widget
- */
-(function() {
-
-    $.widget("primeui.puidatagrid", {
-       
-        options: {
-            columns: 3,
-            datasource: null,
-            paginator: null,
-            header: null,
-            footer: null,
-            content: null,
-            lazy: false,
-            template: null
-        },
-        
-        _create: function() {
-            this.id = this.element.attr('id');
-            if(!this.id) {
-                this.id = this.element.uniqueId().attr('id');
-            }
-                        
-            this.element.addClass('ui-datagrid ui-widget');
-            
-            //header
-            if(this.options.header) {
-                this.element.append('<div class="ui-datagrid-header ui-widget-header ui-corner-top">' + this.options.header + '</div>');
-            }
-            
-            //content
-            this.content = $('<div class="ui-datagrid-content ui-widget-content ui-grid ui-grid-responsive"></div>').appendTo(this.element);
-            
-            //footer
-            if(this.options.footer) {
-                this.element.append('<div class="ui-datagrid-footer ui-widget-header ui-corner-top">' + this.options.footer + '</div>');
-            }
-            
-            //data
-            if(this.options.datasource) {
-                this._initDatasource();
-            }
-        },
-        
-        _onDataInit: function(data) {
-            this._onDataUpdate(data);
-            this._initPaginator();
-        },
-                
-        _onDataUpdate: function(data) {
-            this.data = data;
-            if(!this.data) {
-                this.data = [];
-            }
-            
-            this.reset();
-                
-            this._renderData();
-        },
-        
-        _onLazyLoad: function(data) {
-            this.data = data;
-            if(!this.data) {
-                this.data = [];
-            }
-            
-            this._renderData();
-        },
-        
-        reset: function() {            
-            if(this.paginator) {
-                this.paginator.puipaginator('setState', {
-                    page: 0,
-                    totalRecords: this.options.lazy ? this.options.paginator.totalRecords : this.data.length
-                });
-            }
-        },
-                
-        paginate: function() {
-            if(this.options.lazy) {
-                this.options.datasource.call(this, this._onLazyLoad, this._createStateMeta());
-            }
-            else {
-               this._renderData();
-            }
-        },
-               
-        _renderData: function() {
-            if(this.data) {
-                this.content.html('');
-                
-                var firstNonLazy = this._getFirst(),
-                first = this.options.lazy ? 0 : firstNonLazy,
-                rows = this._getRows(),
-                gridRow = null;
-
-                for(var i = first; i < (first + rows); i++) {
-                    var dataValue = this.data[i];
-                    
-                    if(dataValue) {
-                        if(i % this.options.columns === 0) {
-                            gridRow = $('<div class="ui-grid-row"></div>').appendTo(this.content);
-                        }
-                        
-                        var gridColumn = $('<div class="ui-datagrid-column ' + PUI.getGridColumn(this.options.columns) + '"></div>').appendTo(gridRow),
-                        markup = this._createItemContent(dataValue);
-                        gridColumn.append(markup);
-                    }
-                }
-            }
-        },
-                                
-        _getFirst: function() {
-            if(this.paginator) {
-                var page = this.paginator.puipaginator('option', 'page'),
-                rows = this.paginator.puipaginator('option', 'rows');
-                
-                return (page * rows);
-            }
-            else {
-                return 0;
-            }
-        },
-        
-        _getRows: function() {
-            if(this.options.paginator)
-                return this.paginator ? this.paginator.puipaginator('option', 'rows') : this.options.paginator.rows; 
-            else
-                return this.data ? this.data.length : 0;
-        },
-            
-        _createStateMeta: function() {
-            var state = {
-                first: this._getFirst(),
-                rows: this._getRows()
-            };
-            
-            return state;
-        },
-        
-        _initPaginator: function() {
-            var $this = this;
-            if(this.options.paginator) {
-                this.options.paginator.paginate = function(event, state) {
-                    $this.paginate();
-                };
-                
-                this.options.paginator.totalRecords = this.options.lazy ? this.options.paginator.totalRecords : this.data.length;
-                this.paginator = $('<div></div>').insertAfter(this.content).puipaginator(this.options.paginator);
-            }
-        },
-        
-        _initDatasource: function() {
-            if($.isArray(this.options.datasource)) {
-                this._onDataInit(this.options.datasource);
-            }
-            else {
-                if($.type(this.options.datasource) === 'string') {
-                    var $this = this,
-                    dataURL = this.options.datasource;
-
-                    this.options.datasource = function() {
-                        $.ajax({
-                            type: 'GET',
-                            url: dataURL,
-                            dataType: "json",
-                            context: $this,
-                            success: function (response) {
-                                this._onDataInit(response);
-                            }
-                        });
-                    };
-                }
-                
-                if($.type(this.options.datasource) === 'function') {
-                    if(this.options.lazy)
-                        this.options.datasource.call(this, this._onDataInit, {first:0, rows: this._getRows()});
-                    else
-                        this.options.datasource.call(this, this._onDataInit);
-                }
-            }
-        },
-                
-        _updateDatasource: function(datasource) {
-            this.options.datasource = datasource;
-            
-            if($.isArray(this.options.datasource)) {
-                this._onDataUpdate(this.options.datasource);
-            }
-            else if($.type(this.options.datasource) === 'function') {
-                if(this.options.lazy)
-                    this.options.datasource.call(this, this._onDataUpdate, {first:0, rows: this._getRows()});
-                else
-                    this.options.datasource.call(this, this._onDataUpdate);
-            }
-        },
-                
-        _setOption: function(key, value) {
-            if(key === 'datasource') {
-                this._updateDatasource(value);
-            }
-            else {
-                $.Widget.prototype._setOption.apply(this, arguments);
-            }
-        },
-        
-        _createItemContent: function(obj) {
-            if(this.options.template) {
-                var templateContent = this.options.template.html();
-                Mustache.parse(templateContent);
-                return Mustache.render(templateContent, obj);
-            }
-            else {
-                return this.options.content.call(this, obj);
-            }
-        }
-        
-    });
-})();/**
- * PrimeUI Datascroller Widget
- */
-(function() {
-
-    $.widget("primeui.puidatascroller", {
-       
-        options: {
-            header: null,
-            buffer: 0.9,
-            chunkSize: 10,
-            datasource: null,
-            lazy: false,
-            content: null,
-            template: null,
-            mode: 'document',
-            loader: null,
-            scrollHeight: null,
-            totalSize: null
-        },
-        
-        _create: function() {
-            this.id = this.element.attr('id');
-            if(!this.id) {
-                this.id = this.element.uniqueId().attr('id');
-            }
-            
-            this.element.addClass('ui-datascroller ui-widget');
-            if(this.options.header) {
-                this.header = this.element.append('<div class="ui-datascroller-header ui-widget-header ui-corner-top">' + this.options.header + '</div>').children('.ui-datascroller-header');
-            }
-            
-            this.content = this.element.append('<div class="ui-datascroller-content ui-widget-content ui-corner-bottom"></div>').children('.ui-datascroller-content');
-            this.list = this.content.append('<ul class="ui-datascroller-list"></ul>').children('.ui-datascroller-list');
-            this.loaderContainer = this.content.append('<div class="ui-datascroller-loader"></div>').children('.ui-datascroller-loader');
-            this.loadStatus = $('<div class="ui-datascroller-loading"></div>');
-            this.loading = false;
-            this.allLoaded = false;
-            this.offset = 0;
-            
-            if(this.options.mode === 'self') {
-                this.element.addClass('ui-datascroller-inline');
-                
-                if(this.options.scrollHeight) {
-                    this.content.css('height', this.options.scrollHeight);
-                }
-            }
-            
-            if(this.options.loader) {
-                this.bindManualLoader();
-            }
-            else {
-                this.bindScrollListener();
-            }
-
-            if(this.options.datasource) {
-                if($.isArray(this.options.datasource)) {
-                    this._onDataInit(this.options.datasource);
-                }
-                else {
-                    if($.type(this.options.datasource) === 'string') {
-                        var $this = this,
-                        dataURL = this.options.datasource;
-                
-                        this.options.datasource = function() {
-                            $.ajax({
-                                type: 'GET',
-                                url: dataURL,
-                                dataType: "json",
-                                context: $this,
-                                success: function (response) {
-                                    this._onDataInit(response);
-                                }
-                            });
-                        };
-                    }
-                    
-                    if($.type(this.options.datasource) === 'function') {
-                        if(this.options.lazy)
-                            this.options.datasource.call(this, this._onLazyLoad, {first:this.offset});
-                        else
-                            this.options.datasource.call(this, this._onDataInit);
-                    }
-                }
-            }
-        },
-        
-        _onDataInit: function(data) {
-            this.data = data||[];
-            this.options.totalSize = this.data.length;
-            
-            this._load();
-        },
-        
-        _onLazyLoad: function(data) {
-            this._renderData(data, 0, this.options.chunkSize);
-            
-            this._onloadComplete();
-        },
-        
-        bindScrollListener: function() {
-            var $this = this;
-
-            if(this.options.mode === 'document') {
-                var win = $(window),
-                doc = $(document),
-                $this = this,
-                NS = 'scroll.' + this.id;
-
-                win.off(NS).on(NS, function () {
-                    if(win.scrollTop() >= ((doc.height() * $this.options.buffer) - win.height()) && $this.shouldLoad()) {
-                        $this._load();
-                    }
-                });
-            }
-            else {
-                this.content.on('scroll', function () {
-                    var scrollTop = this.scrollTop,
-                    scrollHeight = this.scrollHeight,
-                    viewportHeight = this.clientHeight;
-
-                    if((scrollTop >= ((scrollHeight * $this.options.buffer) - (viewportHeight))) && $this.shouldLoad()) {
-                        $this._load();
-                    }
-                });
-            }
-        },
-
-        bindManualLoader: function() {
-            var $this = this;
-
-            this.options.loader.on('click.dataScroller', function(e) {
-                $this._load();
-                e.preventDefault();
-            });
-        },
-
-        _load: function() {
-            this.loading = true;
-            this.loadStatus.appendTo(this.loaderContainer);
-            if(this.options.loader) {
-                this.options.loader.hide();
-            }
-
-            if(this.options.lazy) {
-                this.options.datasource.call(this, this._onLazyLoad, {first: this.offset});
-            }
-            else {
-               this._renderData(this.data, this.offset, (this.offset + this.options.chunkSize));
-               this._onloadComplete();
-            }
-        },
-        
-        _renderData: function(data, start, end) {
-            if(data && data.length) {
-                for(var i = start; i < end; i++) {
-                    var listItem = $('<li class="ui-datascroller-item"></li>'),
-                    content = this._createItemContent(data[i]);
-                    listItem.append(content);
-                    
-                    this.list.append(listItem); 
-                }
-            }
-        },
-        
-        shouldLoad: function() {
-            return (!this.loading && !this.allLoaded);
-        },
-        
-        _createItemContent: function(obj) {
-            if(this.options.template) {
-                var template = this.options.template.html();
-                Mustache.parse(template);
-                return Mustache.render(template, obj);
-            }
-            else {
-                return this.options.content.call(this, obj);
-            }
-        },
-        
-        _onloadComplete: function() {
-            this.offset += this.options.chunkSize;
-            this.loading = false;
-            this.allLoaded = this.offset >= this.options.totalSize;
-
-            this.loadStatus.remove();
-
-            if(this.options.loader && !this.allLoaded) {
-                this.options.loader.show();
-            }
-        }
-        
-    });
-    
-})();/**
  * PrimeUI Dialog Widget
  */
 (function() {
@@ -4088,6 +4076,7 @@ PUI.resolveUserAgent();/**
 
                     if(e.which === keyCode.ESCAPE && $this.element.is(':visible') && active) {
                         $this.hide();
+                        $this._trigger('hideWithEscape');
                     }
                 });
             }
@@ -4335,7 +4324,8 @@ PUI.resolveUserAgent();/**
             }
         }
     });
-})();/**
+})();
+/**
  * PrimeUI dropdown widget
  */
 (function() {
@@ -5127,7 +5117,8 @@ PUI.resolveUserAgent();/**
         }
     });
 
-})();/**
+})();
+/**
  * PrimeFaces Fieldset Widget
  */
 (function() {
@@ -5224,7 +5215,8 @@ PUI.resolveUserAgent();/**
         }
         
     });
-})();/**
+})();
+/**
  * PrimeUI Lightbox Widget
  */
 (function() {
@@ -5470,7 +5462,8 @@ PUI.resolveUserAgent();/**
             return this.strip.is(':animated');
         }
     });
-})();/**
+})();
+/**
  * PrimeFaces Growl Widget
  */
 (function() {
@@ -5637,7 +5630,8 @@ PUI.resolveUserAgent();/**
             }
         }
     });
-})();/**
+})();
+/**
  * PrimeUI inputtext widget
  */
 (function() {
@@ -5716,7 +5710,8 @@ PUI.resolveUserAgent();/**
         
     });
     
-})();/**
+})();
+/**
  * PrimeUI inputtextarea widget
  */
 (function() {
@@ -6112,7 +6107,8 @@ PUI.resolveUserAgent();/**
         }
     });
     
-})();/**
+})();
+/**
  * PrimeUI Lightbox Widget
  */
 (function() {
@@ -6483,7 +6479,8 @@ PUI.resolveUserAgent();/**
             this.show();
         }
     });
-})();/**
+})();
+/**
  * PrimeUI listvox widget
  */
 (function() {
@@ -6872,6 +6869,7 @@ PUI.resolveUserAgent();/**
     });
 
 })();
+
 /**
  * PrimeUI BaseMenu widget
  */
@@ -8844,6 +8842,7 @@ PUI.resolveUserAgent();/**
     });
 
 })();
+
 /**
  * PrimeUI Messages widget
  */
@@ -8926,7 +8925,8 @@ PUI.resolveUserAgent();/**
         
     });
     
-})();(function() {
+})();
+(function() {
 
     $.widget("primeui.puimultiselectlistbox", {
        
@@ -9096,6 +9096,7 @@ PUI.resolveUserAgent();/**
     
 })();
 
+
 /**
  * PrimeFaces Notify Widget
  */
@@ -9174,7 +9175,8 @@ PUI.resolveUserAgent();/**
             this.content.html(content);
         }
     });
-})();/**
+})();
+/**
  * PrimeUI picklist widget
  */
 (function() {
@@ -9608,7 +9610,8 @@ PUI.resolveUserAgent();/**
         
     });
         
-})();/**
+})();
+/**
  * PrimeUI Paginator Widget
  */
 (function() {
@@ -9920,7 +9923,8 @@ PUI.resolveUserAgent();/**
             this.setPage(0, true);
         }
     });
-})();/**
+})();
+/**
  * PrimeUI Panel Widget
  */
 (function() {
@@ -10121,7 +10125,8 @@ PUI.resolveUserAgent();/**
             }
         }
     });
-})();/**
+})();
+/**
  * PrimeUI password widget
  */
 (function() {
@@ -10314,7 +10319,8 @@ PUI.resolveUserAgent();/**
 
     });
     
-})();/**
+})();
+/**
  * PrimeUI picklist widget
  */
 (function() {
@@ -10884,7 +10890,8 @@ PUI.resolveUserAgent();/**
         }
     });
         
-})();/**
+})();
+/**
  * PrimeUI progressbar widget
  */
 (function() {
@@ -10975,7 +10982,8 @@ PUI.resolveUserAgent();/**
         
     });
     
-})();/**
+})();
+/**
  * PrimeUI radiobutton widget
  */
 (function() {
@@ -11094,7 +11102,8 @@ PUI.resolveUserAgent();/**
         }
     });
     
-})();/**
+})();
+/**
  * PrimeUI rating widget
  */
 (function() {
@@ -11228,7 +11237,8 @@ PUI.resolveUserAgent();/**
         }
     });
     
-})();/**
+})();
+/**
  * PrimeUI SelectButton Widget
  */
 (function() {
@@ -11456,7 +11466,8 @@ PUI.resolveUserAgent();/**
 
     });
 
-})();/**
+})();
+/**
  * PrimeUI spinner widget
  */
 (function() {
@@ -11725,7 +11736,8 @@ PUI.resolveUserAgent();/**
             }
         }
     });
-})();/**
+})();
+/**
  * PrimeFaces SplitButton Widget
  */
 (function() {
@@ -11864,7 +11876,8 @@ PUI.resolveUserAgent();/**
             this.menuButton.puibutton('enable');
         }
     });
-})();/**
+})();
+/**
  * PrimeUI sticky widget
  */
 (function() {
@@ -11936,7 +11949,8 @@ PUI.resolveUserAgent();/**
         
     });
     
-})();/**
+})();
+/**
  * PrimeUI Switch Widget
  */
 (function() {
@@ -12120,7 +12134,8 @@ PUI.resolveUserAgent();/**
         },
     });
 
-})();/**
+})();
+/**
  * PrimeUI tabview widget
  */
 (function() {
@@ -12328,7 +12343,8 @@ PUI.resolveUserAgent();/**
         }
 
     });
-})();/**
+})();
+/**
  * PrimeUI Terminal widget
  */
 (function() {
@@ -12422,7 +12438,8 @@ PUI.resolveUserAgent();/**
             this.input.val('');
         }                       
     });
-})();/**
+})();
+/**
  * PrimeUI togglebutton widget
  */
 (function() {
@@ -12596,7 +12613,8 @@ PUI.resolveUserAgent();/**
         
     });
     
-})();/**
+})();
+/**
  * PrimeFaces Tooltip Widget
  */
 (function() {
@@ -12720,7 +12738,8 @@ PUI.resolveUserAgent();/**
             });
         }
     });
-})();/**
+})();
+/**
  * PrimeUI Tree widget
  */
 (function() {
@@ -13008,7 +13027,8 @@ PUI.resolveUserAgent();/**
         }
     });
     
-})();/**
+})();
+/**
  * PrimeUI TreeTable widget
  */
 (function() {
@@ -13330,7 +13350,8 @@ PUI.resolveUserAgent();/**
     });
     
 })();
-            /**
+            
+/**
  * PrimeUI ColResize widget
  */
 (function() {
