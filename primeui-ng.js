@@ -246,450 +246,6 @@ var PUI = {
 
 PUI.resolveUserAgent();
 /**
- * PrimeUI autocomplete widget
- */
-(function() {
-
-    $.widget("primeui.puiautocomplete", {
-       
-        options: {
-            delay: 300,
-            minQueryLength: 1,
-            multiple: false,
-            dropdown: false,
-            scrollHeight: 200,
-            forceSelection: false,
-            effect:null,
-            effectOptions: {},
-            effectSpeed: 'normal',
-            content: null,
-            caseSensitive: false
-        },
-
-        _create: function() {
-            this.element.wrap('<span class="ui-autocomplete ui-widget" />');
-            this.element.puiinputtext();
-            this.panel = $('<div class="ui-autocomplete-panel ui-widget-content ui-corner-all ui-helper-hidden ui-shadow"></div>').appendTo('body');
-            
-            if(this.options.multiple) {
-                this.element.wrap('<ul class="ui-autocomplete-multiple ui-widget ui-inputtext ui-state-default ui-corner-all">' + 
-                                        '<li class="ui-autocomplete-input-token"></li></ul>');
-                this.inputContainer = this.element.parent();
-                this.multiContainer = this.inputContainer.parent();
-            }
-            else {
-                if(this.options.dropdown) {
-                    this.dropdown = $('<button type="button" class="ui-autocomplete-dropdown ui-button ui-widget ui-state-default ui-corner-right ui-button-icon-only">' +
-                        '<span class="fa fa-fw fa-caret-down"></span><span class="ui-button-text">&nbsp;</span></button>')
-                        .insertAfter(this.element);
-                    this.element.removeClass('ui-corner-all').addClass('ui-corner-left');
-                }
-            }
-
-            this._bindEvents();
-        },
-                
-        _bindEvents: function() {
-            var $this = this;
- 
-            this._bindKeyEvents();
-            
-            if(this.options.dropdown) {
-                this.dropdown.on('mouseenter.puiautocomplete', function() {
-                    if(!$this.element.prop('disabled')) {
-                        $this.dropdown.addClass('ui-state-hover');
-                    }
-                })
-                .on('mouseleave.puiautocomplete', function() {
-                    $this.dropdown.removeClass('ui-state-hover');
-                })
-                .on('mousedown.puiautocomplete', function() {
-                    if(!$this.element.prop('disabled')) {
-                        $this.dropdown.addClass('ui-state-active');
-                    }
-                })
-                .on('mouseup.puiautocomplete', function() {
-                    if(!$this.element.prop('disabled')) {
-                        $this.dropdown.removeClass('ui-state-active');
-                        $this.search('');
-                        $this.element.focus();
-                    }
-                })
-                .on('focus.puiautocomplete', function() {
-                    $this.dropdown.addClass('ui-state-focus');
-                })
-                .on('blur.puiautocomplete', function() {
-                    $this.dropdown.removeClass('ui-state-focus');
-                })
-                .on('keydown.puiautocomplete', function(e) {
-                    var keyCode = $.ui.keyCode;
-
-                    if(e.which == keyCode.ENTER || e.which == keyCode.NUMPAD_ENTER) {
-                        $this.search('');
-                        $this.input.focus();
-
-                        e.preventDefault();
-                    }
-                });
-            }
-            
-            if(this.options.multiple) {
-                this.multiContainer.on('hover.puiautocomplete', function() {
-                    $(this).toggleClass('ui-state-hover');
-                })
-                .on('click.puiautocomplete', function() {
-                    $this.element.trigger('focus');
-                });
-
-                this.element.on('focus.ui-autocomplete', function() {
-                    $this.multiContainer.addClass('ui-state-focus');
-                })
-                .on('blur.ui-autocomplete', function(e) {
-                    $this.multiContainer.removeClass('ui-state-focus');
-                });
-            }
-            
-            if(this.options.forceSelection) {
-                this.currentItems = [this.element.val()];
-
-                this.element.on('blur.puiautocomplete', function() {
-                    var value = $(this).val(),
-                    valid = false;
-                    
-                    for(var i = 0; i < $this.currentItems.length; i++) {
-                        if($this.currentItems[i] === value) {
-                            valid = true;
-                            break;
-                        }
-                    }
-
-                    if(!valid) {
-                        $this.element.val('');
-                    }
-                });
-            }
-
-            $(document.body).bind('mousedown.puiautocomplete', function (e) {
-                if($this.panel.is(":hidden")) {
-                    return;
-                }
-                
-                if(e.target === $this.element.get(0)) {
-                    return;
-                }
-                
-                var offset = $this.panel.offset();
-                if (e.pageX < offset.left ||
-                    e.pageX > offset.left + $this.panel.width() ||
-                    e.pageY < offset.top ||
-                    e.pageY > offset.top + $this.panel.height()) {
-                    $this.hide();
-                }
-            });
-
-            $(window).bind('resize.' + this.element.id, function() {
-                if($this.panel.is(':visible')) {
-                    $this._alignPanel();
-                }
-            });
-        },
-        
-        _bindKeyEvents: function() {
-            var $this = this;
-
-            this.element.on('keyup.puiautocomplete', function(e) {
-                var keyCode = $.ui.keyCode,
-                key = e.which,
-                shouldSearch = true;
-
-                if(key == keyCode.UP ||
-                    key == keyCode.LEFT ||
-                    key == keyCode.DOWN ||
-                    key == keyCode.RIGHT ||
-                    key == keyCode.TAB ||
-                    key == keyCode.SHIFT ||
-                    key == keyCode.ENTER ||
-                    key == keyCode.NUMPAD_ENTER) {
-                    shouldSearch = false;
-                } 
-
-                if(shouldSearch) {
-                    var value = $this.element.val();
-
-                    if(!value.length) {
-                        $this.hide();
-                    }
-
-                    if(value.length >= $this.options.minQueryLength) {
-                        if($this.timeout) {
-                            window.clearTimeout($this.timeout);
-                        }
-
-                        $this.timeout = window.setTimeout(function() {
-                            $this.search(value);
-                        }, 
-                        $this.options.delay);
-                    }
-                }
-
-            }).on('keydown.puiautocomplete', function(e) {
-                if($this.panel.is(':visible')) {
-                    var keyCode = $.ui.keyCode,
-                    highlightedItem = $this.items.filter('.ui-state-highlight');
-
-                    switch(e.which) {
-                        case keyCode.UP:
-                        case keyCode.LEFT:
-                            var prev = highlightedItem.prev();
-
-                            if(prev.length == 1) {
-                                highlightedItem.removeClass('ui-state-highlight');
-                                prev.addClass('ui-state-highlight');
-
-                                if($this.options.scrollHeight) {
-                                    PUI.scrollInView($this.panel, prev);
-                                }
-                            }
-
-                            e.preventDefault();
-                            break;
-
-                        case keyCode.DOWN:
-                        case keyCode.RIGHT:
-                            var next = highlightedItem.next();
-
-                            if(next.length == 1) {
-                                highlightedItem.removeClass('ui-state-highlight');
-                                next.addClass('ui-state-highlight');
-
-                                if($this.options.scrollHeight) {
-                                    PUI.scrollInView($this.panel, next);
-                                }
-                            }
-
-                            e.preventDefault();
-                            break;
-
-                        case keyCode.ENTER:
-                        case keyCode.NUMPAD_ENTER:
-                            highlightedItem.trigger('click');
-
-                            e.preventDefault();
-                            break;
-
-                        case keyCode.ALT: 
-                        case 224:
-                            break;
-
-                        case keyCode.TAB:
-                            highlightedItem.trigger('click');
-                            $this.hide();
-                            break;
-                    }
-                }
-
-            });
-        },
-
-        _bindDynamicEvents: function() {
-            var $this = this;
-
-            this.items.on('mouseover.puiautocomplete', function() {
-                var item = $(this);
-
-                if(!item.hasClass('ui-state-highlight')) {
-                    $this.items.filter('.ui-state-highlight').removeClass('ui-state-highlight');
-                    item.addClass('ui-state-highlight');
-                }
-            })
-            .on('click.puiautocomplete', function(event) {
-                var item = $(this);
-                
-                if($this.options.multiple) {
-                    var tokenMarkup = '<li class="ui-autocomplete-token ui-state-active ui-corner-all ui-helper-hidden">';
-                    tokenMarkup += '<span class="ui-autocomplete-token-icon fa fa-fw fa-close" />';
-                    tokenMarkup += '<span class="ui-autocomplete-token-label">' + item.data('label') + '</span></li>';
-
-                    $(tokenMarkup).data(item.data())
-                        .insertBefore($this.inputContainer).fadeIn()
-                        .children('.ui-autocomplete-token-icon').on('click.ui-autocomplete', function(e) {
-                            var token = $(this).parent();
-                            $this._removeItem(token);
-                            $this._trigger('unselect', e, token);
-                    });
-                    
-                    $this.element.val('').trigger('focus');
-                }
-                else {
-                    $this.element.val(item.data('label')).focus();
-                }
-
-                $this._trigger('select', event, item);
-                $this.hide();
-            });
-        },
-        
-        search: function(q) {            
-            this.query = this.options.caseSensitive ? q : q.toLowerCase();
-
-            var request = {
-                query: this.query
-            };
-
-            if(this.options.completeSource) {
-                if($.isArray(this.options.completeSource)) {
-                    var sourceArr = this.options.completeSource,
-                    data = [],
-                    emptyQuery = ($.trim(q) === '');
-                    
-                    for(var i = 0 ; i < sourceArr.length; i++) {
-                        var item = sourceArr[i],
-                        itemLabel = item.label||item;
-                        
-                        if(!this.options.caseSensitive) {
-                            itemLabel = itemLabel.toLowerCase();
-                        }
-
-                        if(emptyQuery||itemLabel.indexOf(this.query) === 0) {
-                            data.push({label:sourceArr[i], value: item});
-                        }
-                    }
-
-                    this._handleData(data);
-                }
-                else {
-                    this.options.completeSource.call(this, request, this._handleData);
-                }
-            }
-        },
-
-        _handleData: function(data) {
-            var $this = this;
-            this.panel.html('');
-            this.listContainer = $('<ul class="ui-autocomplete-items ui-autocomplete-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>').appendTo(this.panel);
-
-            for(var i = 0; i < data.length; i++) {
-                var item = $('<li class="ui-autocomplete-item ui-autocomplete-list-item ui-corner-all"></li>');
-                item.data(data[i]);
-                
-                if(this.options.content)
-                    item.html(this.options.content.call(this, data[i]));
-                else
-                    item.text(data[i].label);
-                
-                this.listContainer.append(item);
-            }
-            
-            this.items = this.listContainer.children('.ui-autocomplete-item');
-            
-            this._bindDynamicEvents();
-
-            if(this.items.length > 0) {
-                var firstItem = $this.items.eq(0),
-                hidden = this.panel.is(':hidden');
-                firstItem.addClass('ui-state-highlight');
-
-                if($this.query.length > 0 && !$this.options.content) {
-                    $this.items.each(function() {
-                        var item = $(this),
-                        text = item.html(),
-                        re = new RegExp(PUI.escapeRegExp($this.query), 'gi'),
-                        highlighedText = text.replace(re, '<span class="ui-autocomplete-query">$&</span>');
-
-                        item.html(highlighedText);
-                    });
-                }
-
-                if(this.options.forceSelection) {
-                    this.currentItems = [];
-                    $.each(data, function(i, item) {
-                        $this.currentItems.push(item.label);
-                    });
-                }
-
-                //adjust height
-                if($this.options.scrollHeight) {
-                    var heightConstraint = hidden ? $this.panel.height() : $this.panel.children().height();
-
-                    if(heightConstraint > $this.options.scrollHeight)
-                        $this.panel.height($this.options.scrollHeight);
-                    else
-                        $this.panel.css('height', 'auto');                              
-
-                }
-
-                if(hidden) {
-                    $this.show();
-                }
-                else {
-                    $this._alignPanel();
-                }
-            }
-            else {
-                this.panel.hide();
-            }
-        },
-
-        show: function() {
-            this._alignPanel();
-
-            if(this.options.effect)
-                this.panel.show(this.options.effect, {}, this.options.effectSpeed);
-            else
-                this.panel.show();
-        },
-
-        hide: function() {        
-            this.panel.hide();
-            this.panel.css('height', 'auto');
-        },
-        
-        _removeItem: function(item) {
-            item.fadeOut('fast', function() {
-                var token = $(this);
-
-                token.remove();
-            });
-        },
-        
-        _alignPanel: function() {
-            var panelWidth = null;
-
-            if(this.options.multiple) {
-                panelWidth = this.multiContainer.innerWidth() - (this.element.position().left - this.multiContainer.position().left);
-            }
-            else {
-                if(this.panel.is(':visible')) {
-                    panelWidth = this.panel.children('.ui-autocomplete-items').outerWidth();
-                }
-                else {
-                    this.panel.css({'visibility':'hidden','display':'block'});
-                    panelWidth = this.panel.children('.ui-autocomplete-items').outerWidth();
-                    this.panel.css({'visibility':'visible','display':'none'});
-                }
-
-                var inputWidth = this.element.outerWidth();
-                if(panelWidth < inputWidth) {
-                    panelWidth = inputWidth;
-                }
-            }
-
-            this.panel.css({
-                            'left':'',
-                            'top':'',
-                            'width': panelWidth,
-                            'z-index': ++PUI.zindex
-                    })
-                    .position({
-                        my: 'left top',
-                        at: 'left bottom',
-                        of: this.element
-                    });
-        }
-    });
-    
-})();
-/**
  * PrimeUI Carousel widget
  */
 (function() {
@@ -2873,6 +2429,271 @@ PUI.resolveUserAgent();
             }
         }
     });
+})();
+/**
+ * PrimeUI Switch Widget
+ */
+(function() {
+
+    $.widget("primeui.puiswitch", {
+
+        options: {
+            onLabel: 'On',
+            offLabel: 'Off',
+            checked: false,
+            change: null,
+            enhanced: false
+        },
+
+        _create: function() {
+            if(!this.options.enhanced) {
+                this.element.wrap('<div class="ui-inputswitch ui-widget ui-widget-content ui-corner-all"></div>');
+                this.container = this.element.parent();
+
+                this.element.wrap('<div class="ui-helper-hidden-accessible"></div>');
+                this.container.prepend('<div class="ui-inputswitch-off"></div>' +
+                    '<div class="ui-inputswitch-on ui-state-active"></div>' +
+                    '<div class="ui-inputswitch-handle ui-state-default"></div>');
+
+                this.onContainer = this.container.children('.ui-inputswitch-on');
+                this.offContainer = this.container.children('.ui-inputswitch-off');
+                this.onContainer.append('<span>'+ this.options.onLabel +'</span>');
+                this.offContainer.append('<span>'+ this.options.offLabel +'</span>');
+            }
+            else {
+                this.container = this.element.closest('.ui-inputswitch');
+                this.onContainer = this.container.children('.ui-inputswitch-on');
+                this.offContainer = this.container.children('.ui-inputswitch-off');
+            }
+
+            this.onLabel = this.onContainer.children('span');
+            this.offLabel = this.offContainer.children('span');
+            this.handle = this.container.children('.ui-inputswitch-handle');
+
+            var	onContainerWidth = this.onContainer.width(),
+                offContainerWidth = this.offContainer.width(),
+                spanPadding	= this.offLabel.innerWidth() - this.offLabel.width(),
+                handleMargins = this.handle.outerWidth() - this.handle.innerWidth();
+
+            var containerWidth = (onContainerWidth > offContainerWidth) ? onContainerWidth : offContainerWidth,
+                handleWidth = containerWidth;
+
+            this.handle.css({'width':handleWidth});
+            handleWidth = this.handle.width();
+
+            containerWidth = containerWidth + handleWidth + 6;
+
+            var labelWidth = containerWidth - handleWidth - spanPadding - handleMargins;
+
+            this.container.css({'width': containerWidth });
+            this.onLabel.width(labelWidth);
+            this.offLabel.width(labelWidth);
+
+            //position
+            this.offContainer.css({ width: this.container.width() - 5 });
+            this.offset = this.container.width() - this.handle.outerWidth();
+
+            //default value
+            if(this.element.prop('checked')||this.options.checked) {
+                this.handle.css({ 'left': this.offset});
+                this.onContainer.css({ 'width': this.offset});
+                this.offLabel.css({ 'margin-right': -this.offset});
+            }
+            else {
+                this.onContainer.css({ 'width': 0 });
+                this.onLabel.css({'margin-left': -this.offset});
+            }
+
+            if(!this.element.prop('disabled')) {
+                this._bindEvents();
+            }
+        },
+
+        _bindEvents: function() {
+            var $this = this;
+
+            this.container.on('click.puiswitch', function(e) {
+                $this.toggle();
+                $this.element.trigger('focus');
+            });
+
+            this.element.on('focus.puiswitch', function(e) {
+                    $this.handle.addClass('ui-state-focus');
+                })
+                .on('blur.puiswitch', function(e) {
+                    $this.handle.removeClass('ui-state-focus');
+                })
+                .on('keydown.puiswitch', function(e) {
+                    var keyCode = $.ui.keyCode;
+                    if(e.which === keyCode.SPACE) {
+                        e.preventDefault();
+                    }
+                })
+                .on('keyup.puiswitch', function(e) {
+                    var keyCode = $.ui.keyCode;
+                    if(e.which === keyCode.SPACE) {
+                        $this.toggle();
+
+                        e.preventDefault();
+                    }
+                })
+                .on('change.puiswitch', function(e) {
+                    if($this.element.prop('checked')||$this.options.checked)
+                        $this._checkUI();
+                    else
+                        $this._uncheckUI();
+
+                    $this._trigger('change', e, {checked: $this.options.checked});
+                });
+        },
+
+        _unbindEvents: function() {
+            this.container.off('click.puiswitch');
+            this.element.off('focus.puiswitch blur.puiswitch keydown.puiswitch keyup.puiswitch change.puiswitch');
+        },
+
+        _destroy: function() {
+            this._unbindEvents();
+
+            if(!this.options.enhanced) {
+                this.onContainer.remove();
+                this.offContainer.remove();
+                this.handle.remove();
+                this.element.unwrap().unwrap();
+            }
+            else {
+                this.container.css('width', 'auto');
+                this.onContainer.css('width', 'auto');
+                this.onLabel.css('width', 'auto').css('margin-left', 0);
+                this.offContainer.css('width', 'auto');
+                this.offLabel.css('width', 'auto').css('margin-left', 0);
+            }
+        },
+
+        toggle: function() {
+            if(this.element.prop('checked')||this.options.checked)
+                this.uncheck();
+            else
+                this.check();
+        },
+
+        check: function() {
+            this.options.checked = true;
+            this.element.prop('checked', true).trigger('change');
+        },
+
+        uncheck: function() {
+            this.options.checked = false;
+            this.element.prop('checked', false).trigger('change');
+        },
+
+        _checkUI: function() {
+            this.onContainer.animate({width:this.offset}, 200);
+            this.onLabel.animate({marginLeft:0}, 200);
+            this.offLabel.animate({marginRight:-this.offset}, 200);
+            this.handle.animate({left:this.offset}, 200);
+        },
+
+        _uncheckUI: function() {
+            this.onContainer.animate({width:0}, 200);
+            this.onLabel.animate({marginLeft:-this.offset}, 200);
+            this.offLabel.animate({marginRight:0}, 200);
+            this.handle.animate({left:0}, 200);
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'checked') {
+                if(value)
+                    this.check();
+                else
+                    this.uncheck();
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
+        },
+    });
+
+})();
+/**
+ * PrimeUI inputtext widget
+ */
+(function() {
+
+    $.widget("primeui.puiinputtext", {
+       
+        options: {
+            disabled: false
+        },
+       
+        _create: function() {
+            var input = this.element,
+            disabled = input.prop('disabled');
+
+            //visuals
+            input.addClass('ui-inputtext ui-widget ui-state-default ui-corner-all');
+            
+            if(input.prop('disabled'))
+                input.addClass('ui-state-disabled');
+            else if(this.options.disabled)
+                this.disable();
+            else
+                this._enableMouseEffects();
+        },
+        
+        _destroy: function() {
+            this.element.removeClass('ui-inputtext ui-widget ui-state-default ui-state-disabled ui-state-hover ui-state-focus ui-corner-all');
+            this._disableMouseEffects();
+        },
+
+        _enableMouseEffects: function () {
+            var input = this.element;
+
+            input.on('mouseover.puiinputtext', function() {
+                input.addClass('ui-state-hover');
+            })
+            .on('mouseout.puiinputtext', function() {
+                input.removeClass('ui-state-hover');
+            })
+            .on('focus.puiinputtext', function() {
+                input.addClass('ui-state-focus');
+            })
+            .on('blur.puiinputtext', function() {
+                input.removeClass('ui-state-focus');
+            });
+        },
+
+        _disableMouseEffects: function () {
+            this.element.off('mouseover.puiinputtext mouseout.puiinputtext focus.puiinputtext blur.puiinputtext');
+        },
+
+        disable: function () {
+            this.element.prop('disabled', true);
+            this.element.addClass('ui-state-disabled');
+            this.element.removeClass('ui-state-focus ui-state-hover');
+            this._disableMouseEffects();
+        },
+
+        enable: function () {
+            this.element.prop('disabled', false);
+            this.element.removeClass('ui-state-disabled');
+            this._enableMouseEffects();
+        },
+
+        _setOption: function(key, value) {
+            if(key === 'disabled') {
+                if(value)
+                    this.disable();
+                else
+                    this.enable();
+            }
+            else {
+                $.Widget.prototype._setOption.apply(this, arguments);
+            }
+        }
+        
+    });
+    
 })();
 /**
  * PrimeUI Lightbox Widget
@@ -5609,256 +5430,6 @@ PUI.resolveUserAgent();
 
 })();
 
-(function() {
-
-    $.widget("primeui.puimultiselectlistbox", {
-       
-       options: {
-            caption: null,
-            choices: null,
-            effect: false||'fade',
-            name: null,
-            value: null
-        },
-        
-        _create: function() {
-            this.element.addClass('ui-multiselectlistbox ui-widget ui-helper-clearfix');
-            this.element.append('<input type="hidden"></input>');
-            this.element.append('<div class="ui-multiselectlistbox-listcontainer"></div>');
-            this.container = this.element.children('div');
-            this.input = this.element.children('input');
-            var choices = this.options.choices;
-            if(this.options.name) {
-                this.input.attr('name', this.options.name);
-            }
-
-            if(choices) {
-                if(this.options.caption) {
-                    this.container.append('<div class="ui-multiselectlistbox-header ui-widget-header ui-corner-top">'+ this.options.caption +'</div>');
-                }
-                
-                this.container.append('<ul class="ui-multiselectlistbox-list ui-inputfield ui-widget-content ui-corner-bottom"></ul>');
-                this.rootList = this.container.children('ul');
-                
-                for(var i = 0; i < choices.length; i++) {
-                    this._createItemNode(choices[i], this.rootList);
-                }
-                
-                this.items = this.element.find('li.ui-multiselectlistbox-item');
-                this._bindEvents();
-                
-                if(this.options.value !== undefined || this.options.value !== null) {
-                    this.preselect(this.options.value);
-                }
-            }
-        },
-        
-        _createItemNode: function(choice, parent) {
-            var listItem = $('<li class="ui-multiselectlistbox-item"><span>'+ choice.label + '</span></li>');
-            listItem.appendTo(parent);
-            
-            if(choice.items) {
-                listItem.append('<ul class="ui-helper-hidden"></ul>');
-                var sublistContainer = listItem.children('ul');
-                for(var i = 0; i < choice.items.length; i++) {
-                    this._createItemNode(choice.items[i], sublistContainer);
-                }
-            }
-            else {
-                listItem.attr('data-value', choice.value);
-            }
-        },
-                
-        _unbindEvents: function() {
-           this.items.off('mouseover.multiSelectListbox mouseout.multiSelectListbox click.multiSelectListbox');
-        },
-        
-        _bindEvents: function() {
-           var $this = this;
-           
-           this.items.on('mouseover.multiSelectListbox', function() {
-               var item = $(this);
-
-               if(!item.hasClass('ui-state-highlight'))
-                   $(this).addClass('ui-state-hover');
-           })
-           .on('mouseout.multiSelectListbox', function() {
-               var item = $(this);
-
-               if(!item.hasClass('ui-state-highlight'))
-                   $(this).removeClass('ui-state-hover');
-           })
-           .on('click.multiSelectListbox', function() {
-               var item = $(this);
-               if(!item.hasClass('ui-state-highlight')) {
-                   $this.showOptionGroup(item);
-               }
-           });
-        },
-        
-        showOptionGroup: function(item) {
-           item.addClass('ui-state-highlight').removeClass('ui-state-hover').siblings().filter('.ui-state-highlight').removeClass('ui-state-highlight');
-           item.closest('.ui-multiselectlistbox-listcontainer').nextAll().remove();
-           var childItemsContainer = item.children('ul'),
-           itemValue = item.attr('data-value');
-   
-           if(itemValue) {
-               this.input.val(itemValue);
-           }
-
-           if(childItemsContainer.length) {
-              var groupContainer = $('<div class="ui-multiselectlistbox-listcontainer" style="display:none"></div>');
-              childItemsContainer.clone(true).appendTo(groupContainer).addClass('ui-multiselectlistbox-list ui-inputfield ui-widget-content').removeClass('ui-helper-hidden');
-
-              groupContainer.prepend('<div class="ui-multiselectlistbox-header ui-widget-header ui-corner-top">' + item.children('span').text() + '</div>')
-                  .children('.ui-multiselectlistbox-list').addClass('ui-corner-bottom');
-
-              this.element.append(groupContainer);
-
-              if (this.options.effect)
-                  groupContainer.show(this.options.effect);
-              else
-                  groupContainer.show();
-            }
-        },
-        
-        disable: function() {
-           if(!this.options.disabled) {
-               this.options.disabled = true;
-               this.element.addClass('ui-state-disabled');
-               this._unbindEvents();
-               this.container.nextAll().remove();
-           }
-        },
-        
-        getValue: function() {
-            return this.input.val();
-        },
-
-        preselect: function(value) {
-            var $this = this,
-            item = this.items.filter('[data-value="' + value + '"]');
-
-            if(item.length === 0) {
-                return;
-            }
-
-            var ancestors = item.parentsUntil('.ui-multiselectlistbox-list'),
-            selectedIndexMap = [];
-
-            for(var i = (ancestors.length - 1); i >= 0; i--) {
-                var ancestor = ancestors.eq(i);
-
-                if(ancestor.is('li')) {
-                    selectedIndexMap.push(ancestor.index());
-                }
-                else if(ancestor.is('ul')) {
-                    var groupContainer = $('<div class="ui-multiselectlistbox-listcontainer" style="display:none"></div>');
-                    ancestor.clone(true).appendTo(groupContainer).addClass('ui-multiselectlistbox-list ui-widget-content ui-corner-all').removeClass('ui-helper-hidden');
-
-                    groupContainer.prepend('<div class="ui-multiselectlistbox-header ui-widget-header ui-corner-top">' + ancestor.prev('span').text() + '</div>')
-                           .children('.ui-multiselectlistbox-list').addClass('ui-corner-bottom').removeClass('ui-corner-all');
-
-                    $this.element.append(groupContainer);
-                }
-            }
-
-            //highlight item
-            var lists = this.element.children('div.ui-multiselectlistbox-listcontainer'),
-            clonedItem = lists.find(' > ul.ui-multiselectlistbox-list > li.ui-multiselectlistbox-item').filter('[data-value="' + value + '"]');
-            clonedItem.addClass('ui-state-highlight');
-
-            //highlight ancestors
-            for(var i = 0; i < selectedIndexMap.length; i++) {
-                lists.eq(i).find('> .ui-multiselectlistbox-list > li.ui-multiselectlistbox-item').eq(selectedIndexMap[i]).addClass('ui-state-highlight');
-            }
-
-            $this.element.children('div.ui-multiselectlistbox-listcontainer:hidden').show();
-        }
-    });
-    
-})();
-
-
-/**
- * PrimeFaces Notify Widget
- */
-(function() {
-
-    $.widget("primeui.puinotify", {
-       
-        options: {
-            position: 'top',
-            visible: false,
-            animate: true,
-            effectSpeed: 'normal',
-            easing: 'swing'
-        },
-        
-        _create: function() {
-            this.element.addClass('ui-notify ui-notify-' + this.options.position + ' ui-widget ui-widget-content ui-shadow')
-                    .wrapInner('<div class="ui-notify-content" />').appendTo(document.body);
-            this.content = this.element.children('.ui-notify-content');
-            this.closeIcon = $('<span class="ui-notify-close fa fa-close"></span>').appendTo(this.element);
-            
-            this._bindEvents();
-            
-            if(this.options.visible) {
-                this.show();
-            }
-        },
-        
-        _bindEvents: function() {
-            var $this = this;
-            
-            this.closeIcon.on('click.puinotify', function() {
-                $this.hide();
-            });
-        },
-        
-        show: function(content) {
-            var $this = this;
-            
-            if(content) {
-                this.update(content);
-            }
-            
-            this.element.css('z-index',++PUI.zindex);
-            
-            this._trigger('beforeShow');
-            
-            if(this.options.animate) {
-                this.element.slideDown(this.options.effectSpeed, this.options.easing, function() {
-                    $this._trigger('afterShow');
-                });
-            }
-            else {
-                this.element.show();
-                $this._trigger('afterShow');
-            }
-        },
-
-        hide: function() {
-            var $this = this;
-            
-            this._trigger('beforeHide');
-            
-            if(this.options.animate) {
-                this.element.slideUp(this.options.effectSpeed, this.options.easing, function() {
-                    $this._trigger('afterHide');
-                });
-            }
-            else {
-                this.element.hide();
-                $this._trigger('afterHide');
-            }
-        },
-        
-        update: function(content) {
-            this.content.html(content);
-        }
-    });
-})();
 /**
  * PrimeUI password widget
  */
@@ -6323,1236 +5894,6 @@ PUI.resolveUserAgent();
         }
     });
 })();
-/**
- * PrimeFaces SplitButton Widget
- */
-(function() {
-
-    $.widget("primeui.puisplitbutton", {
-       
-        options: {
-            icon: null,
-            iconPos: 'left',
-            items: null
-        },
-        
-        _create: function() {
-            this.element.wrap('<div class="ui-splitbutton ui-buttonset ui-widget"></div>');
-            this.container = this.element.parent().uniqueId();
-            this.menuButton = this.container.append('<button class="ui-splitbutton-menubutton" type="button"></button>').children('.ui-splitbutton-menubutton');
-            this.options.disabled = this.element.prop('disabled');
-            
-            if(this.options.disabled) {
-                this.menuButton.prop('disabled', true);
-            }
-            
-            this.element.puibutton(this.options).removeClass('ui-corner-all').addClass('ui-corner-left');
-            this.menuButton.puibutton({
-                icon: 'fa-caret-down'
-            }).removeClass('ui-corner-all').addClass('ui-corner-right');
-            
-            if(this.options.items && this.options.items.length) {            
-                this._renderPanel();
-                this._bindEvents();
-            }
-
-        },
-                
-        _renderPanel: function() {
-            this.menu = $('<div class="ui-menu ui-menu-dynamic ui-widget ui-widget-content ui-corner-all ui-helper-clearfix ui-shadow"></div>').
-                    append('<ul class="ui-menu-list ui-helper-reset"></ul>');
-            this.menuList = this.menu.children('.ui-menu-list');
-            
-            for(var i = 0; i < this.options.items.length; i++) {
-                var item = this.options.items[i],
-                menuitem = $('<li class="ui-menuitem ui-widget ui-corner-all" role="menuitem"></li>'),
-                link = $('<a class="ui-menuitem-link ui-corner-all"><span class="ui-menuitem-icon fa fa-fw ' + item.icon +'"></span><span class="ui-menuitem-text">' + item.text +'</span></a>');
-                
-                if(item.url) {
-                    link.attr('href', item.url);
-                }
-                
-                if(item.click) {
-                    link.on('click.puisplitbutton', item.click);
-                }
-                
-                menuitem.append(link).appendTo(this.menuList);
-            }
-            
-            this.menu.appendTo(this.options.appendTo||this.container);
-            
-            this.options.position = {
-                my: 'left top',
-                at: 'left bottom',
-                of: this.element.parent()
-            };
-        },
-                
-        _bindEvents: function() {  
-            var $this = this;
-
-            this.menuButton.on('click.puisplitbutton', function() {
-                if($this.menu.is(':hidden'))
-                    $this.show();
-                else
-                    $this.hide();
-            });
-
-            this.menuList.children().on('mouseover.puisplitbutton', function(e) {
-                $(this).addClass('ui-state-hover');
-            }).on('mouseout.puisplitbutton', function(e) {
-                $(this).removeClass('ui-state-hover');
-            }).on('click.puisplitbutton', function() {
-                $this.hide();
-            });
-            
-            $(document.body).bind('mousedown.' + this.container.attr('id'), function (e) {
-                if($this.menu.is(":hidden")) {
-                    return;
-                }
-
-                var target = $(e.target);
-                if(target.is($this.element)||$this.element.has(target).length > 0) {
-                    return;
-                }
-
-                var offset = $this.menu.offset();
-                if(e.pageX < offset.left ||
-                    e.pageX > offset.left + $this.menu.width() ||
-                    e.pageY < offset.top ||
-                    e.pageY > offset.top + $this.menu.height()) {
-
-                    $this.element.removeClass('ui-state-focus ui-state-hover');
-                    $this.hide();
-                }
-            });
-
-            var resizeNS = 'resize.' + this.container.attr('id');
-            $(window).unbind(resizeNS).bind(resizeNS, function() {
-                if($this.menu.is(':visible')) {
-                    $this._alignPanel();
-                }
-            });
-        },
-                
-        show: function() {
-            this.menuButton.trigger('focus');
-            this.menu.show();
-            this._alignPanel();
-            this._trigger('show', null);
-        },
-
-        hide: function() {
-            this.menuButton.removeClass('ui-state-focus');
-            this.menu.fadeOut('fast');
-            this._trigger('hide', null);
-        },
-
-        _alignPanel: function() {
-            this.menu.css({left:'', top:'','z-index': ++PUI.zindex}).position(this.options.position);
-        },
-
-        disable: function() {
-            this.element.puibutton('disable');
-            this.menuButton.puibutton('disable');
-        },
-
-        enable: function() {
-            this.element.puibutton('enable');
-            this.menuButton.puibutton('enable');
-        }
-    });
-})();
-/**
- * PrimeUI sticky widget
- */
-(function() {
-
-    $.widget("primeui.puisticky", {
-       
-        _create: function() {
-            this.initialState = {
-                top: this.element.offset().top,
-                height: this.element.height()
-            };
-                        
-            this.id = this.element.attr('id');
-            if(!this.id) {
-                this.id = this.element.uniqueId().attr('id');
-            }
-            
-            this._bindEvents();          
-        },
-        
-        _bindEvents: function() {
-            var $this = this,
-            win = $(window),
-            scrollNS = 'scroll.' + this.id,
-            resizeNS = 'resize.' + this.id;
-
-            win.off(scrollNS).on(scrollNS, function() {
-                if(win.scrollTop() > $this.initialState.top)
-                    $this._fix();
-                else
-                    $this._restore();
-            })
-            .off(resizeNS).on(resizeNS, function() {
-                if($this.fixed) {
-                    $this.element.width($this.ghost.outerWidth() - ($this.element.outerWidth() - $this.element.width()));
-                }
-            });
-        },
-                
-        _fix: function() {
-            if(!this.fixed) {
-                this.element.css({
-                    'position': 'fixed',
-                    'top': 0,
-                    'z-index': 10000
-                })
-                .addClass('ui-shadow ui-sticky');
-        
-                this.ghost = $('<div class="ui-sticky-ghost"></div>').height(this.initialState.height).insertBefore(this.element);
-                this.element.width(this.ghost.outerWidth() - (this.element.outerWidth() - this.element.width()));
-                this.fixed = true;
-            }
-        },
-
-        _restore: function() {
-                if(this.fixed) {
-                    this.element.css({
-                    position: 'static',
-                    top: 'auto',
-                    width: 'auto'
-                })
-                .removeClass('ui-shadow ui-sticky');
-
-                this.ghost.remove();
-                this.fixed = false;
-            }
-
-          }
-        
-    });
-    
-})();
-/**
- * PrimeUI Switch Widget
- */
-(function() {
-
-    $.widget("primeui.puiswitch", {
-
-        options: {
-            onLabel: 'On',
-            offLabel: 'Off',
-            checked: false,
-            change: null,
-            enhanced: false
-        },
-
-        _create: function() {
-            if(!this.options.enhanced) {
-                this.element.wrap('<div class="ui-inputswitch ui-widget ui-widget-content ui-corner-all"></div>');
-                this.container = this.element.parent();
-
-                this.element.wrap('<div class="ui-helper-hidden-accessible"></div>');
-                this.container.prepend('<div class="ui-inputswitch-off"></div>' +
-                    '<div class="ui-inputswitch-on ui-state-active"></div>' +
-                    '<div class="ui-inputswitch-handle ui-state-default"></div>');
-
-                this.onContainer = this.container.children('.ui-inputswitch-on');
-                this.offContainer = this.container.children('.ui-inputswitch-off');
-                this.onContainer.append('<span>'+ this.options.onLabel +'</span>');
-                this.offContainer.append('<span>'+ this.options.offLabel +'</span>');
-            }
-            else {
-                this.container = this.element.closest('.ui-inputswitch');
-                this.onContainer = this.container.children('.ui-inputswitch-on');
-                this.offContainer = this.container.children('.ui-inputswitch-off');
-            }
-
-            this.onLabel = this.onContainer.children('span');
-            this.offLabel = this.offContainer.children('span');
-            this.handle = this.container.children('.ui-inputswitch-handle');
-
-            var	onContainerWidth = this.onContainer.width(),
-                offContainerWidth = this.offContainer.width(),
-                spanPadding	= this.offLabel.innerWidth() - this.offLabel.width(),
-                handleMargins = this.handle.outerWidth() - this.handle.innerWidth();
-
-            var containerWidth = (onContainerWidth > offContainerWidth) ? onContainerWidth : offContainerWidth,
-                handleWidth = containerWidth;
-
-            this.handle.css({'width':handleWidth});
-            handleWidth = this.handle.width();
-
-            containerWidth = containerWidth + handleWidth + 6;
-
-            var labelWidth = containerWidth - handleWidth - spanPadding - handleMargins;
-
-            this.container.css({'width': containerWidth });
-            this.onLabel.width(labelWidth);
-            this.offLabel.width(labelWidth);
-
-            //position
-            this.offContainer.css({ width: this.container.width() - 5 });
-            this.offset = this.container.width() - this.handle.outerWidth();
-
-            //default value
-            if(this.element.prop('checked')||this.options.checked) {
-                this.handle.css({ 'left': this.offset});
-                this.onContainer.css({ 'width': this.offset});
-                this.offLabel.css({ 'margin-right': -this.offset});
-            }
-            else {
-                this.onContainer.css({ 'width': 0 });
-                this.onLabel.css({'margin-left': -this.offset});
-            }
-
-            if(!this.element.prop('disabled')) {
-                this._bindEvents();
-            }
-        },
-
-        _bindEvents: function() {
-            var $this = this;
-
-            this.container.on('click.puiswitch', function(e) {
-                $this.toggle();
-                $this.element.trigger('focus');
-            });
-
-            this.element.on('focus.puiswitch', function(e) {
-                    $this.handle.addClass('ui-state-focus');
-                })
-                .on('blur.puiswitch', function(e) {
-                    $this.handle.removeClass('ui-state-focus');
-                })
-                .on('keydown.puiswitch', function(e) {
-                    var keyCode = $.ui.keyCode;
-                    if(e.which === keyCode.SPACE) {
-                        e.preventDefault();
-                    }
-                })
-                .on('keyup.puiswitch', function(e) {
-                    var keyCode = $.ui.keyCode;
-                    if(e.which === keyCode.SPACE) {
-                        $this.toggle();
-
-                        e.preventDefault();
-                    }
-                })
-                .on('change.puiswitch', function(e) {
-                    if($this.element.prop('checked')||$this.options.checked)
-                        $this._checkUI();
-                    else
-                        $this._uncheckUI();
-
-                    $this._trigger('change', e, {checked: $this.options.checked});
-                });
-        },
-
-        _unbindEvents: function() {
-            this.container.off('click.puiswitch');
-            this.element.off('focus.puiswitch blur.puiswitch keydown.puiswitch keyup.puiswitch change.puiswitch');
-        },
-
-        _destroy: function() {
-            this._unbindEvents();
-
-            if(!this.options.enhanced) {
-                this.onContainer.remove();
-                this.offContainer.remove();
-                this.handle.remove();
-                this.element.unwrap().unwrap();
-            }
-            else {
-                this.container.css('width', 'auto');
-                this.onContainer.css('width', 'auto');
-                this.onLabel.css('width', 'auto').css('margin-left', 0);
-                this.offContainer.css('width', 'auto');
-                this.offLabel.css('width', 'auto').css('margin-left', 0);
-            }
-        },
-
-        toggle: function() {
-            if(this.element.prop('checked')||this.options.checked)
-                this.uncheck();
-            else
-                this.check();
-        },
-
-        check: function() {
-            this.options.checked = true;
-            this.element.prop('checked', true).trigger('change');
-        },
-
-        uncheck: function() {
-            this.options.checked = false;
-            this.element.prop('checked', false).trigger('change');
-        },
-
-        _checkUI: function() {
-            this.onContainer.animate({width:this.offset}, 200);
-            this.onLabel.animate({marginLeft:0}, 200);
-            this.offLabel.animate({marginRight:-this.offset}, 200);
-            this.handle.animate({left:this.offset}, 200);
-        },
-
-        _uncheckUI: function() {
-            this.onContainer.animate({width:0}, 200);
-            this.onLabel.animate({marginLeft:-this.offset}, 200);
-            this.offLabel.animate({marginRight:0}, 200);
-            this.handle.animate({left:0}, 200);
-        },
-
-        _setOption: function(key, value) {
-            if(key === 'checked') {
-                if(value)
-                    this.check();
-                else
-                    this.uncheck();
-            }
-            else {
-                $.Widget.prototype._setOption.apply(this, arguments);
-            }
-        },
-    });
-
-})();
-/**
- * PrimeUI Terminal widget
- */
-(function() {
-
-    $.widget("primeui.puiterminal", {
-       
-        options: {
-            welcomeMessage: '',
-            prompt:'prime $',
-            handler: null
-        },
-        
-        _create: function() {
-            this.element.addClass('ui-terminal ui-widget ui-widget-content ui-corner-all')
-                        .append('<div>' + this.options.welcomeMessage + '</div>')
-                        .append('<div class="ui-terminal-content"></div>')
-                        .append('<div><span class="ui-terminal-prompt">' + this.options.prompt + '</span>' +
-                                 '<input type="text" class="ui-terminal-input" autocomplete="off"></div>' );
-                         
-            this.promptContainer = this.element.find('> div:last-child > span.ui-terminal-prompt');
-            this.content = this.element.children('.ui-terminal-content');
-            this.input = this.promptContainer.next();
-            this.commands = [];
-            this.commandIndex = 0;
-            
-            this._bindEvents();
-        },
-                
-        _bindEvents: function() {
-            var $this = this;
-
-            this.input.on('keydown.terminal', function(e) {
-                var keyCode = $.ui.keyCode;
-
-                switch(e.which) {
-                    case keyCode.UP:
-                        if($this.commandIndex > 0) {
-                            $this.input.val($this.commands[--$this.commandIndex]);
-                        }
-
-                        e.preventDefault();
-                    break;
-
-                    case keyCode.DOWN:
-                        if($this.commandIndex < ($this.commands.length - 1)) {
-                            $this.input.val($this.commands[++$this.commandIndex]);
-                        }
-                        else {
-                            $this.commandIndex = $this.commands.length;
-                            $this.input.val('');
-                        }
-
-                        e.preventDefault();
-                    break;
-
-                    case keyCode.ENTER:
-                    case keyCode.NUMPAD_ENTER:
-                        $this._processCommand();
-
-                        e.preventDefault();
-                    break;
-                }
-            });
-            
-            this.element.on('click', function() {
-                $this.input.trigger('focus');
-            });
-        },
-                
-        _processCommand: function() {
-            var command = this.input.val();
-            this.commands.push();
-            this.commandIndex++;
-
-            if(this.options.handler && $.type(this.options.handler) === 'function') {
-                this.options.handler.call(this, command, this._updateContent); 
-            }
-        },
-
-        _updateContent: function(content) {
-            var commandResponseContainer = $('<div></div>');
-            commandResponseContainer.append('<span>' + this.options.prompt + '</span><span class="ui-terminal-command">' +  this.input.val() + '</span>')
-                                    .append('<div>' + content + '</div>').appendTo(this.content);
-
-            this.input.val('');
-            this.element.scrollTop(this.content.height());
-        },
-
-        clear: function() {
-            this.content.html('');
-            this.input.val('');
-        }                       
-    });
-})();
-/**
- * PrimeFaces Tooltip Widget
- */
-(function() {
-
-    $.widget("primeui.puitooltip", {
-       
-        options: {
-            showEvent: 'mouseover',
-            hideEvent: 'mouseout',
-            showEffect: 'fade',
-            hideEffect: null,
-            showEffectSpeed: 'normal',
-            hideEffectSpeed: 'normal',
-            my: 'left top',
-            at: 'right bottom',
-            showDelay: 150,
-            content: null
-        },
-        
-        _create: function() {
-            this.options.showEvent = this.options.showEvent + '.puitooltip';
-            this.options.hideEvent = this.options.hideEvent + '.puitooltip';
-            
-            if(this.element.get(0) === document) {
-                this._bindGlobal();
-            }
-            else {
-                this._bindTarget();
-            }
-        },
-        
-        _bindGlobal: function() {
-            this.container = $('<div class="ui-tooltip ui-tooltip-global ui-widget ui-widget-content ui-corner-all ui-shadow" />').appendTo(document.body);
-            this.globalSelector = 'a,:input,:button,img';
-            var $this = this;
-
-            $(document).off(this.options.showEvent + ' ' + this.options.hideEvent, this.globalSelector)
-                        .on(this.options.showEvent, this.globalSelector, null, function() {
-                            var target = $(this),
-                            title = target.attr('title');
-
-                            if(title) {
-                                $this.container.text(title);
-                                $this.globalTitle = title;
-                                $this.target = target;
-                                target.attr('title', '');
-                                $this.show();
-                            }
-                        })
-                        .on(this.options.hideEvent, this.globalSelector, null, function() {
-                            var target = $(this);
-
-                            if($this.globalTitle) {
-                                $this.container.hide();
-                                target.attr('title', $this.globalTitle);
-                                $this.globalTitle = null;
-                                $this.target = null;
-                            }
-                        });
-
-            var resizeNS = 'resize.puitooltip';
-            $(window).unbind(resizeNS).bind(resizeNS, function() {
-                if($this.container.is(':visible')) {
-                    $this._align();
-                }
-            });
-        },
-        
-        _bindTarget: function() {
-            this.container = $('<div class="ui-tooltip ui-widget ui-widget-content ui-corner-all ui-shadow" />').appendTo(document.body);
-
-            var $this = this;
-            this.element.off(this.options.showEvent + ' ' + this.options.hideEvent)
-                        .on(this.options.showEvent, function() {
-                            $this.show();
-                        })
-                        .on(this.options.hideEvent, function() {
-                            $this.hide();
-                        });
-
-            this.container.html(this.options.content);
-
-            this.element.removeAttr('title');
-            this.target = this.element;
-
-            var resizeNS = 'resize.' + this.element.attr('id');
-            $(window).unbind(resizeNS).bind(resizeNS, function() {
-                if($this.container.is(':visible')) {
-                    $this._align();
-                }
-            });
-        },
-        
-        _align: function() {
-            this.container.css({
-                left:'', 
-                top:'',
-                'z-index': ++PUI.zindex
-            })
-            .position({
-                my: this.options.my,
-                at: this.options.at,
-                of: this.target
-            });
-        },
-
-        show: function() {
-            var $this = this;
-
-            this.timeout = window.setTimeout(function() {
-                $this._align();
-                $this.container.show($this.options.showEffect, {}, $this.options.showEffectSpeed);
-            }, this.options.showDelay);
-        },
-
-        hide: function() {
-            window.clearTimeout(this.timeout);
-
-            this.container.hide(this.options.hideEffect, {}, this.options.hideEffectSpeed, function() {
-                $(this).css('z-index', '');
-            });
-        }
-    });
-})();
-/**
- * PrimeUI Tree widget
- */
-(function() {
-
-    $.widget("primeui.puitree", {
-       
-        options: {
-             nodes: null,
-             lazy: false,
-             animate: false,
-             selectionMode: null,
-             icons: null
-        },
-        
-        _create: function() {
-            this.element.uniqueId().addClass('ui-tree ui-widget ui-widget-content ui-corner-all')
-                    .append('<ul class="ui-tree-container"></ul>');
-            this.rootContainer = this.element.children('.ui-tree-container');
-            
-            if(this.options.selectionMode) {
-                this.selection = [];
-            }
-            
-            this._bindEvents();
-               
-            if($.type(this.options.nodes) === 'array') {
-                this._renderNodes(this.options.nodes, this.rootContainer);
-            }
-            else if($.type(this.options.nodes) === 'function') {
-                this.options.nodes.call(this, {}, this._initData);
-            }
-            else {
-                throw 'Unsupported type. nodes option can be either an array or a function';
-            }
-        },
-                
-        _renderNodes: function(nodes, container) {
-            for(var i = 0; i < nodes.length; i++) {
-                this._renderNode(nodes[i], container);
-            }
-        },
-                
-        _renderNode: function(node, container) {
-            var leaf = this.options.lazy ? node.leaf : !(node.children && node.children.length),
-            iconType = node.iconType||'def',
-            expanded = node.expanded,
-            selectable = this.options.selectionMode ? (node.selectable === false ? false : true) : false,
-            toggleIcon = leaf ? 'ui-treenode-leaf-icon' : 
-                        (node.expanded ? 'ui-tree-toggler fa fa-fw fa-caret-down' : 'ui-tree-toggler fa fa-fw fa-caret-right'),
-            styleClass = leaf ? 'ui-treenode ui-treenode-leaf' : 'ui-treenode ui-treenode-parent',
-            nodeElement = $('<li class="' + styleClass + '"></li>'),
-            contentElement = $('<span class="ui-treenode-content"></span>');
-    
-            nodeElement.data('puidata', node.data).appendTo(container);
-
-            if(selectable) {
-                contentElement.addClass('ui-treenode-selectable');
-            }
-       
-            contentElement.append('<span class="' + toggleIcon + '"></span>')
-                            .append('<span class="ui-treenode-icon"></span>')
-                            .append('<span class="ui-treenode-label ui-corner-all">' + node.label + '</span>')
-                            .appendTo(nodeElement);
-                    
-            var iconConfig = this.options.icons && this.options.icons[iconType];
-            if(iconConfig) {
-                var iconContainer = contentElement.children('.ui-treenode-icon'),
-                icon = ($.type(iconConfig) === 'string') ? iconConfig : (expanded ? iconConfig.expanded : iconConfig.collapsed);
-                iconContainer.addClass('fa fa-fw ' + icon);
-            }
-                    
-            if(!leaf) {
-                var childrenContainer = $('<ul class="ui-treenode-children"></ul>');
-                if(!node.expanded) {
-                    childrenContainer.hide();
-                }
-                
-                childrenContainer.appendTo(nodeElement);
-                
-                if(node.children) {
-                    for(var i = 0; i < node.children.length; i++) {
-                        this._renderNode(node.children[i], childrenContainer);
-                    }
-                }
-            }
-        },
-                
-        _initData: function(data) {
-            this._renderNodes(data, this.rootContainer);          
-        },
-                
-        _handleNodeData: function(data, node) {
-            this._renderNodes(data, node.children('.ui-treenode-children'));    
-            this._showNodeChildren(node);
-            node.data('puiloaded', true);
-        },
-      
-        _bindEvents: function() {
-            var $this = this,
-            elementId = this.element.attr('id'),
-            togglerSelector = '#' + elementId + ' .ui-tree-toggler';
-    
-            $(document).off('click.puitree-' + elementId, togglerSelector)
-                .on('click.puitree-' + elementId, togglerSelector, null, function(e) {
-                    var toggleIcon = $(this),
-                    node = toggleIcon.closest('li');
-
-                    if(node.hasClass('ui-treenode-expanded'))
-                        $this.collapseNode(node);
-                    else
-                        $this.expandNode(node);
-                });
-                
-            if(this.options.selectionMode) {
-                var nodeLabelSelector = '#' + elementId + ' .ui-treenode-selectable .ui-treenode-label',
-                nodeContentSelector = '#' + elementId + ' .ui-treenode-selectable.ui-treenode-content';
-
-                $(document).off('mouseout.puitree-' + elementId + ' mouseover.puitree-' + elementId, nodeLabelSelector)
-                        .on('mouseout.puitree-' + elementId, nodeLabelSelector, null, function() {
-                            $(this).removeClass('ui-state-hover');
-                        })
-                        .on('mouseover.puitree-' + elementId, nodeLabelSelector, null, function() {
-                            $(this).addClass('ui-state-hover');
-                        })
-                        .off('click.puitree-' + elementId, nodeContentSelector)
-                        .on('click.puitree-' + elementId, nodeContentSelector, null, function(e) {
-                            $this._nodeClick(e, $(this));
-                        });
-            }
-        },
-        
-        expandNode: function(node) {
-            this._trigger('beforeExpand', null, {'node': node, 'data': node.data('puidata')});
-    
-            if(this.options.lazy && !node.data('puiloaded')) {
-                this.options.nodes.call(this, {
-                    'node': node,
-                    'data': node.data('puidata')
-                }, this._handleNodeData);
-            }
-            else {
-                this._showNodeChildren(node);
-            }
-            
-        },
-                
-        collapseNode: function(node) {
-            this._trigger('beforeCollapse', null, {'node': node, 'data': node.data('puidata')});
-    
-            node.removeClass('ui-treenode-expanded');
-            
-            var iconType = node.iconType||'def',
-            iconConfig = this.options.icons && this.options.icons[iconType];
-            if(iconConfig && $.type(iconConfig) !== 'string') {
-                node.find('> .ui-treenode-content > .ui-treenode-icon').removeClass(iconConfig.expanded).addClass(iconConfig.collapsed);
-            }
-            
-            var toggleIcon = node.find('> .ui-treenode-content > .ui-tree-toggler'),
-            childrenContainer = node.children('.ui-treenode-children');
-
-            toggleIcon.addClass('fa-caret-right').removeClass('fa-caret-down');
-
-            if(this.options.animate) {
-                childrenContainer.slideUp('fast');
-            }
-            else {
-                childrenContainer.hide();
-            }
-            
-            this._trigger('afterCollapse', null, {'node': node, 'data': node.data('puidata')});
-        },
-                
-        _showNodeChildren: function(node) {
-            node.addClass('ui-treenode-expanded').attr('aria-expanded', true);
-            
-            var iconType = node.iconType||'def',
-            iconConfig = this.options.icons && this.options.icons[iconType];
-            if(iconConfig && $.type(iconConfig) !== 'string') {
-                node.find('> .ui-treenode-content > .ui-treenode-icon').removeClass(iconConfig.collapsed).addClass(iconConfig.expanded);
-            }
-
-            var toggleIcon = node.find('> .ui-treenode-content > .ui-tree-toggler');
-            toggleIcon.addClass('fa-caret-down').removeClass('fa-caret-right');
-
-            if(this.options.animate) {
-                node.children('.ui-treenode-children').slideDown('fast');
-            }
-            else {
-                node.children('.ui-treenode-children').show();
-            }
-            
-            this._trigger('afterExpand', null, {'node': node, 'data': node.data('puidata')});
-        },
-                
-        _nodeClick: function(event, nodeContent) {
-            PUI.clearSelection();
-        
-            if($(event.target).is(':not(.ui-tree-toggler)')) {
-                var node = nodeContent.parent();
-
-                var selected = this._isNodeSelected(node.data('puidata')),
-                metaKey = event.metaKey||event.ctrlKey;
-
-                if(selected && metaKey) {
-                    this.unselectNode(node);
-                }
-                else {
-                    if(this._isSingleSelection()||(this._isMultipleSelection() && !metaKey)) {
-                        this.unselectAllNodes();
-                    }
-
-                    this.selectNode(node);
-                }
-            }
-        },
-                
-        selectNode: function(node) {
-            node.attr('aria-selected', true).find('> .ui-treenode-content > .ui-treenode-label').removeClass('ui-state-hover').addClass('ui-state-highlight');
-            this._addToSelection(node.data('puidata'));
-            this._trigger('nodeSelect', null, {'node': node, 'data': node.data('puidata')});
-        },
-                
-        unselectNode: function(node) {           
-            node.attr('aria-selected', false).find('> .ui-treenode-content > .ui-treenode-label').removeClass('ui-state-highlight ui-state-hover');
-            this._removeFromSelection(node.data('puidata'));
-            this._trigger('nodeUnselect', null, {'node': node, 'data': node.data('puidata')});
-        },
-                
-        unselectAllNodes: function() {
-            this.selection = [];
-            this.element.find('.ui-treenode-label.ui-state-highlight').each(function() {
-                $(this).removeClass('ui-state-highlight').closest('.ui-treenode').attr('aria-selected', false);
-            });
-        },
-                
-        _addToSelection: function(nodedata) {
-            if(nodedata) {
-                var selected = this._isNodeSelected(nodedata);                
-                if(!selected) {
-                    this.selection.push(nodedata);
-                }
-            }            
-        },
-
-        _removeFromSelection: function(nodedata) {
-            if(nodedata) {
-                var index = -1;
-    
-                for(var i = 0; i < this.selection.length; i++) {
-                    var data = this.selection[i];
-                    if(data && (JSON.stringify(data) === JSON.stringify(nodedata))) {
-                        index = i;
-                        break;
-                    }
-                }
-                
-                if(index >= 0) {
-                    this.selection.splice(index, 1);
-                }
-            }            
-        },
-                
-        _isNodeSelected: function(nodedata) {
-            var selected = false;
-
-            if(nodedata) {
-                for(var i = 0; i < this.selection.length; i++) {
-                    var data = this.selection[i];
-                    if(data && (JSON.stringify(data) === JSON.stringify(nodedata))) {
-                        selected = true;
-                        break;
-                    }
-                }
-            }
-            
-            return selected;
-        },
-                
-        _isSingleSelection: function() {
-            return this.options.selectionMode && this.options.selectionMode === 'single';
-        },
-                
-        _isMultipleSelection: function() {
-            return this.options.selectionMode && this.options.selectionMode === 'multiple';
-        }
-    });
-    
-})();
-/**
- * PrimeUI TreeTable widget
- */
-(function() {
-
-    $.widget("primeui.puitreetable", {
-       
-        options: {
-             nodes: null,
-             lazy: false,
-             selectionMode: null,
-             header: null
-        },
-        
-        _create: function() {
-            this.id = this.element.attr('id');
-            if(!this.id) {
-                this.id = this.element.uniqueId().attr('id');
-            }
-            
-            this.element.addClass('ui-treetable ui-widget');
-            this.tableWrapper = $('<div class="ui-treetable-tablewrapper" />').appendTo(this.element);
-            this.table = $('<table><thead></thead><tbody></tbody></table>').appendTo(this.tableWrapper);
-            this.thead = this.table.children('thead');
-            this.tbody = this.table.children('tbody').addClass('ui-treetable-data');
-            
-            var $this = this;
-            
-            if(this.options.columns) {
-                var headerRow = $('<tr></tr>').appendTo(this.thead);
-                
-                $.each(this.options.columns, function(i, col) {
-                    var header = $('<th class="ui-state-default"></th>').data('field', col.field).appendTo(headerRow);
-                    
-                    if(col.headerClass) {
-                        header.addClass(col.headerClass);
-                    } 
-                    
-                    if(col.headerStyle) {
-                        header.attr('style', col.headerStyle);
-                    }
-                    
-                    if(col.headerText) {
-                        header.text(col.headerText);
-                    }
-                });
-            }
-            
-            if(this.options.header) {
-                this.element.prepend('<div class="ui-treetable-header ui-widget-header ui-corner-top">' + this.options.header + '</div>');
-            }
-            
-            if(this.options.footer) {
-                this.element.append('<div class="ui-treetable-footer ui-widget-header ui-corner-bottom">' + this.options.footer + '</div>');
-            }
-            
-            if($.isArray(this.options.nodes)) {
-                this._renderNodes(this.options.nodes, null, true);
-            }
-            else if($.type(this.options.nodes) === 'function') {
-                this.options.nodes.call(this, {}, this._initData);
-            }
-            else {
-                throw 'Unsupported type. nodes option can be either an array or a function';
-            }
-            
-            this._bindEvents();
-        },
-        
-        _initData: function(data) {
-            this._renderNodes(data, null, true);       
-        },
-                
-        _renderNodes: function(nodes, rootRow, expanded) {
-            for(var i = 0; i < nodes.length; i++) {
-                var node = nodes[i],
-                nodeData = node.data,
-                leaf = this.options.lazy ? node.leaf : !(node.children && node.children.length),
-                row = $('<tr class="ui-widget-content"></tr>'),
-                depth = rootRow ? rootRow.data('depth') + 1 : 0,
-                parentRowkey = rootRow ? rootRow.data('rowkey'): null,
-                rowkey = parentRowkey ? parentRowkey + '_' + i : i.toString();
-                        
-                row.data({
-                   'depth': depth, 
-                   'rowkey': rowkey,
-                   'parentrowkey': parentRowkey,
-                   'puidata': nodeData
-                });
-                
-                if(!expanded) {
-                    row.addClass('ui-helper-hidden');
-                }
-                
-                for(var j = 0; j < this.options.columns.length; j++) {
-                    var column = $('<td />').appendTo(row),
-                    columnOptions = this.options.columns[j];
-
-                    if(columnOptions.bodyClass) {
-                        column.addClass(columnOptions.bodyClass);
-                    } 
-
-                    if(columnOptions.bodyStyle) {
-                        column.attr('style', columnOptions.bodyStyle);
-                    }
-                    
-                    if(j === 0) {
-                        var toggler = $('<span class="ui-treetable-toggler fa fa-fw fa-caret-right ui-c"></span>');
-                        
-                        toggler.css('margin-left', depth * 16 + 'px');
-                        if(leaf) {
-                            toggler.css('visibility', 'hidden');
-                        }
-                        
-                        toggler.appendTo(column);
-                    }
-
-                    if(columnOptions.content) {
-                        var content = columnOptions.content.call(this, nodeData);
-                        if($.type(content) === 'string')
-                            column.text(content);
-                        else
-                            column.append(content);
-                    }
-                    else {
-                        column.append(nodeData[columnOptions.field]);
-                    }     
-                }
-                
-                if(rootRow)
-                    row.insertAfter(rootRow);
-                else
-                    row.appendTo(this.tbody);
-                
-                if(!leaf) {
-                    this._renderNodes(node.children, row, node.expanded);
-                }
-            }
-        },
-        
-        _bindEvents: function() {
-            var $this = this,
-            togglerSelector = '> tr > td:first-child > .ui-treetable-toggler';
-
-            //expand and collapse
-            this.tbody.off('click.puitreetable', togglerSelector)
-                        .on('click.puitreetable', togglerSelector, null, function(e) {
-                            var toggler = $(this),
-                            row = toggler.closest('tr');
-
-                            if(!row.data('processing')) {
-                                row.data('processing', true);
-
-                                if(toggler.hasClass('fa-caret-right'))
-                                    $this.expandNode(row);
-                                else
-                                    $this.collapseNode(row);
-                            }
-                        });
-                        
-            //selection
-            if(this.options.selectionMode) {
-                this.selection = [];
-                var rowSelector = '> tr';
-        
-                this.tbody.off('mouseover.puitreetable mouseout.puitreetable click.puitreetable', rowSelector)
-                    .on('mouseover.puitreetable', rowSelector, null, function(e) {
-                        var element = $(this);
-                        if(!element.hasClass('ui-state-highlight')) {
-                            element.addClass('ui-state-hover');
-                        }
-                    })
-                    .on('mouseout.puitreetable', rowSelector, null, function(e) {
-                        var element = $(this);
-                        if(!element.hasClass('ui-state-highlight')) {
-                            element.removeClass('ui-state-hover');
-                        }
-                    })
-                    .on('click.puitreetable', rowSelector, null, function(e) {
-                        $this.onRowClick(e, $(this));
-                    });
-            }
-        },
-        
-        expandNode: function(row) {
-            this._trigger('beforeExpand', null, {'node': row, 'data': row.data('puidata')});
-    
-            if(this.options.lazy && !row.data('puiloaded')) {
-                this.options.nodes.call(this, {
-                    'node': row,
-                    'data': row.data('puidata')
-                }, this._handleNodeData);
-            }
-            else {
-                this._showNodeChildren(row, false);
-                this._trigger('afterExpand', null, {'node': row, 'data': row.data('puidata')});
-            }
-        },
-        
-        _handleNodeData: function(data, node) {
-            this._renderNodes(data, node, true);    
-            this._showNodeChildren(node, false);
-            node.data('puiloaded', true);
-            this._trigger('afterExpand', null, {'node': node, 'data': node.data('puidata')});
-        },
-        
-        _showNodeChildren: function(row, showOnly) {
-            if(!showOnly) {
-                row.data('expanded', true).attr('aria-expanded', true)
-                        .find('.ui-treetable-toggler:first').addClass('fa-caret-down').removeClass('fa-caret-right');
-            }
-            
-            var children = this._getChildren(row);
-            for(var i = 0; i < children.length; i++) {
-                var child = children[i];
-                child.removeClass('ui-helper-hidden');
-                    
-                if(child.data('expanded')) {
-                    this._showNodeChildren(child, true);
-                }
-            }
-            
-            row.data('processing', false);
-        },
-    
-        collapseNode: function(row) {
-            this._trigger('beforeCollapse', null, {'node': row, 'data': row.data('puidata')});
-    
-            this._hideNodeChildren(row, false);
-            
-            row.data('processing', false);
-            
-            this._trigger('afterCollapse', null, {'node': row, 'data': row.data('puidata')});
-        },
-        
-        _hideNodeChildren: function(row, hideOnly) {
-            if(!hideOnly) {
-                row.data('expanded', false).attr('aria-expanded', false)
-                        .find('.ui-treetable-toggler:first').addClass('fa-caret-right').removeClass('fa-caret-down');
-            }
-            
-            var children = this._getChildren(row);
-            for(var i = 0; i < children.length; i++) {
-                var child = children[i];
-                child.addClass('ui-helper-hidden');
-                    
-                if(child.data('expanded')) {
-                    this._hideNodeChildren(child, true);
-                }
-            }
-        },
-        
-        onRowClick: function(event, row) {
-            if(!$(event.target).is(':input,:button,a,.ui-c')) {
-                var selected = row.hasClass('ui-state-highlight'),
-                metaKey = event.metaKey||event.ctrlKey;
-
-                if(selected && metaKey) {
-                    this.unselectNode(row);
-                }
-                else {
-                    if(this.isSingleSelection()||(this.isMultipleSelection() && !metaKey)) {
-                        this.unselectAllNodes();
-                    }
-
-                    this.selectNode(row);
-                }
-
-                PUI.clearSelection();
-            }
-        },
-
-        selectNode: function(row, silent) {
-            row.removeClass('ui-state-hover').addClass('ui-state-highlight').attr('aria-selected', true);
-
-            if(!silent) {
-                this._trigger('nodeSelect', {}, {'node': row, 'data': row.data('puidata')});
-            }
-        },
-
-        unselectNode: function(row, silent) {
-            row.removeClass('ui-state-highlight').attr('aria-selected', false);
-
-            if(!silent) {
-                this._trigger('nodeUnselect', {}, {'node': row, 'data': row.data('puidata')});
-            }
-        },
-
-        unselectAllNodes: function() {
-            var selectedNodes = this.tbody.children('tr.ui-state-highlight'); 
-            for(var i = 0; i < selectedNodes.length; i++) {
-                this.unselectNode(selectedNodes.eq(i), true);
-            }
-        },
-        
-        isSingleSelection: function() {
-            return this.options.selectionMode === 'single';
-        },
-
-        isMultipleSelection: function() {
-            return this.options.selectionMode === 'multiple';
-        },
-        
-        _getChildren: function(node) {
-            var nodeKey = node.data('rowkey'),
-            nextNodes = node.nextAll(),
-            children = [];
-
-            for(var i = 0; i < nextNodes.length; i++) {
-                var nextNode = nextNodes.eq(i),
-                nextNodeParentKey = nextNode.data('parentrowkey');
-
-                if(nextNodeParentKey === nodeKey) {
-                    children.push(nextNode);
-                }
-            }
-
-            return children;
-        }
-    });
-    
-})();
-            
 /**
  * PrimeUI ColResize widget
  */
