@@ -2,7 +2,7 @@
   "name": "primeui",
   "version": "v4.1.5",
   "description": "'PrimeUI is a collection of rich javascript widgets and web components based on jQuery UI API'",
-  "main": "primeui-min.js",
+  "main": "primeui.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
