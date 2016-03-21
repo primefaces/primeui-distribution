@@ -1686,6 +1686,10 @@ button.ui-button::-moz-focus-inner {
     cursor: pointer;
     font-weight: normal;
 }
+
+.ui-listbox.ui-state-disabled .ui-listbox-item {
+    cursor: default;
+}
 .ui-menu {
     width: 12.5em;
     padding:0.3em;
@@ -2275,6 +2279,24 @@ button.ui-button::-moz-focus-inner {
         display: inline;
         width: 20%;
     }
+}
+.ui-overlaypanel {
+    padding: 0;
+    margin: 0;
+    position: absolute;
+}
+
+.ui-overlaypanel-content {
+    padding: 0.5em 1em;
+}
+
+.ui-overlaypanel-close {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
 }
 .ui-paginator {
     margin:0px;
@@ -3123,11 +3145,13 @@ button.ui-button::-moz-focus-inner {
 }
 
 .ui-treetable .ui-treetable-data tr.ui-state-highlight,
-.ui-treetable .ui-treetable-data tr.ui-state-hover {
+.ui-treetable .ui-treetable-data tr.ui-state-hover,
+.ui-treetable .ui-treetable-row.ui-state-highlight,
+.ui-treetable .ui-treetable-row.ui-state-hover {
     cursor: pointer;
 }
       
-.ui-treetable .ui-treetable-data tr.ui-state-hover {
+.ui-treetable tr.ui-state-hover {
     border-color: inherit;
     font-weight: inherit;
 }
@@ -3136,4 +3160,24 @@ button.ui-button::-moz-focus-inner {
     width: 16px;
     height: 16px;
     float: left;
+}
+
+/* PrimeNG */
+.ui-treetable td.ui-treetable-child-table-container {
+    padding: 0px;
+    border: 0px none;
+}
+
+.ui-treetable .ui-treetable-row {
+    display:table-row;
+    border-bottom:0px transparent
+}
+
+.ui-treetable .ui-treetable-row.ui-state-hover,
+.ui-treetable .ui-treetable-row.ui-state-highlight {
+    border: 0px none;
+}
+
+.ui-treetable tbody .ui-treetable-row td {
+    border: 0px none;
 }
