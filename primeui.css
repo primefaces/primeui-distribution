@@ -101,7 +101,6 @@
     margin: 0;
     min-height: 1px;
     overflow: hidden;
-    width: 400px;
 }
 
 .ui-autocomplete-multiple-container.ui-inputfield {
@@ -134,8 +133,8 @@
 .ui-autocomplete-input-token {
     float: left;
     list-style-type: none;
-    margin: 1px;
-    padding: 0;
+    margin: 2px;
+    padding: 1px;
 }
 
 .ui-autocomplete-input-token .ui-inputtext {
@@ -165,6 +164,25 @@
 .ui-autocomplete-panel .ui-autocomplete-group {
     font-weight: bold;
     cursor: default;
+}
+
+/* ng */
+.ui-autocomplete-dd input.ui-corner-all {
+    -moz-border-radius-topright: 0px; 
+    -webkit-border-top-right-radius: 0px;
+     border-top-right-radius: 0px;
+     -moz-border-radius-bottomright: 0px;
+     -webkit-border-bottom-right-radius: 0px;
+     border-bottom-right-radius: 0px;
+ }
+ 
+.ui-autocomplete-dd .ui-autocomplete-dropdown.ui-corner-all {
+     -moz-border-radius-topleft: 0px; 
+     -webkit-border-top-left-radius: 0px;
+      border-top-left-radius: 0px;
+      -moz-border-radius-bottomleft: 0px;
+      -webkit-border-bottom-left-radius: 0px;
+      border-bottom-left-radius: 0px;
 }
 
 /** AutoComplete **/
@@ -1010,6 +1028,9 @@ button.ui-button::-moz-focus-inner {
     -webkit-box-sizing:border-box;
     -moz-box-sizing: border-box;
 }
+.ui-editor-container .ui-editor-toolbar {
+    border:0 none;
+}
 .ui-fieldset, .ui-fieldset .ui-fieldset-legend {
     padding:0.6em 1em;
 }
@@ -1244,6 +1265,10 @@ button.ui-button::-moz-focus-inner {
         float: none;
     }
 }
+
+.ui-grid.ui-grid-pad > .ui-grid-row > div {
+    padding: 4px 10px;
+}
 /* ie6 */
 * html .ui-growl {
 	position:absolute; 
@@ -1321,14 +1346,6 @@ button.ui-button::-moz-focus-inner {
     -webkit-box-sizing:border-box;
     -moz-box-sizing: border-box;
 }
-.ui-inputtextarea-resizable {
-    overflow: hidden;
-    resize:none;
-}
-
-.ui-fluid .ui-inputtextarea {
-    width: 100%;
-}
 .ui-lightbox {
     position: fixed;
 }
@@ -1380,6 +1397,14 @@ button.ui-button::-moz-focus-inner {
 
 .ui-lightbox-close.ui-state-hover {
     padding: 0;
+}
+.ui-inputtextarea-resizable {
+    overflow: hidden;
+    resize:none;
+}
+
+.ui-fluid .ui-inputtextarea {
+    width: 100%;
 }
 .ui-listbox {
     overflow:auto;
