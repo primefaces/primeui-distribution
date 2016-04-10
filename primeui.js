@@ -2069,7 +2069,7 @@ PUI.resolveUserAgent();
             if(this.hasFiltering) {
                 this._initFiltering();
             }
-            
+
             if(this.options.selectionMode) {
                 this._initSelection();
             }
@@ -2208,15 +2208,15 @@ PUI.resolveUserAgent();
 
         _indicateInitialSortColumn: function(sortField, sortOrder) {
             var $this = this;
-            
+
             $.each(this.sortableColumns, function(i, column) {
                 var $column = $(column),
                     data = $column.data();
-                    
+
                 if (sortField === data.field) {
                     var sortIcon = $column.children('.ui-sortable-column-icon');
                         $column.data('order', sortOrder).removeClass('ui-state-hover').addClass('ui-state-active');
-                    
+
                     if(sortOrder == -1)
                         sortIcon.removeClass('fa-sort fa-sort-asc').addClass('fa-sort-desc');
                     else if(sortOrder == 1)
@@ -2224,10 +2224,10 @@ PUI.resolveUserAgent();
                 }
             });
         },
-        
+
         _indicateInitialSortColumns: function() {
             var $this = this;
-            
+
             for(var i = 0; i < this.options.sortMeta.length; i++) {
                 var meta = this.options.sortMeta[i];
                 this._indicateInitialSortColumn(meta.field, meta.order);
@@ -2278,14 +2278,14 @@ PUI.resolveUserAgent();
             this.thead.find('> tr > th.ui-sortable-column').data('order', 0).filter('.ui-state-active').removeClass('ui-state-active')
                                 .children('span.ui-sortable-column-icon').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
         },
-        
+
         _isMultiSort: function() {
             if(this.options.sortMode === 'multiple')
                 return true;
-            else 
+            else
                 return false;
         },
-        
+
         _resetSortState: function(column) {
             this.sortableColumns.filter('.ui-state-active').data('order', 0).removeClass('ui-state-active').children('span.ui-sortable-column-icon')
                                                         .removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
@@ -2294,10 +2294,10 @@ PUI.resolveUserAgent();
         _initSorting: function() {
             var $this = this;
             this.sortableColumns = this.thead.find('> tr > th.ui-sortable-column');
-            
+
             this.sortableColumns.on('mouseover.puidatatable', function() {
                 var column = $(this);
-                
+
                 if(!column.hasClass('ui-state-active'))
                     column.addClass('ui-state-hover');
             })
@@ -2311,18 +2311,18 @@ PUI.resolveUserAgent();
                 if(!$(event.target).is('th,span')) {
                     return;
                 }
-                
+
                 var column = $(this),
                 sortField = column.data('field'),
                 order = column.data('order'),
                 sortOrder = (order === 0) ? 1 : (order * -1),
                 sortIcon = column.children('.ui-sortable-column-icon'),
                 metaKey = event.metaKey||event.ctrlKey;
-                                            
+
                 if($this._isMultiSort()) {
                     if(metaKey) {
                         $this._addSortMeta({field: sortField, order: sortOrder});
-                        $this.sort();    
+                        $this.sort();
                     }
                     else {
                         $this.options.sortMeta = [];
@@ -2335,7 +2335,7 @@ PUI.resolveUserAgent();
                     //update state
                     $this.options.sortField = sortField;
                     $this.options.sortOrder = sortOrder;
-                    
+
                     $this._resetSortState(column);
                     $this.sort();
                 }
@@ -2350,7 +2350,7 @@ PUI.resolveUserAgent();
                 $this._trigger('sort', event, {'sortOrder': sortOrder, 'sortField': sortField});
             });
         },
-        
+
         _addSortMeta: function(meta) {
             var index = -1;
             for(var i = 0; i < this.options.sortMeta.length; i++) {
@@ -2358,7 +2358,7 @@ PUI.resolveUserAgent();
                     index = i;
                 }
             }
-            
+
             if(index >= 0)
                 this.options.sortMeta[index] = meta;
             else
@@ -2373,35 +2373,35 @@ PUI.resolveUserAgent();
                this._renderData();
             }
         },
-        
+
         _multipleSort: function() {
             var $this = this;
-            
+
             function multisort(data1,data2,sortMeta,index) {
-                var value1 = data1[sortMeta[index].field], 
+                var value1 = data1[sortMeta[index].field],
                 value2 = data2[sortMeta[index].field],
                 result = null;
-                                
+
                 if (typeof value1 == 'string' || value1 instanceof String) {
                     if (value1.localeCompare && (value1 != value2)) {
                         return (sortMeta[index].order * value1.localeCompare(value2));
                     }
                 }
                 else {
-                    result = (value1 < value2) ? -1 : 1;    
+                    result = (value1 < value2) ? -1 : 1;
                 }
 
                 if(value1 == value2)  {
                     return (sortMeta.length - 1) > (index) ? (multisort(data1, data2, sortMeta, index + 1)) : 0;
                 }
-                
+
                 return (sortMeta[index].order * result);
             }
-            
+
             this.data.sort(function (data1,data2) {
                 return multisort(data1, data2, $this.options.sortMeta, 0);
             });
-            
+
             this._renderData();
         },
 
@@ -2416,14 +2416,14 @@ PUI.resolveUserAgent();
                     this._singleSort();
             }
         },
-        
+
         _singleSort: function() {
             var $this = this;
-            
+
             this.data.sort(function(data1, data2) {
                 var value1 = data1[$this.options.sortField], value2 = data2[$this.options.sortField],
                 result = null;
-                
+
                 if (typeof value1 == 'string' || value1 instanceof String) {
                     if ( value1.localeCompare ) {
                         return ($this.options.sortOrder * value1.localeCompare(value2));
@@ -2458,7 +2458,7 @@ PUI.resolveUserAgent();
             var bName = b.name.toLowerCase();
             return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
         },
-        
+
         sortByDefault: function() {
             if(this._isMultiSort()) {
                 if(this.options.sortMeta) {
@@ -2474,7 +2474,7 @@ PUI.resolveUserAgent();
 
         _renderData: function() {
             this.tbody.html('');
-            
+
             var dataToRender = this.filteredData||this.data;
             if(dataToRender && dataToRender.length) {
                 var firstNonLazy = this._getFirst(),
@@ -2886,6 +2886,7 @@ PUI.resolveUserAgent();
         _initScrolling: function() {
             this.scrollHeader = this.element.children('.ui-datatable-scrollable-header');
             this.scrollBody = this.element.children('.ui-datatable-scrollable-body');
+            this.scrollFooter = this.element.children('.ui-datatable-scrollable-footer');
             this.scrollHeaderBox = this.scrollHeader.children('.ui-datatable-scrollable-header-box');
             this.headerTable = this.scrollHeaderBox.children('table');
             this.bodyTable = this.scrollBody.children('table');
@@ -3417,7 +3418,7 @@ PUI.resolveUserAgent();
         _initFiltering: function() {
             var $this = this;
             this.filterElements = this.thead.find('.ui-column-filter');
-            
+
             this.filterElements.on('keyup', function() {
                         if($this.filterTimeout) {
                             clearTimeout($this.filterTimeout);
@@ -3429,21 +3430,21 @@ PUI.resolveUserAgent();
                         },
                         $this.options.filterDelay);
                     });
-                    
+
             if(this.options.globalFilter) {
                 $(this.options.globalFilter).on('keyup.puidatatable', function() {
                     $this.filter();
                 });
             }
         },
-        
+
         filter: function() {
             this.filterMetaMap = [];
-            
+
             for(var i = 0; i < this.filterElements.length; i++) {
                 var filterElement = this.filterElements.eq(i),
                 filterElementValue = filterElement.val();
-                 
+
                 this.filterMetaMap.push({
                     field: filterElement.data('field'),
                     filterMatchMode: filterElement.data('filtermatchmode'),
@@ -3451,18 +3452,18 @@ PUI.resolveUserAgent();
                     element: filterElement
                 });
             }
-                        
+
             if(this.options.lazy) {
                 this.options.datasource.call(this, this._onLazyLoad, this._createStateMeta());
             }
             else {
                 var globalFilterValue = $(this.options.globalFilter).val();
                 this.filteredData = [];
-                
+
                 for(var i = 0; i < this.data.length; i++) {
                     var localMatch = true;
                     var globalMatch = false;
-                    
+
                     for(var j = 0; j < this.filterMetaMap.length; j++) {
                         var filterMeta = this.filterMetaMap[j],
                         filterValue = filterMeta.value,
@@ -3475,9 +3476,9 @@ PUI.resolveUserAgent();
                         if(this.options.globalFilter && !globalMatch) {
                             var filterConstraint = this.filterConstraints['contains'];
                             globalMatch = filterConstraint(dataFieldValue, globalFilterValue);
-                            
+
                         }
-                        
+
                         //local
                         if(filterMeta.filterMatchMode === 'custom') {
                             localMatch = filterMeta.element.triggerHandler('filter', [dataFieldValue, filterValue]);
@@ -3488,14 +3489,14 @@ PUI.resolveUserAgent();
                                 localMatch = false;
                             }
                         }
-                                                                        
+
                         if(!localMatch) {
                             break;
                         }
                     }
-                                        
+
                     var matches = localMatch;
-                    
+
                     if(this.options.globalFilter) {
                         matches = localMatch && globalMatch;
                     }
@@ -3504,7 +3505,7 @@ PUI.resolveUserAgent();
                         this.filteredData.push(this.data[i]);
                     }
                 }
-                
+
                 if(this.filteredData.length === this.data.length) {
                     this.filteredData = null;
                 }
@@ -3539,7 +3540,7 @@ PUI.resolveUserAgent();
                 if(value === undefined || value === null) {
                     return false;
                 }
-                
+
                 return value.toString().toLowerCase().indexOf(filter) !== -1;
             }
 
@@ -4401,7 +4402,7 @@ PUI.resolveUserAgent();
                 this.itemsWrapper = this.panel.children('.ui-dropdown-items-wrapper');
                 this.itemsContainer = this.itemsWrapper.children('ul');
                 this.itemsContainer.addClass('ui-dropdown-items ui-dropdown-list ui-widget-content ui-widget ui-corner-all ui-helper-reset');
-                this.items = this.itemsContainer.children('li').addClass('ui-dropdown-item ui-dropdown-list-item ui-corner-all');
+                this.items = this.itemsContainer.children('li').addClass('ui-dropdown-item ui-corner-all');
 
                 var $this = this;
                 this.items.each(function(i) {
@@ -4533,7 +4534,7 @@ PUI.resolveUserAgent();
                     optionLabel = option.text(),
                     content = this.options.content ? this.options.content.call(this, this.options.data[i]) : optionLabel;
 
-                this.itemsContainer.append('<li data-label="' + optionLabel + '" class="ui-dropdown-item ui-dropdown-list-item ui-corner-all">' + content + '</li>');
+                this.itemsContainer.append('<li data-label="' + optionLabel + '" class="ui-dropdown-item ui-corner-all">' + content + '</li>');
             }
 
             this.items = this.itemsContainer.children('.ui-dropdown-item');
@@ -5024,7 +5025,7 @@ PUI.resolveUserAgent();
             }
 
             var content = this.options.content ? this.options.content.call(this, option) : label,
-                item = $('<li data-label="' + label + '" class="ui-dropdown-item ui-dropdown-list-item ui-corner-all">' + content + '</li>'),
+                item = $('<li data-label="' + label + '" class="ui-dropdown-item ui-corner-all">' + content + '</li>'),
                 optionElement = $('<option value="' + value + '">' + label + '</option>');
 
             optionElement.appendTo(this.element);
@@ -5526,8 +5527,11 @@ PUI.resolveUserAgent();
             markup += '</div><div style="clear: both;"></div></div></div>';
 
             var message = $(markup);
+            
+            message.addClass('ui-growl-message-' + msg.severity);
 
             this._bindMessageEvents(message);
+            
             message.appendTo(this.element).fadeIn();
         },
 
@@ -5710,378 +5714,6 @@ PUI.resolveUserAgent();
         
     });
     
-})();
-/**
- * PrimeUI Lightbox Widget
- */
-(function() {
-
-    $.widget("primeui.puilightbox", {
-
-        options: {
-            iframeWidth: 640,
-            iframeHeight: 480,
-            iframe: false
-        },
-
-        _create: function() {
-            this.id = this.element.attr('id');
-            if(!this.id) {
-                this.id = this.element.uniqueId().attr('id');
-            }
-
-            this.options.mode = this.options.iframe ? 'iframe' : (this.element.children('div').length == 1) ? 'inline' : 'image';
-
-            var dom = '<div class="ui-lightbox ui-widget ui-helper-hidden ui-corner-all ui-shadow">';
-            dom += '<div class="ui-lightbox-content-wrapper">';
-            dom += '<a class="ui-state-default ui-lightbox-nav-left ui-corner-right ui-helper-hidden"><span class="fa fa-fw fa-caret-left"></span></a>';
-            dom += '<div class="ui-lightbox-content ui-corner-all"></div>';
-            dom += '<a class="ui-state-default ui-lightbox-nav-right ui-corner-left ui-helper-hidden"><span class="fa fa-fw fa-caret-right"></span></a>';
-            dom += '</div>';
-            dom += '<div class="ui-lightbox-caption ui-widget-header"><span class="ui-lightbox-caption-text"></span>';
-            dom += '<a class="ui-lightbox-close ui-corner-all" href="#"><span class="fa fa-fw fa-close"></span></a><div style="clear:both" /></div>';
-            dom += '</div>';
-
-            this.panel = $(dom).appendTo(document.body);
-            this.contentWrapper = this.panel.children('.ui-lightbox-content-wrapper');
-            this.content = this.contentWrapper.children('.ui-lightbox-content');
-            this.caption = this.panel.children('.ui-lightbox-caption');
-            this.captionText = this.caption.children('.ui-lightbox-caption-text');
-            this.closeIcon = this.caption.children('.ui-lightbox-close');
-
-            if(this.options.mode === 'image') {
-                this._setupImaging();
-            }
-            else if(this.options.mode === 'inline') {
-                this._setupInline();
-            }
-            else if(this.options.mode === 'iframe') {
-                this._setupIframe();
-            }
-
-            this._bindCommonEvents();
-
-            this.links.data('puilightbox-trigger', true).find('*').data('puilightbox-trigger', true);
-            this.closeIcon.data('puilightbox-trigger', true).find('*').data('puilightbox-trigger', true);
-        },
-
-        _bindCommonEvents: function() {
-            var $this = this;
-
-            this.closeIcon.on('hover.ui-lightbox', function() {
-                    $(this).toggleClass('ui-state-hover');
-                })
-                .on('click.ui-lightbox', function(e) {
-                    $this.hide();
-                    e.preventDefault();
-                });
-
-            //hide when outside is clicked
-            $(document.body).on('click.ui-lightbox-' + this.id, function (e) {
-                if($this.isHidden()) {
-                    return;
-                }
-
-                //do nothing if target is the link
-                var target = $(e.target);
-                if(target.data('puilightbox-trigger')) {
-                    return;
-                }
-
-                //hide if mouse is outside of lightbox
-                var offset = $this.panel.offset();
-                if(e.pageX < offset.left ||
-                    e.pageX > offset.left + $this.panel.width() ||
-                    e.pageY < offset.top ||
-                    e.pageY > offset.top + $this.panel.height()) {
-
-                    $this.hide();
-                }
-            });
-
-            //sync window resize
-            $(window).on('resize.ui-lightbox-' + this.id, function() {
-                if(!$this.isHidden()) {
-                    $(document.body).children('.ui-widget-overlay').css({
-                        'width': $(document).width(),
-                        'height': $(document).height()
-                    });
-                }
-            });
-        },
-
-        _destroy: function() {
-            this.links.removeData('puilightbox-trigger').find('*').removeData('puilightbox-trigger');
-            this._unbindEvents();
-            this.panel.remove();
-            if(this.modality) {
-                this._disableModality();
-            }
-        },
-
-        _unbindEvents: function() {
-            this.closeIcon.off('hover.ui-lightbox click.ui-lightbox');
-            $(document.body).off('click.ui-lightbox-' + this.id);
-            $(window).off('resize.ui-lightbox-' + this.id)
-            this.links.off('click.ui-lightbox');
-            if(this.options.mode === 'image') {
-                this.imageDisplay.off('load.ui-lightbox');
-                this.navigators.off('hover.ui-lightbox click.ui-lightbox');
-            }
-        },
-
-        _setupImaging: function() {
-            var $this = this;
-
-            this.links = this.element.children('a');
-            this.content.append('<img class="ui-helper-hidden"></img>');
-            this.imageDisplay = this.content.children('img');
-            this.navigators = this.contentWrapper.children('a');
-
-            this.imageDisplay.on('load.ui-lightbox', function() {
-                var image = $(this);
-
-                $this._scaleImage(image);
-
-                //coordinates to center overlay
-                var leftOffset = ($this.panel.width() - image.width()) / 2,
-                    topOffset = ($this.panel.height() - image.height()) / 2;
-
-                //resize content for new image
-                $this.content.removeClass('ui-lightbox-loading').animate({
-                        width: image.width(),
-                        height: image.height()
-                    },
-                    500,
-                    function() {
-                        //show image
-                        image.fadeIn();
-                        $this._showNavigators();
-                        $this.caption.slideDown();
-                    });
-
-                $this.panel.animate({
-                    left: '+=' + leftOffset,
-                    top: '+=' + topOffset
-                }, 500);
-            });
-
-            this.navigators.on('hover.ui-lightbox', function() {
-                    $(this).toggleClass('ui-state-hover');
-                })
-                .on('click.ui-lightbox', function(e) {
-                    var nav = $(this),
-                        index;
-
-                    $this._hideNavigators();
-
-                    if(nav.hasClass('ui-lightbox-nav-left')) {
-                        index = $this.current === 0 ? $this.links.length - 1 : $this.current - 1;
-
-                        $this.links.eq(index).trigger('click');
-                    }
-                    else {
-                        index = $this.current == $this.links.length - 1 ? 0 : $this.current + 1;
-
-                        $this.links.eq(index).trigger('click');
-                    }
-
-                    e.preventDefault();
-                });
-
-            this.links.on('click.ui-lightbox', function(e) {
-                var link = $(this);
-
-                if($this.isHidden()) {
-                    $this.content.addClass('ui-lightbox-loading').width(32).height(32);
-                    $this.show();
-                }
-                else {
-                    $this.imageDisplay.fadeOut(function() {
-                        //clear for onload scaling
-                        $(this).css({
-                            'width': 'auto',
-                            'height': 'auto'
-                        });
-
-                        $this.content.addClass('ui-lightbox-loading');
-                    });
-
-                    $this.caption.slideUp();
-                }
-
-                window.setTimeout(function() {
-                    $this.imageDisplay.attr('src', link.attr('href'));
-                    $this.current = link.index();
-
-                    var title = link.attr('title');
-                    if(title) {
-                        $this.captionText.html(title);
-                    }
-                }, 1000);
-
-
-                e.preventDefault();
-            });
-        },
-
-        _scaleImage: function(image) {
-            var win = $(window),
-                winWidth = win.width(),
-                winHeight = win.height(),
-                imageWidth = image.width(),
-                imageHeight = image.height(),
-                ratio = imageHeight / imageWidth;
-
-            if(imageWidth >= winWidth && ratio <= 1){
-                imageWidth = winWidth * 0.75;
-                imageHeight = imageWidth * ratio;
-            }
-            else if(imageHeight >= winHeight){
-                imageHeight = winHeight * 0.75;
-                imageWidth = imageHeight / ratio;
-            }
-
-            image.css({
-                'width':imageWidth + 'px',
-                'height':imageHeight + 'px'
-            });
-        },
-
-        _setupInline: function() {
-            this.links = this.element.children('a');
-            this.inline = this.element.children('div').addClass('ui-lightbox-inline');
-            this.inline.appendTo(this.content).show();
-            var $this = this;
-
-            this.links.on('click.ui-lightbox', function(e) {
-                $this.show();
-
-                var title = $(this).attr('title');
-                if(title) {
-                    $this.captionText.html(title);
-                    $this.caption.slideDown();
-                }
-
-                e.preventDefault();
-            });
-        },
-
-        _setupIframe: function() {
-            var $this = this;
-            this.links = this.element;
-            this.iframe = $('<iframe frameborder="0" style="width:' + this.options.iframeWidth + 'px;height:' +
-                this.options.iframeHeight + 'px;border:0 none; display: block;"></iframe>').appendTo(this.content);
-
-            if(this.options.iframeTitle) {
-                this.iframe.attr('title', this.options.iframeTitle);
-            }
-
-            this.element.click(function(e) {
-                if(!$this.iframeLoaded) {
-                    $this.content.addClass('ui-lightbox-loading').css({
-                        width: $this.options.iframeWidth,
-                        height: $this.options.iframeHeight
-                    });
-
-                    $this.show();
-
-                    $this.iframe.on('load', function() {
-                            $this.iframeLoaded = true;
-                            $this.content.removeClass('ui-lightbox-loading');
-                        })
-                        .attr('src', $this.element.attr('href'));
-                }
-                else {
-                    $this.show();
-                }
-
-                var title = $this.element.attr('title');
-                if(title) {
-                    $this.caption.html(title);
-                    $this.caption.slideDown();
-                }
-
-                e.preventDefault();
-            });
-        },
-
-        show: function() {
-            this.center();
-
-            this.panel.css('z-index', ++PUI.zindex).show();
-
-            if(!this.modality) {
-                this._enableModality();
-            }
-
-            this._trigger('show');
-        },
-
-        hide: function() {
-            this.panel.fadeOut();
-            this._disableModality();
-            this.caption.hide();
-
-            if(this.options.mode === 'image') {
-                this.imageDisplay.hide().attr('src', '').removeAttr('style');
-                this._hideNavigators();
-            }
-
-            this._trigger('hide');
-        },
-
-        center: function() {
-            var win = $(window),
-                left = (win.width() / 2 ) - (this.panel.width() / 2),
-                top = (win.height() / 2 ) - (this.panel.height() / 2);
-
-            this.panel.css({
-                'left': left,
-                'top': top
-            });
-        },
-
-        _enableModality: function() {
-            this.modality = $('<div class="ui-widget-overlay"></div>')
-                .css({
-                    'width': $(document).width(),
-                    'height': $(document).height(),
-                    'z-index': this.panel.css('z-index') - 1
-                })
-                .appendTo(document.body);
-        },
-
-        _disableModality: function() {
-            this.modality.remove();
-            this.modality = null;
-        },
-
-        _showNavigators: function() {
-            this.navigators.zIndex(this.imageDisplay.zIndex() + 1).show();
-        },
-
-        _hideNavigators: function() {
-            this.navigators.hide();
-        },
-
-        isHidden: function() {
-            return this.panel.is(':hidden');
-        },
-
-        showURL: function(opt) {
-            if(opt.width) {
-                this.iframe.attr('width', opt.width);
-            }
-            if(opt.height) {
-                this.iframe.attr('height', opt.height);
-            }
-
-            this.iframe.attr('src', opt.src);
-
-            this.show();
-        }
-    });
 })();
 /**
  * PrimeUI inputtextarea widget
@@ -6479,6 +6111,378 @@ PUI.resolveUserAgent();
         }
     });
     
+})();
+/**
+ * PrimeUI Lightbox Widget
+ */
+(function() {
+
+    $.widget("primeui.puilightbox", {
+
+        options: {
+            iframeWidth: 640,
+            iframeHeight: 480,
+            iframe: false
+        },
+
+        _create: function() {
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+
+            this.options.mode = this.options.iframe ? 'iframe' : (this.element.children('div').length == 1) ? 'inline' : 'image';
+
+            var dom = '<div class="ui-lightbox ui-widget ui-helper-hidden ui-corner-all ui-shadow">';
+            dom += '<div class="ui-lightbox-content-wrapper">';
+            dom += '<a class="ui-state-default ui-lightbox-nav-left ui-corner-right ui-helper-hidden"><span class="fa fa-fw fa-caret-left"></span></a>';
+            dom += '<div class="ui-lightbox-content ui-corner-all"></div>';
+            dom += '<a class="ui-state-default ui-lightbox-nav-right ui-corner-left ui-helper-hidden"><span class="fa fa-fw fa-caret-right"></span></a>';
+            dom += '</div>';
+            dom += '<div class="ui-lightbox-caption ui-widget-header"><span class="ui-lightbox-caption-text"></span>';
+            dom += '<a class="ui-lightbox-close ui-corner-all" href="#"><span class="fa fa-fw fa-close"></span></a><div style="clear:both" /></div>';
+            dom += '</div>';
+
+            this.panel = $(dom).appendTo(document.body);
+            this.contentWrapper = this.panel.children('.ui-lightbox-content-wrapper');
+            this.content = this.contentWrapper.children('.ui-lightbox-content');
+            this.caption = this.panel.children('.ui-lightbox-caption');
+            this.captionText = this.caption.children('.ui-lightbox-caption-text');
+            this.closeIcon = this.caption.children('.ui-lightbox-close');
+
+            if(this.options.mode === 'image') {
+                this._setupImaging();
+            }
+            else if(this.options.mode === 'inline') {
+                this._setupInline();
+            }
+            else if(this.options.mode === 'iframe') {
+                this._setupIframe();
+            }
+
+            this._bindCommonEvents();
+
+            this.links.data('puilightbox-trigger', true).find('*').data('puilightbox-trigger', true);
+            this.closeIcon.data('puilightbox-trigger', true).find('*').data('puilightbox-trigger', true);
+        },
+
+        _bindCommonEvents: function() {
+            var $this = this;
+
+            this.closeIcon.on('hover.ui-lightbox', function() {
+                    $(this).toggleClass('ui-state-hover');
+                })
+                .on('click.ui-lightbox', function(e) {
+                    $this.hide();
+                    e.preventDefault();
+                });
+
+            //hide when outside is clicked
+            $(document.body).on('click.ui-lightbox-' + this.id, function (e) {
+                if($this.isHidden()) {
+                    return;
+                }
+
+                //do nothing if target is the link
+                var target = $(e.target);
+                if(target.data('puilightbox-trigger')) {
+                    return;
+                }
+
+                //hide if mouse is outside of lightbox
+                var offset = $this.panel.offset();
+                if(e.pageX < offset.left ||
+                    e.pageX > offset.left + $this.panel.width() ||
+                    e.pageY < offset.top ||
+                    e.pageY > offset.top + $this.panel.height()) {
+
+                    $this.hide();
+                }
+            });
+
+            //sync window resize
+            $(window).on('resize.ui-lightbox-' + this.id, function() {
+                if(!$this.isHidden()) {
+                    $(document.body).children('.ui-widget-overlay').css({
+                        'width': $(document).width(),
+                        'height': $(document).height()
+                    });
+                }
+            });
+        },
+
+        _destroy: function() {
+            this.links.removeData('puilightbox-trigger').find('*').removeData('puilightbox-trigger');
+            this._unbindEvents();
+            this.panel.remove();
+            if(this.modality) {
+                this._disableModality();
+            }
+        },
+
+        _unbindEvents: function() {
+            this.closeIcon.off('hover.ui-lightbox click.ui-lightbox');
+            $(document.body).off('click.ui-lightbox-' + this.id);
+            $(window).off('resize.ui-lightbox-' + this.id)
+            this.links.off('click.ui-lightbox');
+            if(this.options.mode === 'image') {
+                this.imageDisplay.off('load.ui-lightbox');
+                this.navigators.off('hover.ui-lightbox click.ui-lightbox');
+            }
+        },
+
+        _setupImaging: function() {
+            var $this = this;
+
+            this.links = this.element.children('a');
+            this.content.append('<img class="ui-helper-hidden"></img>');
+            this.imageDisplay = this.content.children('img');
+            this.navigators = this.contentWrapper.children('a');
+
+            this.imageDisplay.on('load.ui-lightbox', function() {
+                var image = $(this);
+
+                $this._scaleImage(image);
+
+                //coordinates to center overlay
+                var leftOffset = ($this.panel.width() - image.width()) / 2,
+                    topOffset = ($this.panel.height() - image.height()) / 2;
+
+                //resize content for new image
+                $this.content.removeClass('ui-lightbox-loading').animate({
+                        width: image.width(),
+                        height: image.height()
+                    },
+                    500,
+                    function() {
+                        //show image
+                        image.fadeIn();
+                        $this._showNavigators();
+                        $this.caption.slideDown();
+                    });
+
+                $this.panel.animate({
+                    left: '+=' + leftOffset,
+                    top: '+=' + topOffset
+                }, 500);
+            });
+
+            this.navigators.on('hover.ui-lightbox', function() {
+                    $(this).toggleClass('ui-state-hover');
+                })
+                .on('click.ui-lightbox', function(e) {
+                    var nav = $(this),
+                        index;
+
+                    $this._hideNavigators();
+
+                    if(nav.hasClass('ui-lightbox-nav-left')) {
+                        index = $this.current === 0 ? $this.links.length - 1 : $this.current - 1;
+
+                        $this.links.eq(index).trigger('click');
+                    }
+                    else {
+                        index = $this.current == $this.links.length - 1 ? 0 : $this.current + 1;
+
+                        $this.links.eq(index).trigger('click');
+                    }
+
+                    e.preventDefault();
+                });
+
+            this.links.on('click.ui-lightbox', function(e) {
+                var link = $(this);
+
+                if($this.isHidden()) {
+                    $this.content.addClass('ui-lightbox-loading').width(32).height(32);
+                    $this.show();
+                }
+                else {
+                    $this.imageDisplay.fadeOut(function() {
+                        //clear for onload scaling
+                        $(this).css({
+                            'width': 'auto',
+                            'height': 'auto'
+                        });
+
+                        $this.content.addClass('ui-lightbox-loading');
+                    });
+
+                    $this.caption.slideUp();
+                }
+
+                window.setTimeout(function() {
+                    $this.imageDisplay.attr('src', link.attr('href'));
+                    $this.current = link.index();
+
+                    var title = link.attr('title');
+                    if(title) {
+                        $this.captionText.html(title);
+                    }
+                }, 1000);
+
+
+                e.preventDefault();
+            });
+        },
+
+        _scaleImage: function(image) {
+            var win = $(window),
+                winWidth = win.width(),
+                winHeight = win.height(),
+                imageWidth = image.width(),
+                imageHeight = image.height(),
+                ratio = imageHeight / imageWidth;
+
+            if(imageWidth >= winWidth && ratio <= 1){
+                imageWidth = winWidth * 0.75;
+                imageHeight = imageWidth * ratio;
+            }
+            else if(imageHeight >= winHeight){
+                imageHeight = winHeight * 0.75;
+                imageWidth = imageHeight / ratio;
+            }
+
+            image.css({
+                'width':imageWidth + 'px',
+                'height':imageHeight + 'px'
+            });
+        },
+
+        _setupInline: function() {
+            this.links = this.element.children('a');
+            this.inline = this.element.children('div').addClass('ui-lightbox-inline');
+            this.inline.appendTo(this.content).show();
+            var $this = this;
+
+            this.links.on('click.ui-lightbox', function(e) {
+                $this.show();
+
+                var title = $(this).attr('title');
+                if(title) {
+                    $this.captionText.html(title);
+                    $this.caption.slideDown();
+                }
+
+                e.preventDefault();
+            });
+        },
+
+        _setupIframe: function() {
+            var $this = this;
+            this.links = this.element;
+            this.iframe = $('<iframe frameborder="0" style="width:' + this.options.iframeWidth + 'px;height:' +
+                this.options.iframeHeight + 'px;border:0 none; display: block;"></iframe>').appendTo(this.content);
+
+            if(this.options.iframeTitle) {
+                this.iframe.attr('title', this.options.iframeTitle);
+            }
+
+            this.element.click(function(e) {
+                if(!$this.iframeLoaded) {
+                    $this.content.addClass('ui-lightbox-loading').css({
+                        width: $this.options.iframeWidth,
+                        height: $this.options.iframeHeight
+                    });
+
+                    $this.show();
+
+                    $this.iframe.on('load', function() {
+                            $this.iframeLoaded = true;
+                            $this.content.removeClass('ui-lightbox-loading');
+                        })
+                        .attr('src', $this.element.attr('href'));
+                }
+                else {
+                    $this.show();
+                }
+
+                var title = $this.element.attr('title');
+                if(title) {
+                    $this.caption.html(title);
+                    $this.caption.slideDown();
+                }
+
+                e.preventDefault();
+            });
+        },
+
+        show: function() {
+            this.center();
+
+            this.panel.css('z-index', ++PUI.zindex).show();
+
+            if(!this.modality) {
+                this._enableModality();
+            }
+
+            this._trigger('show');
+        },
+
+        hide: function() {
+            this.panel.fadeOut();
+            this._disableModality();
+            this.caption.hide();
+
+            if(this.options.mode === 'image') {
+                this.imageDisplay.hide().attr('src', '').removeAttr('style');
+                this._hideNavigators();
+            }
+
+            this._trigger('hide');
+        },
+
+        center: function() {
+            var win = $(window),
+                left = (win.width() / 2 ) - (this.panel.width() / 2),
+                top = (win.height() / 2 ) - (this.panel.height() / 2);
+
+            this.panel.css({
+                'left': left,
+                'top': top
+            });
+        },
+
+        _enableModality: function() {
+            this.modality = $('<div class="ui-widget-overlay"></div>')
+                .css({
+                    'width': $(document).width(),
+                    'height': $(document).height(),
+                    'z-index': this.panel.css('z-index') - 1
+                })
+                .appendTo(document.body);
+        },
+
+        _disableModality: function() {
+            this.modality.remove();
+            this.modality = null;
+        },
+
+        _showNavigators: function() {
+            this.navigators.zIndex(this.imageDisplay.zIndex() + 1).show();
+        },
+
+        _hideNavigators: function() {
+            this.navigators.hide();
+        },
+
+        isHidden: function() {
+            return this.panel.is(':hidden');
+        },
+
+        showURL: function(opt) {
+            if(opt.width) {
+                this.iframe.attr('width', opt.width);
+            }
+            if(opt.height) {
+                this.iframe.attr('height', opt.height);
+            }
+
+            this.iframe.attr('src', opt.src);
+
+            this.show();
+        }
+    });
 })();
 /**
  * PrimeUI listvox widget
@@ -7200,10 +7204,8 @@ PUI.resolveUserAgent();
             this._super();
         },
 
-
         _bindEvents: function() {
             this._bindItemEvents();
-
             this._bindDocumentHandler();
         },
 
@@ -7671,37 +7673,21 @@ PUI.resolveUserAgent();
             var $this = this;
 
             if(this.options.target) {
-                if($.type(this.options.target) === 'string') {
-                    this.options.target =  $(this.options.target);
+                this.options.target =  $(this.options.target);
+                
+                if(this.options.target.hasClass('ui-datatable')) {
+                    $this._bindDataTable();
                 }
-            }
-            else {
-                this.options.target = $(document);
+                else {
+                    this.options.target.on(this.options.event + '.ui-contextmenu', function(e){
+                        $this.show(e);
+                    });
+                }
             }
 
             if(!this.element.parent().parent().is(document.body)) {
                 this.element.parent().appendTo('body');
             }
-
-            if(this.options.target.hasClass('ui-datatable')) {
-                $this._bindDataTable();
-            }
-            else {
-                this.options.target.on(this.options.event + '.ui-contextmenu', function(e){
-                    $this.show(e);
-                });
-            }
-        },
-
-        _bindItemEvents: function() {
-            this._super();
-
-            var $this = this;
-
-            //hide menu on item click
-            this.links.on('click.ui-contextmenu', function() {
-                $this._hide();
-            });
         },
 
         _bindDocumentHandler: function() {
@@ -7737,13 +7723,14 @@ PUI.resolveUserAgent();
         _unbindEvents: function() {
             this._super();
 
-            this.options.target.off(this.options.event + '.ui-contextmenu');
-            this.links.off('click.ui-contextmenu');
-            $(document.body).off('click.ui-contextmenu.' + this.id);
-
-            if(this.options.target.hasClass('ui-datatable')) {
-                this._unbindDataTable();
+            if(this.options.target) {
+                if(this.options.target.hasClass('ui-datatable'))
+                    this._unbindDataTable();
+                else 
+                    this.options.target.off(this.options.event + '.ui-contextmenu');
             }
+            
+            $(document.body).off('click.ui-contextmenu.' + this.id);
         },
 
         show: function(e) {
@@ -8926,6 +8913,571 @@ PUI.resolveUserAgent();
     });
     
 })();
+/**
+ * PrimeUI MultiSelect Widget
+ */
+(function() {
+
+    $.widget("primeui.puimultiselect", {
+
+        options: {
+            defaultLabel: 'Choose',
+            caseSensitive: false,
+            filterMatchMode: 'startsWith',
+            filterFunction: null,
+            data: null,
+            scrollHeight: 200,
+            style: null,
+            styleClass: null,
+            value: null
+        },
+
+        _create: function() {
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+
+            if(this.options.data) {
+                if($.isArray(this.options.data)) {
+                    this._generateOptionElements(this.options.data);
+                }
+            }
+            this._render();
+
+            if(this.options.style) {
+                this.container.attr('style', this.options.style);
+            }
+
+            if(this.options.styleClass) {
+                this.container.addClass(this.options.styleClass);
+            }
+
+            this.triggers = this.container.find('.ui-multiselect-trigger, .ui-multiselect-label');
+            this.label = this.labelContainer.find('.ui-multiselect-label');
+
+            this._generateItems();
+
+            //preselection via value option
+            if(this.options.value && this.options.value.length) {
+                var checkboxes = this.items.find('.ui-chkbox-box');
+                for (var i = 0; i < this.options.value.length; i++) {
+                    var index =  this.findSelectionIndex(this.options.value[i]);
+                    this.selectItem(this.items.eq(index));                    
+                }
+                this.updateLabel();
+            }
+
+            this._bindEvents();
+        },
+
+        _render: function() {
+            this.choices = this.element.children('option');
+            this.element.attr('tabindex', '0').wrap('<div class="ui-multiselect ui-widget ui-state-default ui-corner-all" />')
+                .wrap('<div class="ui-helper-hidden-accessible" />');
+            this.container = this.element.closest('.ui-multiselect');
+            this.container.append('<div class="ui-helper-hidden-accessible"><input readonly="readonly" type="text" /></div>');
+            this.labelContainer = $('<div class="ui-multiselect-label-container"><label class="ui-multiselect-label ui-corner-all">' + this.options.defaultLabel +
+             '</label></div>').appendTo(this.container);
+            this.menuIcon = $('<div class="ui-multiselect-trigger ui-state-default ui-corner-right"><span class="fa fa-fw fa-caret-down"></span></div>')
+                .appendTo(this.container);
+
+            this._renderPanel();
+
+            //filter
+            this.filterContainer = $('<div class="ui-multiselect-filter-container" />').appendTo(this.panelHeader);
+            this.filterInput = $('<input type="text" aria-readonly="false" aria-disabled="false" aria-multiline="false" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all" />')
+                .appendTo(this.filterContainer);
+            this.filterContainer.append('<span class="fa fa-search"></span>');
+
+            this.closeIcon = $('<a class="ui-multiselect-close ui-corner-all" href="#"><span class="fa fa-close"></span></a>').appendTo(this.panelHeader);
+            this.container.append(this.panel);
+        },
+
+        _renderPanel: function() {
+            //panel
+            this.panel = $('<div id="'+this.element.attr('id')+ "_panel" +'"class="ui-multiselect-panel ui-widget ui-widget-content ui-corner-all ui-helper-hidden"/>');
+            this.panelHeader = $('<div class="ui-widget-header ui-corner-all ui-multiselect-header ui-helper-clearfix"></div>').appendTo(this.panel);
+            this.toggler = $('<div class="ui-chkbox ui-widget">' +
+                '<div class="ui-helper-hidden-accessible"><input readonly="readonly" type="checkbox"/></div>' +
+                '<div class="ui-chkbox-box ui-widget ui-corner-all ui-state-default"><span class="ui-chkbox-icon ui-c fa fa-fw"></span></div>' +
+                    '</div>');
+            this.togglerBox = this.toggler.children('.ui-chkbox-box');
+            this.panelHeader.append(this.toggler);
+            this.itemsWrapper = $('<div class="ui-multiselect-items-wrapper" />').appendTo(this.panel);
+            this.itemContainer = $('<ul class="ui-multiselect-items ui-multiselect-list ui-widget-content ui-widget ui-corner-all ui-helper-reset"></ul>')
+                .appendTo(this.itemsWrapper);
+
+            this.itemsWrapper.css('max-height', this.options.scrollHeight);
+        },
+
+        _generateItems: function() {
+            for(var i = 0; i < this.choices.length; i++) {
+                var option = this.choices.eq(i),
+                    optionLabel = option.text();
+                this.listItems = $('<li data-label="' + optionLabel + '" class="ui-multiselect-item ui-corner-all">' +
+                '<div class="ui-chkbox ui-widget">' +
+                    '<div class="ui-helper-hidden-accessible"><input readonly="readonly" type="checkbox"/></div>' +
+                    '<div class="ui-chkbox-box ui-widget ui-corner-all ui-state-default"><span class="ui-chkbox-icon ui-c fa fa-fw"></span></div>' +
+                '</div>' + '<label>' + optionLabel + '</label>' + '</li>').appendTo(this.itemContainer);
+            }
+
+            this.items = this.itemContainer.children('.ui-multiselect-item');
+        },
+
+        _generateOptionElements: function(data) {
+            for(var i = 0; i < data.length; i++) {
+                var choice = data[i];
+
+                if(choice.label)
+                    this.element.append('<option value="' + choice.value + '">' + choice.label + '</option>');
+                else
+                    this.element.append('<option value="' + choice + '">' + choice + '</option>');
+            }
+        },
+
+        _bindEvents: function() {
+            var $this = this,
+            hideNS = 'click.' + this.id,
+            resizeNS = 'resize.' + this.id;
+
+            this._bindItemEvents(this.items.filter(':not(.ui-state-disabled)'));
+            
+            //Toggler
+            this._bindCheckboxHover(this.togglerBox);
+            this.togglerBox.on('click.puimultiselect', function() {
+                var el = $(this);
+                if(el.children('.ui-chkbox-icon').hasClass('fa-check'))
+                    $this.uncheckAll();
+                else
+                    $this.checkAll();
+                    
+                $this.updateLabel();
+            });
+
+            //Filter
+            this._setupFilterMatcher();
+            this.filterInput.on('keyup.puimultiselect', function() {
+                $(this).trigger('focus');
+                $this.filter($(this).val());
+            })
+            .on('focus.puimultiselect', function() {
+                $(this).addClass('ui-state-focus');
+            })
+            .on('blur.puimultiselect', function() {
+                $(this).removeClass('ui-state-focus');
+            });
+
+            //Container focus
+            this.element.on('focus.puimultiselect', function() {
+                $this.container.addClass('ui-state-focus');
+            })
+            .on('blur.puimultiselect', function() {
+                $this.container.removeClass('ui-state-focus');
+            });
+
+            //Closer
+            this.closeIcon.on('mouseenter.puimultiselect', function(){
+                $(this).addClass('ui-state-hover');
+            }).on('mouseleave.puimultiselect', function() {
+                $(this).removeClass('ui-state-hover');
+            }).on('click.puimultiselect', function(e) {
+                $this.hide(true);
+
+                e.preventDefault();
+            });
+
+            //Events to show/hide the panel
+            this.triggers.on('mouseover.puimultiselect', function() {
+                if(!$this.disabled&&!$this.triggers.hasClass('ui-state-focus')) {
+                    $this.triggers.addClass('ui-state-hover');
+                }
+            }).on('mouseout.puimultiselect', function() {
+                if(!$this.disabled) {
+                    $this.triggers.removeClass('ui-state-hover');
+                }
+            }).on('click.puimultiselect', function(e) {
+                if(!$this.disabled) {
+                    if($this.panel.is(":hidden"))
+                        $this.show();
+                    else
+                        $this.hide(true);
+                }
+            })
+            .on('focus.puimultiselect', function() {
+                $(this).addClass('ui-state-focus');
+            })
+            .on('blur.puimultiselect', function() {
+                $(this).removeClass('ui-state-focus');
+            })
+            .on('click.puimultiselect', function(e) {
+                $this.element.trigger('focus.puimultiselect');
+                e.preventDefault();
+            });
+
+            this._bindKeyEvents();
+
+            //hide overlay when outside is clicked
+            $(document.body).off(hideNS).on(hideNS, function (e) {
+                if($this.panel.is(':hidden')) {
+                    return;
+                }
+
+                //do nothing on trigger mousedown
+                var target = $(e.target);
+                if($this.triggers.is(target)||$this.triggers.has(target).length > 0) {
+                    return;
+                }
+
+                //hide the panel and remove focus from label
+                var offset = $this.panel.offset();
+                if(e.pageX < offset.left ||
+                    e.pageX > offset.left + $this.panel.width() ||
+                    e.pageY < offset.top ||
+                    e.pageY > offset.top + $this.panel.height()) {
+                    $this.hide(true);
+                }
+            });
+
+            //Realign overlay on resize
+            $(window).off(resizeNS).on(resizeNS, function() {
+                if($this.panel.is(':visible')) {
+                    $this.alignPanel();
+                }
+            });
+        },
+
+        _bindItemEvents: function(item) {
+            var $this = this;
+
+            item.on('mouseover.puimultiselect', function() {
+                    var el = $(this);
+
+                    if(!el.hasClass('ui-state-highlight'))
+                        $(this).addClass('ui-state-hover');
+                })
+                .on('mouseout.puimultiselect', function() {
+                    $(this).removeClass('ui-state-hover');
+                })
+                .on('click.puimultiselect', function() {
+                    $this._toggleItem($(this));
+                    PUI.clearSelection();
+                });
+        },
+
+        _bindKeyEvents: function() {
+            var $this = this;
+
+            this.element.on('focus.puimultiselect', function() {
+                $(this).addClass('ui-state-focus');
+                $this.menuIcon.addClass('ui-state-focus');
+            }).on('blur.puimultiselect', function() {
+                $(this).removeClass('ui-state-focus');
+                $this.menuIcon.removeClass('ui-state-focus');
+            }).on('keydown.puimultiselect', function(e) {
+                var keyCode = $.ui.keyCode,
+                key = e.which;
+
+                switch(key) {
+                    case keyCode.ENTER:
+                    case keyCode.NUMPAD_ENTER:
+                        if($this.panel.is(":hidden"))
+                            $this.show();
+                        else
+                            $this.hide(true);
+
+                        e.preventDefault();
+                    break;
+
+                    case keyCode.TAB:
+                        if($this.panel.is(':visible')) {
+
+                            $this.toggler.find('> div.ui-helper-hidden-accessible > input').trigger('focus');
+
+                            e.preventDefault();
+                        }
+
+                    break;
+
+                };
+            });
+
+            this.closeIcon.on('focus.puimultiselect', function(e) {
+                $this.closeIcon.addClass('ui-state-focus');
+            })
+            .on('blur.puimultiselect', function(e) {
+                $this.closeIcon.removeClass('ui-state-focus');
+            })
+            .on('keydown.puimultiselect', function(e) {
+                var keyCode = $.ui.keyCode,
+                key = e.which;
+
+                if(key === keyCode.ENTER || key === keyCode.NUMPAD_ENTER) {
+                    $this.hide(true);
+                    e.preventDefault();
+                }
+            });
+
+            var togglerCheckboxInput = this.toggler.find('> div.ui-helper-hidden-accessible > input');
+            this._bindCheckboxKeyEvents(togglerCheckboxInput);
+            togglerCheckboxInput.on('keyup.puimultiselect', function(e) {
+                        if(e.which === $.ui.keyCode.SPACE) {
+                            var input = $(this);
+
+                            if(input.prop('checked'))
+                                $this.uncheckAll();
+                            else
+                                $this.checkAll();
+
+                            e.preventDefault();
+                        }
+                    });
+
+            var itemKeyInputs = this.itemContainer.find('> li > div.ui-chkbox > div.ui-helper-hidden-accessible > input');
+            this._bindCheckboxKeyEvents(itemKeyInputs);
+            itemKeyInputs.on('keyup.selectCheckboxMenu', function(e) {
+                        if(e.which === $.ui.keyCode.SPACE) {
+                            var input = $(this),
+                            box = input.parent().next();
+                            
+                            $this._toggleItem(input.closest('li'));
+
+                            e.preventDefault();
+                        }
+                    });
+        },
+
+        _bindCheckboxHover: function(item) {
+            item.on('mouseenter.puimultiselect', function() {
+                var item = $(this);
+                if(!item.hasClass('ui-state-active')&&!item.hasClass('ui-state-disabled')) {
+                    item.addClass('ui-state-hover');
+                }
+            }).on('mouseleave.puimultiselect', function() {
+                $(this).removeClass('ui-state-hover');
+            });
+        },
+
+        _bindCheckboxKeyEvents: function(items) {
+            var $this = this;
+            items.on('focus.puimultiselect', function(e) {
+                var input = $(this),
+                box = input.parent().next();
+
+                if(input.prop('checked')) {
+                    box.removeClass('ui-state-active');
+                }
+
+                box.addClass('ui-state-focus');
+            })
+            .on('blur.puimultiselect', function(e) {
+                var input = $(this),
+                box = input.parent().next();
+
+                if(input.prop('checked')) {
+                    box.addClass('ui-state-active');
+                }
+
+                box.removeClass('ui-state-focus');
+            })
+            .on('keydown.puimultiselect', function(e) {
+                if(e.which === $.ui.keyCode.SPACE) {
+                    e.preventDefault();
+                }
+            });
+        },
+
+        _toggleItem: function(item) {
+            if(item.hasClass('ui-state-highlight'))
+                this.unselectItem(item);
+            else
+                this.selectItem(item);
+            
+            this.updateLabel();
+            this.updateToggler();
+        },
+        
+        selectItem: function(item) {
+            var checkbox = item.find('> .ui-chkbox');
+            item.addClass('ui-state-highlight');
+            checkbox.find(':checkbox').prop('checked', true);
+            checkbox.find('> .ui-chkbox-box > .ui-chkbox-icon').addClass('fa-check');
+            this.choices.eq(item.index()).prop('selected', true);
+        },
+        
+        unselectItem: function(item) {
+            var checkbox = item.find('> .ui-chkbox');
+            item.removeClass('ui-state-highlight');
+            checkbox.find(':checkbox').prop('checked', false);
+            checkbox.find('> .ui-chkbox-box > .ui-chkbox-icon').removeClass('fa-check');
+            this.choices.eq(item.index()).prop('selected', false);
+        },
+
+        filter: function(value) {
+            var filterValue = this.options.caseSensitive ? $.trim(value) : $.trim(value).toLowerCase();
+
+            if(filterValue === '') {
+                this.itemContainer.children('li.ui-multiselect-item').filter(':hidden').show();
+            }
+            else {
+                for(var i = 0; i < this.choices.length; i++) {
+                    var choice = this.choices.eq(i),
+                    item = this.items.eq(i),
+                    itemLabel = this.options.caseSensitive ? choice.text() : choice.text().toLowerCase();
+
+                    if(this.filterMatcher(itemLabel, filterValue))
+                        item.show();
+                    else
+                        item.hide();
+                }
+            }
+
+            this.updateToggler();
+        },
+
+        _setupFilterMatcher: function() {
+            this.options.filterMatchMode = this.options.filterMatchMode||'startsWith';
+            this.filterMatchers = {
+                'startsWith': this.startsWithFilter
+                ,'contains': this.containsFilter
+                ,'endsWith': this.endsWithFilter
+                ,'custom': this.options.filterFunction
+            };
+
+            this.filterMatcher = this.filterMatchers[this.options.filterMatchMode];
+        },
+
+        startsWithFilter: function(value, filter) {
+            return value.indexOf(filter) === 0;
+        },
+
+        containsFilter: function(value, filter) {
+            return value.indexOf(filter) !== -1;
+        },
+
+        endsWithFilter: function(value, filter) {
+            return value.indexOf(filter, value.length - filter.length) !== -1;
+        },
+
+        show: function() {
+            this.alignPanel();
+
+            this.panel.show();
+
+            this.postShow();
+        },
+
+        hide: function(animate) {
+            var $this = this;
+
+            if(animate) {
+                this.panel.fadeOut('fast', function() {
+                    $this.postHide();
+                });
+            }
+
+            else {
+                this.panel.hide();
+                this.postHide();
+            }
+        },
+
+        postShow: function() {
+            this.panel.trigger('onShow.puimultiselect');
+        },
+
+        postHide: function() {
+            this.panel.trigger('onHide.puimultiselect');
+        },
+
+        findSelectionIndex: function(val){
+            var index = -1;
+
+            if(this.choices) {
+                for(var i = 0; i < this.choices.length; i++) {
+                    if(this.choices.eq(i).val() == val) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+
+            return index;
+        },
+
+        updateLabel: function() {
+            var selectedItems = this.choices.filter(':selected'),
+            label = null;
+
+            if(selectedItems.length) {
+                label = '';
+                for(var i = 0; i < selectedItems.length; i++) {
+                    if(i != 0) {
+                        label = label + ',';
+                    }
+                    label = label + selectedItems.eq(i).text();
+                }
+            }
+            else {
+                label = this.options.defaultLabel;
+            }
+            
+            this.label.text(label);
+        },
+
+        updateToggler: function() {
+            var visibleItems = this.itemContainer.children('li.ui-multiselect-item:visible');
+
+            if(visibleItems.length && visibleItems.filter('.ui-state-highlight').length === visibleItems.length) {
+                this.toggler.find(':checkbox').prop('checked', true);
+                this.togglerBox.children('.ui-chkbox-icon').addClass('fa-check');
+            }
+            else {
+                this.toggler.find(':checkbox').prop('checked', false);
+                this.togglerBox.children('.ui-chkbox-icon').removeClass('fa-check');
+            }
+        },
+
+        checkAll: function() {
+            var visibleItems = this.items.filter(':visible'),
+            $this = this;
+
+            visibleItems.each(function() {
+                $this.selectItem($(this));
+            });
+        
+            this.toggler.find(':checkbox').prop('checked', true);
+            this.togglerBox.children('.ui-chkbox-icon').addClass('fa-check');
+        },
+
+        uncheckAll: function() {
+            var visibleItems = this.items.filter(':visible'),
+            $this = this;
+
+            visibleItems.each(function() {
+                $this.unselectItem($(this));
+            });
+            
+            this.toggler.find(':checkbox').prop('checked', false);
+            this.togglerBox.children('.ui-chkbox-icon').removeClass('fa-check');
+        },
+
+        alignPanel: function() {
+            this.panel.css({
+                    'left':'',
+                    'top':'',
+                    'z-index': ++PUI.zindex
+            });
+
+            this.panel.show().position({
+                                my: 'left top'
+                                ,at: 'left bottom'
+                                ,of: this.container
+                            });
+        }
+    });
+})();
+
 (function() {
 
     $.widget("primeui.puimultiselectlistbox", {
@@ -10208,73 +10760,76 @@ PUI.resolveUserAgent();
 (function() {
 
     $.widget("primeui.puipanel", {
-       
+
         options: {
             toggleable: false,
             toggleDuration: 'normal',
-            toggleOrientation : 'vertical',
+            toggleOrientation: 'vertical',
             collapsed: false,
             closable: false,
             closeDuration: 'normal',
             title: null,
-            enhanced: false
+            footer: null
         },
-        
-        _create: function() {
-            if(!this.options.enhanced) {
-                this.element.addClass('ui-panel ui-widget ui-widget-content ui-corner-all')
-                    .contents().wrapAll('<div class="ui-panel-content ui-widget-content" />');
 
-                var title = this.element.attr('title')||this.options.title;
-                if(title) {
-                    this.element.prepend('<div class="ui-panel-titlebar ui-widget-header ui-helper-clearfix ui-corner-all"><span class="ui-panel-title">' +
-                            title + "</span></div>").removeAttr('title');
-                }
+        _create: function() {
+            this.element.addClass('ui-panel ui-widget ui-widget-content ui-corner-all')
+                .contents().wrapAll('<div class="ui-panel-content ui-widget-content" />');
+            
+            if(this.element.attr('title')) {
+                this.options.title = this.element.attr('title');
+                this.element.removeAttr('title');
             }
-                
+
+            if(this.options.title) {
+                this.element.prepend('<div class="ui-panel-titlebar ui-widget-header ui-helper-clearfix ui-corner-all"><span class="ui-panel-title"></span></div>');
+            }
+            
+            if(this.options.footer) {
+                this.element.append('<div class="ui-panel-footer ui-widget-content"></div>');
+            }
+
             this.header = this.element.children('div.ui-panel-titlebar');
             this.title = this.header.children('span.ui-panel-title');
             this.content = this.element.children('div.ui-panel-content');
-            
+            this.footer = this.element.children('div.ui-panel-footer');
+
             var $this = this;
             
+            if(this.options.title) {
+                this._createFacetContent(this.title, this.options.title);
+            }
+            
+            if(this.options.footer) {
+                this._createFacetContent(this.footer, this.options.footer);
+            }
+
             if(this.options.closable) {
-                if(!this.options.enhanced) {
-                    this.closer = $('<a class="ui-panel-titlebar-icon ui-panel-titlebar-closer ui-corner-all ui-state-default" href="#"><span class="fa fa-fw fa-close"></span></a>')
-                                .appendTo(this.header);
-                }
-                else {
-                    this.closer = this.header.children('.ui-panel-titlebar-closer');
-                }
+                this.closer = $('<a class="ui-panel-titlebar-icon ui-panel-titlebar-closer ui-corner-all ui-state-default" href="#"><span class="fa fa-fw fa-close"></span></a>')
+                            .appendTo(this.header);
 
                 this.closer.on('click.puipanel', function(e) {
                     $this.close();
                     e.preventDefault();
                 });
             }
-            
+
             if(this.options.toggleable) {
                 var icon = this.options.collapsed ? 'fa-plus' : 'fa-minus';
-                
-                if(!this.options.enhanced) {
-                    this.toggler = $('<a class="ui-panel-titlebar-icon ui-panel-titlebar-toggler ui-corner-all ui-state-default" href="#"><span class="fa fa-fw ' + icon + '"></span></a>')
-                                .appendTo(this.header);
-                }
-                else {
-                    this.toggler = this.header.children('.ui-panel-titlebar-toggler');
-                    this.toggler.children('.fa').addClass(icon);
-                }
-                
+
+                this.toggler = $('<a class="ui-panel-titlebar-icon ui-panel-titlebar-toggler ui-corner-all ui-state-default" href="#"><span class="fa fa-fw ' + icon + '"></span></a>')
+                            .appendTo(this.header);
+
                 this.toggler.on('click.puipanel', function(e) {
                     $this.toggle();
                     e.preventDefault();
                 });
-                                
+
                 if(this.options.collapsed) {
                     this.content.hide();
                 }
             }
-            
+
             this._bindEvents();
         },
 
@@ -10290,19 +10845,19 @@ PUI.resolveUserAgent();
         _unbindEvents: function() {
             this.header.children('a.ui-panel-titlebar-icon').off();
         },
-        
+
         close: function() {
             var $this = this;
-            
+
             this._trigger('beforeClose', null);
-            
+
             this.element.fadeOut(this.options.closeDuration,
                 function() {
                     $this._trigger('afterClose', null);
                 }
             );
         },
-        
+
         toggle: function() {
             if(this.options.collapsed) {
                 this.expand();
@@ -10311,13 +10866,13 @@ PUI.resolveUserAgent();
                 this.collapse();
             }
         },
-        
+
         expand: function() {
             this.toggler.children('.fa').removeClass('fa-plus').addClass('fa-minus');
-            
+
             if(this.options.toggleOrientation === 'vertical') {
                 this._slideDown();
-            } 
+            }
             else if(this.options.toggleOrientation === 'horizontal') {
                 this._slideRight();
             }
@@ -10325,35 +10880,35 @@ PUI.resolveUserAgent();
 
         collapse: function() {
             this.toggler.children('.fa').removeClass('fa-minus').addClass('fa-plus');
-            
+
             if(this.options.toggleOrientation === 'vertical') {
                 this._slideUp();
-            } 
+            }
             else if(this.options.toggleOrientation === 'horizontal') {
                 this._slideLeft();
             }
         },
-        
-        _slideUp: function() {        
+
+        _slideUp: function() {
             var $this = this;
-            
+
             this._trigger('beforeCollapse');
-            
+
             this.content.slideUp(this.options.toggleDuration, 'easeInOutCirc', function() {
                 $this._trigger('afterCollapse');
                 $this.options.collapsed = !$this.options.collapsed;
             });
         },
 
-        _slideDown: function() {  
+        _slideDown: function() {
             var $this = this;
-            
+
             this._trigger('beforeExpand');
-            
+
             this.content.slideDown(this.options.toggleDuration, 'easeInOutCirc', function() {
                 $this._trigger('afterExpand');
                 $this.options.collapsed = !$this.options.collapsed;
-            }); 
+            });
         },
 
         _slideLeft: function() {
@@ -10401,9 +10956,20 @@ PUI.resolveUserAgent();
             if(this.toggler) {
                 this.toggler.children('.fa').removeClass('fa-minus fa-plus');
             }
+        },
+        
+        _createFacetContent: function(anchor, option) {
+            var facetValue;
+            if($.type(option) === 'string')
+                facetValue = option;
+            else if($.type(option) === 'function')
+                facetValue = option.call();
+            
+            anchor.append(facetValue);
         }
     });
 })();
+
 /**
  * PrimeUI password widget
  */
@@ -11746,6 +12312,79 @@ PUI.resolveUserAgent();
 
 })();
 /**
+ * PrimeUI sticky widget
+ */
+(function() {
+
+    $.widget("primeui.puisticky", {
+       
+        _create: function() {
+            this.initialState = {
+                top: this.element.offset().top,
+                height: this.element.height()
+            };
+                        
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+            
+            this._bindEvents();          
+        },
+        
+        _bindEvents: function() {
+            var $this = this,
+            win = $(window),
+            scrollNS = 'scroll.' + this.id,
+            resizeNS = 'resize.' + this.id;
+
+            win.off(scrollNS).on(scrollNS, function() {
+                if(win.scrollTop() > $this.initialState.top)
+                    $this._fix();
+                else
+                    $this._restore();
+            })
+            .off(resizeNS).on(resizeNS, function() {
+                if($this.fixed) {
+                    $this.element.width($this.ghost.outerWidth() - ($this.element.outerWidth() - $this.element.width()));
+                }
+            });
+        },
+                
+        _fix: function() {
+            if(!this.fixed) {
+                this.element.css({
+                    'position': 'fixed',
+                    'top': 0,
+                    'z-index': 10000
+                })
+                .addClass('ui-shadow ui-sticky');
+        
+                this.ghost = $('<div class="ui-sticky-ghost"></div>').height(this.initialState.height).insertBefore(this.element);
+                this.element.width(this.ghost.outerWidth() - (this.element.outerWidth() - this.element.width()));
+                this.fixed = true;
+            }
+        },
+
+        _restore: function() {
+                if(this.fixed) {
+                    this.element.css({
+                    position: 'static',
+                    top: 'auto',
+                    width: 'auto'
+                })
+                .removeClass('ui-shadow ui-sticky');
+
+                this.ghost.remove();
+                this.fixed = false;
+            }
+
+          }
+        
+    });
+    
+})();
+/**
  * PrimeUI spinner widget
  */
 (function() {
@@ -12154,79 +12793,6 @@ PUI.resolveUserAgent();
             this.menuButton.puibutton('enable');
         }
     });
-})();
-/**
- * PrimeUI sticky widget
- */
-(function() {
-
-    $.widget("primeui.puisticky", {
-       
-        _create: function() {
-            this.initialState = {
-                top: this.element.offset().top,
-                height: this.element.height()
-            };
-                        
-            this.id = this.element.attr('id');
-            if(!this.id) {
-                this.id = this.element.uniqueId().attr('id');
-            }
-            
-            this._bindEvents();          
-        },
-        
-        _bindEvents: function() {
-            var $this = this,
-            win = $(window),
-            scrollNS = 'scroll.' + this.id,
-            resizeNS = 'resize.' + this.id;
-
-            win.off(scrollNS).on(scrollNS, function() {
-                if(win.scrollTop() > $this.initialState.top)
-                    $this._fix();
-                else
-                    $this._restore();
-            })
-            .off(resizeNS).on(resizeNS, function() {
-                if($this.fixed) {
-                    $this.element.width($this.ghost.outerWidth() - ($this.element.outerWidth() - $this.element.width()));
-                }
-            });
-        },
-                
-        _fix: function() {
-            if(!this.fixed) {
-                this.element.css({
-                    'position': 'fixed',
-                    'top': 0,
-                    'z-index': 10000
-                })
-                .addClass('ui-shadow ui-sticky');
-        
-                this.ghost = $('<div class="ui-sticky-ghost"></div>').height(this.initialState.height).insertBefore(this.element);
-                this.element.width(this.ghost.outerWidth() - (this.element.outerWidth() - this.element.width()));
-                this.fixed = true;
-            }
-        },
-
-        _restore: function() {
-                if(this.fixed) {
-                    this.element.css({
-                    position: 'static',
-                    top: 'auto',
-                    width: 'auto'
-                })
-                .removeClass('ui-shadow ui-sticky');
-
-                this.ghost.remove();
-                this.fixed = false;
-            }
-
-          }
-        
-    });
-    
 })();
 /**
  * PrimeUI Switch Widget
@@ -13873,6 +14439,7 @@ PUI.resolveUserAgent();
             this.id = PUI.generateRandomId();
             this.scrollHeader = this.element.children('.ui-datatable-scrollable-header');
             this.scrollBody = this.element.children('.ui-datatable-scrollable-body');
+            this.scrollFooter = this.element.children('.ui-datatable-scrollable-footer');
             this.scrollHeaderBox = this.scrollHeader.children('.ui-datatable-scrollable-header-box');
             this.bodyTable = this.scrollBody.children('table');
             this.percentageScrollHeight = this.options.scrollHeight && (this.options.scrollHeight.indexOf('%') !== -1);

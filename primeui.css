@@ -300,6 +300,21 @@ button.ui-button::-moz-focus-inner {
         width: 100%;
     }
 }
+.ui-calendar {
+    position: relative;
+    display: inline-block;
+}
+
+.ui-calendar button {
+    position: absolute;
+    height: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.ui-fluid .ui-calendar {
+    width: 100%;
+}
 .ui-carousel {
     position: relative;
     padding: 1px;
@@ -870,7 +885,42 @@ button.ui-button::-moz-focus-inner {
         min-width: 30%;
         display: inline-block;
         margin: -.4em 1em -.4em -.4em;
+        font-weight: bold;
     }
+}
+
+.ui-datatable-stacked thead th,
+.ui-datatable-stacked tfoot td {
+    display: none;
+}
+
+.ui-datatable-stacked .ui-datatable-data td {
+    text-align: left;
+    display: block;
+    border: 0px none;
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    float: left;
+    clear: left;
+}
+
+.ui-datatable-stacked .ui-datatable-data.ui-widget-content {
+    border: 0px none;
+}
+
+.ui-datatable-stacked .ui-datatable-data tr.ui-widget-content {
+    border-left: 0px none;
+    border-right: 0px none;
+}
+
+.ui-datatable-stacked .ui-datatable-data td .ui-column-title {
+    padding: .4em;
+    min-width: 30%;
+    display: inline-block;
+    margin: -.4em 1em -.4em -.4em;
+    font-weight: bold;
 }
 
 .ui-dialog { position: fixed; padding: 0; overflow: hidden; }
@@ -976,6 +1026,11 @@ button.ui-button::-moz-focus-inner {
 
 .ui-dropdown-panel .ui-dropdown-item {
     font-weight: normal;
+    border:0px none;
+    cursor:pointer;
+    margin:1px 0;
+    padding:3px 5px;
+    text-align:left;
 }
 
 .ui-dropdown-panel .ui-dropdown-item-group {
@@ -985,14 +1040,6 @@ button.ui-button::-moz-focus-inner {
 .ui-dropdown-panel .ui-dropdown-list {
     padding: 0.4em;
     border: 0 none;
-}
-
-.ui-dropdown-panel .ui-dropdown-list-item {
-    border:0px none;
-    cursor:pointer;
-    margin:1px 0;
-    padding:3px 5px;
-    text-align:left;
 }
 
 .ui-dropdown-panel .ui-dropdown-filter {
@@ -1346,6 +1393,14 @@ button.ui-button::-moz-focus-inner {
     -webkit-box-sizing:border-box;
     -moz-box-sizing: border-box;
 }
+.ui-inputtextarea-resizable {
+    overflow: hidden;
+    resize:none;
+}
+
+.ui-fluid .ui-inputtextarea {
+    width: 100%;
+}
 .ui-lightbox {
     position: fixed;
 }
@@ -1397,14 +1452,6 @@ button.ui-button::-moz-focus-inner {
 
 .ui-lightbox-close.ui-state-hover {
     padding: 0;
-}
-.ui-inputtextarea-resizable {
-    overflow: hidden;
-    resize:none;
-}
-
-.ui-fluid .ui-inputtextarea {
-    width: 100%;
 }
 .ui-listbox {
     overflow:auto;
@@ -1865,6 +1912,147 @@ button.ui-button::-moz-focus-inner {
     top: 5px;
     right: 5px;
 }
+/** MultiSelect **/
+.ui-multiselect {
+    display: inline-block;
+    position: relative;
+    width: auto;
+    zoom: 1;
+    cursor: pointer;
+}
+
+.ui-multiselect .ui-multiselect-trigger {
+    border-right: none;
+    border-top: none;
+    border-bottom: none;
+    cursor: pointer;
+    width: 16px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 0 3px;
+}
+
+.ui-multiselect .ui-multiselect-trigger  .fa {
+    margin-top: 3px;
+}
+
+.ui-multiselect .ui-multiselect-label-container  {
+    overflow: hidden;
+}
+
+.ui-multiselect .ui-multiselect-label  {
+    display: block;
+    padding: 3px 26px 3px 5px;
+    width: auto;
+    border: none;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.ui-multiselect.ui-state-disabled .ui-multiselect-trigger,
+.ui-multiselect.ui-state-disabled .ui-multiselect-label {
+    cursor: auto
+}
+
+.ui-multiselect-panel {
+    padding: 0.2em;
+    position: absolute;
+    -moz-box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
+    -webkit-box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
+    box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
+}
+
+.ui-multiselect-panel .ui-multiselect-items-wrapper {
+    overflow: auto;
+    position: relative;
+    padding: 0.2em 0;
+}
+
+.ui-multiselect-panel .ui-multiselect-list {
+    border: 0 none;
+}
+
+.ui-multiselect-panel .ui-multiselect-item {
+    border:0px none;
+    cursor:pointer;
+    font-weight:normal;
+    margin:1px 0;
+    padding:4px;
+    text-align:left;
+    white-space: nowrap;
+    display: block;
+    position: relative;
+}
+
+.ui-multiselect-panel .ui-multiselect-item .ui-chkbox {
+    position: absolute;
+    top:50%;
+    margin-top:-8px;
+}
+
+.ui-multiselect-panel .ui-multiselect-item label {
+    display: block;
+    padding-left: 25px;
+    padding-top: 3px;
+    cursor:pointer;
+}
+
+.ui-multiselect-header {
+    margin-bottom: 0.3em;
+    padding: 0.3em 0 0.3em 0.4em;
+    position: relative;
+}
+
+.ui-multiselect-header .ui-chkbox {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    cursor:pointer;
+}
+
+.ui-multiselect-header .ui-multiselect-filter-container {
+    position: relative;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.ui-multiselect-header .ui-multiselect-filter-container .fa {
+    position: absolute;
+    right: 5px;
+    top: 2px;
+}
+            
+.ui-multiselect-header .ui-inputtext {
+    padding: 1px 20px 1px 2px;
+}
+
+.ui-multiselect-header .ui-multiselect-close {
+    position: absolute;
+    right: 2px;
+    top: 4px;
+    display: block;
+    font-size: 18px;
+    border: 0px none;
+}
+
+.ui-multiselect-header a.ui-multiselect-all,
+.ui-multiselect-header a.ui-multiselect-none {
+    float:left;
+    margin-right: 10px;
+    display: block;
+}
+
+.ui-multiselect-header .ui-multiselect-close.ui-state-hover {
+    padding:0px;
+}
+
+.ui-fluid .ui-multiselect {
+    width: 100%;
+}
+
 .ui-multiselectlistbox-listcontainer {
     padding: 2px;
     width: 150px;
@@ -2765,7 +2953,7 @@ button.ui-button::-moz-focus-inner {
 .ui-tree {
     width: 300px;
 }
-            
+
 .ui-tree .ui-tree-container {
     height: 100%;
     margin: 0;
@@ -2791,7 +2979,7 @@ button.ui-button::-moz-focus-inner {
 }
 
 .ui-tree .ui-treenode-content {
-    
+
 }
 
 .ui-tree .ui-tree-toggler {
@@ -2839,6 +3027,12 @@ button.ui-button::-moz-focus-inner {
     display: inline-block;
     zoom: 1;
 }
+
+/** Fluid **/
+.ui-fluid .ui-tree {
+    width: 100%;
+}
+
 .ui-treetable table {
 	border-collapse:collapse;
     width: 100%;
