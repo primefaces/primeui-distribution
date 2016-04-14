@@ -440,9 +440,9 @@ button.ui-button::-moz-focus-inner {
  * PrimeUI Core
  */
 .ui-shadow {
-    -moz-box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
-    -webkit-box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
-    box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
+    -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3); 
+    -moz-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3); 
+    box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
 }
 
 .ui-unselectable-text {
@@ -1015,6 +1015,10 @@ button.ui-button::-moz-focus-inner {
     cursor: default;
 }
 
+.ui-dropdown .ui-dropdown-panel {
+    min-width: 100%;
+}
+
 .ui-dropdown-panel {
     position: absolute;
     height: auto;
@@ -1475,6 +1479,66 @@ button.ui-button::-moz-focus-inner {
 .ui-listbox.ui-state-disabled .ui-listbox-item {
     cursor: default;
 }
+.ui-messages {
+    border: 1px solid;
+    margin: 10px 0px;
+    padding: 20px 20px 20px 10px;
+    display: none;
+    position: relative;
+}
+
+.ui-messages-icon {
+    display:block;
+    float:left;
+    margin-top:-5px;
+    padding:0;
+    position: relative;
+}
+
+.ui-messages-summary {
+    margin-left:10px;
+    font-weight:bold;
+}
+
+.ui-messages-detail {
+    margin-left:5px;
+}
+
+.ui-messages-info {
+    color: #ffffff;
+    background-color: #2196f3;
+    border-color: #2196f3;
+}
+
+.ui-messages-warn {
+    color: #ffffff;
+    background-color: #ff9800;
+    border-color: #ff9800;
+}
+
+.ui-messages-error {
+    color: #ffffff;
+    background-color: #f44336;
+    border-color: #f44336;
+}
+
+.ui-messages ul {
+    margin: 0 25px;
+    padding:0;
+    list-style-type:none;
+}
+
+.ui-messages.ui-messages-noicon ul {
+    margin: 0 25px 0 0;
+}
+
+.ui-messages .ui-messages-close {
+    color: #ffffff;
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
 .ui-menu {
     width: 12.5em;
     padding:0.3em;
@@ -1852,66 +1916,6 @@ button.ui-button::-moz-focus-inner {
     outline: 1px dotted;
     z-index: 1;
 }
-.ui-messages {
-    border: 1px solid;
-    margin: 10px 0px;
-    padding: 20px 20px 20px 10px;
-    display: none;
-    position: relative;
-}
-
-.ui-messages-icon {
-    display:block;
-    float:left;
-    margin-top:-5px;
-    padding:0;
-    position: relative;
-}
-
-.ui-messages-summary {
-    margin-left:10px;
-    font-weight:bold;
-}
-
-.ui-messages-detail {
-    margin-left:5px;
-}
-
-.ui-messages-info {
-    color: #ffffff;
-    background-color: #2196f3;
-    border-color: #2196f3;
-}
-
-.ui-messages-warn {
-    color: #ffffff;
-    background-color: #ff9800;
-    border-color: #ff9800;
-}
-
-.ui-messages-error {
-    color: #ffffff;
-    background-color: #f44336;
-    border-color: #f44336;
-}
-
-.ui-messages ul {
-    margin: 0 25px;
-    padding:0;
-    list-style-type:none;
-}
-
-.ui-messages.ui-messages-noicon ul {
-    margin: 0 25px 0 0;
-}
-
-.ui-messages .ui-messages-close {
-    color: #ffffff;
-    cursor: pointer;
-    position: absolute;
-    top: 5px;
-    right: 5px;
-}
 /** MultiSelect **/
 .ui-multiselect {
     display: inline-block;
@@ -1957,12 +1961,10 @@ button.ui-button::-moz-focus-inner {
     cursor: auto
 }
 
-.ui-multiselect-panel {
+.ui-multiselect .ui-multiselect-panel {
     padding: 0.2em;
     position: absolute;
-    -moz-box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
-    -webkit-box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
-    box-shadow: 0px 5px 10px rgba(0,0,0,0.8);
+    min-width: 100%;
 }
 
 .ui-multiselect-panel .ui-multiselect-items-wrapper {
@@ -2021,12 +2023,12 @@ button.ui-button::-moz-focus-inner {
 
 .ui-multiselect-header .ui-multiselect-filter-container .fa {
     position: absolute;
-    right: 5px;
-    top: 2px;
+    left: 5px;
+    top: 3px;
 }
             
 .ui-multiselect-header .ui-inputtext {
-    padding: 1px 20px 1px 2px;
+    padding: 1px 1px 1px 25px;
 }
 
 .ui-multiselect-header .ui-multiselect-close {
@@ -2051,6 +2053,7 @@ button.ui-button::-moz-focus-inner {
 
 .ui-fluid .ui-multiselect {
     width: 100%;
+    box-sizing: border-box;
 }
 
 .ui-multiselectlistbox-listcontainer {

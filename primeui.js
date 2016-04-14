@@ -6875,6 +6875,89 @@ PUI.resolveUserAgent();
 })();
 
 /**
+ * PrimeUI Messages widget
+ */
+(function() {
+
+    $.widget("primeui.puimessages", {
+       
+        options: {
+            closable: true
+        },
+
+        _create: function() {
+            this.element.addClass('ui-messages ui-widget ui-corner-all');
+            if(this.options.closable) {
+                this.closer = $('<a href="#" class="ui-messages-close"><i class="fa fa-close"></i></a>').appendTo(this.element);
+            }
+            this.element.append('<span class="ui-messages-icon fa fa-2x"></span>');
+            
+            this.msgContainer = $('<ul></ul>').appendTo(this.element);
+            
+            this._bindEvents();
+        },
+        
+        _bindEvents: function() {
+            var $this = this;
+            if(this.options.closable) {
+                this.closer.on('click', function(e) {
+                    $this.element.slideUp();
+                    e.preventDefault();
+                });
+            }
+        },
+
+        show: function(severity, msgs) {
+            this.clear();
+            this.element.removeClass('ui-messages-info ui-messages-warn ui-messages-error').addClass('ui-messages-' + severity);
+            
+            this.element.children('.ui-messages-icon').removeClass('fa-info-circle fa-close fa-warning').addClass(this._getIcon(severity));
+            
+            if($.isArray(msgs)) {
+                for(var i = 0; i < msgs.length; i++) {
+                    this._showMessage(msgs[i]);
+                }
+            }
+            else {
+                this._showMessage(msgs);
+            }
+            
+            this.element.show();
+        },
+        
+        _showMessage: function(msg) {
+            this.msgContainer.append('<li><span class="ui-messages-summary">' + msg.summary + '</span><span class="ui-messages-detail">' + msg.detail + '</span></li>');
+        },
+        
+        clear: function() {
+            this.msgContainer.children().remove();
+            this.element.hide();
+        },
+        
+        _getIcon: function(severity) {
+            switch(severity) {
+                case 'info':
+                    return 'fa-info-circle';
+                break;
+                
+                case 'warn':
+                    return 'fa-warning';
+                break;
+                
+                case 'error':
+                    return 'fa-close';
+                break;
+                
+                default:
+                    return 'fa-info-circle';
+                break;
+            }
+        }
+        
+    });
+    
+})();
+/**
  * PrimeUI BaseMenu widget
  */
 (function() {
@@ -8831,89 +8914,6 @@ PUI.resolveUserAgent();
 })();
 
 /**
- * PrimeUI Messages widget
- */
-(function() {
-
-    $.widget("primeui.puimessages", {
-       
-        options: {
-            closable: true
-        },
-
-        _create: function() {
-            this.element.addClass('ui-messages ui-widget ui-corner-all');
-            if(this.options.closable) {
-                this.closer = $('<a href="#" class="ui-messages-close"><i class="fa fa-close"></i></a>').appendTo(this.element);
-            }
-            this.element.append('<span class="ui-messages-icon fa fa-2x"></span>');
-            
-            this.msgContainer = $('<ul></ul>').appendTo(this.element);
-            
-            this._bindEvents();
-        },
-        
-        _bindEvents: function() {
-            var $this = this;
-            if(this.options.closable) {
-                this.closer.on('click', function(e) {
-                    $this.element.slideUp();
-                    e.preventDefault();
-                });
-            }
-        },
-
-        show: function(severity, msgs) {
-            this.clear();
-            this.element.removeClass('ui-messages-info ui-messages-warn ui-messages-error').addClass('ui-messages-' + severity);
-            
-            this.element.children('.ui-messages-icon').removeClass('fa-info-circle fa-close fa-warning').addClass(this._getIcon(severity));
-            
-            if($.isArray(msgs)) {
-                for(var i = 0; i < msgs.length; i++) {
-                    this._showMessage(msgs[i]);
-                }
-            }
-            else {
-                this._showMessage(msgs);
-            }
-            
-            this.element.show();
-        },
-        
-        _showMessage: function(msg) {
-            this.msgContainer.append('<li><span class="ui-messages-summary">' + msg.summary + '</span><span class="ui-messages-detail">' + msg.detail + '</span></li>');
-        },
-        
-        clear: function() {
-            this.msgContainer.children().remove();
-            this.element.hide();
-        },
-        
-        _getIcon: function(severity) {
-            switch(severity) {
-                case 'info':
-                    return 'fa-info-circle';
-                break;
-                
-                case 'warn':
-                    return 'fa-warning';
-                break;
-                
-                case 'error':
-                    return 'fa-close';
-                break;
-                
-                default:
-                    return 'fa-info-circle';
-                break;
-            }
-        }
-        
-    });
-    
-})();
-/**
  * PrimeUI MultiSelect Widget
  */
 (function() {
@@ -8973,7 +8973,7 @@ PUI.resolveUserAgent();
 
         _render: function() {
             this.choices = this.element.children('option');
-            this.element.attr('tabindex', '0').wrap('<div class="ui-multiselect ui-widget ui-state-default ui-corner-all" />')
+            this.element.attr('tabindex', '0').wrap('<div class="ui-multiselect ui-widget ui-state-default ui-corner-all ui-shadow" />')
                 .wrap('<div class="ui-helper-hidden-accessible" />');
             this.container = this.element.closest('.ui-multiselect');
             this.container.append('<div class="ui-helper-hidden-accessible"><input readonly="readonly" type="text" /></div>');
@@ -12312,79 +12312,6 @@ PUI.resolveUserAgent();
 
 })();
 /**
- * PrimeUI sticky widget
- */
-(function() {
-
-    $.widget("primeui.puisticky", {
-       
-        _create: function() {
-            this.initialState = {
-                top: this.element.offset().top,
-                height: this.element.height()
-            };
-                        
-            this.id = this.element.attr('id');
-            if(!this.id) {
-                this.id = this.element.uniqueId().attr('id');
-            }
-            
-            this._bindEvents();          
-        },
-        
-        _bindEvents: function() {
-            var $this = this,
-            win = $(window),
-            scrollNS = 'scroll.' + this.id,
-            resizeNS = 'resize.' + this.id;
-
-            win.off(scrollNS).on(scrollNS, function() {
-                if(win.scrollTop() > $this.initialState.top)
-                    $this._fix();
-                else
-                    $this._restore();
-            })
-            .off(resizeNS).on(resizeNS, function() {
-                if($this.fixed) {
-                    $this.element.width($this.ghost.outerWidth() - ($this.element.outerWidth() - $this.element.width()));
-                }
-            });
-        },
-                
-        _fix: function() {
-            if(!this.fixed) {
-                this.element.css({
-                    'position': 'fixed',
-                    'top': 0,
-                    'z-index': 10000
-                })
-                .addClass('ui-shadow ui-sticky');
-        
-                this.ghost = $('<div class="ui-sticky-ghost"></div>').height(this.initialState.height).insertBefore(this.element);
-                this.element.width(this.ghost.outerWidth() - (this.element.outerWidth() - this.element.width()));
-                this.fixed = true;
-            }
-        },
-
-        _restore: function() {
-                if(this.fixed) {
-                    this.element.css({
-                    position: 'static',
-                    top: 'auto',
-                    width: 'auto'
-                })
-                .removeClass('ui-shadow ui-sticky');
-
-                this.ghost.remove();
-                this.fixed = false;
-            }
-
-          }
-        
-    });
-    
-})();
-/**
  * PrimeUI spinner widget
  */
 (function() {
@@ -12793,6 +12720,79 @@ PUI.resolveUserAgent();
             this.menuButton.puibutton('enable');
         }
     });
+})();
+/**
+ * PrimeUI sticky widget
+ */
+(function() {
+
+    $.widget("primeui.puisticky", {
+       
+        _create: function() {
+            this.initialState = {
+                top: this.element.offset().top,
+                height: this.element.height()
+            };
+                        
+            this.id = this.element.attr('id');
+            if(!this.id) {
+                this.id = this.element.uniqueId().attr('id');
+            }
+            
+            this._bindEvents();          
+        },
+        
+        _bindEvents: function() {
+            var $this = this,
+            win = $(window),
+            scrollNS = 'scroll.' + this.id,
+            resizeNS = 'resize.' + this.id;
+
+            win.off(scrollNS).on(scrollNS, function() {
+                if(win.scrollTop() > $this.initialState.top)
+                    $this._fix();
+                else
+                    $this._restore();
+            })
+            .off(resizeNS).on(resizeNS, function() {
+                if($this.fixed) {
+                    $this.element.width($this.ghost.outerWidth() - ($this.element.outerWidth() - $this.element.width()));
+                }
+            });
+        },
+                
+        _fix: function() {
+            if(!this.fixed) {
+                this.element.css({
+                    'position': 'fixed',
+                    'top': 0,
+                    'z-index': 10000
+                })
+                .addClass('ui-shadow ui-sticky');
+        
+                this.ghost = $('<div class="ui-sticky-ghost"></div>').height(this.initialState.height).insertBefore(this.element);
+                this.element.width(this.ghost.outerWidth() - (this.element.outerWidth() - this.element.width()));
+                this.fixed = true;
+            }
+        },
+
+        _restore: function() {
+                if(this.fixed) {
+                    this.element.css({
+                    position: 'static',
+                    top: 'auto',
+                    width: 'auto'
+                })
+                .removeClass('ui-shadow ui-sticky');
+
+                this.ghost.remove();
+                this.fixed = false;
+            }
+
+          }
+        
+    });
+    
 })();
 /**
  * PrimeUI Switch Widget
