@@ -1,255 +1,289 @@
 /**
- * PUI Object 
+ * PrimeUI Object 
  */
-var PUI = {
-    
-    zindex : 1000,
-    
-    gridColumns: {
-        '1': 'ui-grid-col-12',
-        '2': 'ui-grid-col-6',
-        '3': 'ui-grid-col-4',
-        '4': 'ui-grid-col-3',
-        '6': 'ui-grid-col-2',
-        '12': 'ui-grid-col-11'
-    },
-    
-    charSet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
+     
+    var PUI = {
         
-    /**
-     *  Aligns container scrollbar to keep item in container viewport, algorithm copied from jquery-ui menu widget
-     */
-    scrollInView: function(container, item) {        
-        var borderTop = parseFloat(container.css('borderTopWidth')) || 0,
-        paddingTop = parseFloat(container.css('paddingTop')) || 0,
-        offset = item.offset().top - container.offset().top - borderTop - paddingTop,
-        scroll = container.scrollTop(),
-        elementHeight = container.height(),
-        itemHeight = item.outerHeight(true);
-
-        if(offset < 0) {
-            container.scrollTop(scroll + offset);
-        }
-        else if((offset + itemHeight) > elementHeight) {
-            container.scrollTop(scroll + offset - elementHeight + itemHeight);
-        }
-    },
-    
-    generateRandomId: function() {
-        var id = '';
-        for (var i = 1; i <= 10; i++) {
-            var randPos = Math.floor(Math.random() * this.charSet.length);
-            id += this.charSet[randPos];
-        }
-        return id;
-    },
-    
-    isIE: function(version) {
-        return (this.browser.msie && parseInt(this.browser.version, 10) === version);
-    },
-    
-    escapeRegExp: function(text) {
-        return text.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-    },
-
-    escapeHTML: function(value) {
-        return value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    },
-    
-    escapeClientId: function(id) {
-        return "#" + id.replace(/:/g,"\\:");
-    },
-    
-    clearSelection: function() {
-        if(window.getSelection) {
-            if(window.getSelection().empty) {
-                window.getSelection().empty();
-            } else if(window.getSelection().removeAllRanges) {
-                window.getSelection().removeAllRanges();
-            }
-        } else if(document.selection && document.selection.empty) {
-                document.selection.empty();
-        }
-    },
+        zindex : 1000,
+        
+        gridColumns: {
+            '1': 'ui-grid-col-12',
+            '2': 'ui-grid-col-6',
+            '3': 'ui-grid-col-4',
+            '4': 'ui-grid-col-3',
+            '6': 'ui-grid-col-2',
+            '12': 'ui-grid-col-11'
+        },
+        
+        charSet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
             
-    inArray: function(arr, item) {
-        for(var i = 0; i < arr.length; i++) {
-            if(arr[i] === item) {
-                return true;
-            }
-        }
+        /**
+         *  Aligns container scrollbar to keep item in container viewport, algorithm copied from jquery-ui menu widget
+         */
+        scrollInView: function(container, item) {        
+            var borderTop = parseFloat(container.css('borderTopWidth')) || 0,
+            paddingTop = parseFloat(container.css('paddingTop')) || 0,
+            offset = item.offset().top - container.offset().top - borderTop - paddingTop,
+            scroll = container.scrollTop(),
+            elementHeight = container.height(),
+            itemHeight = item.outerHeight(true);
 
-        return false;
-    },
-    
-    calculateScrollbarWidth: function() {
-        if(!this.scrollbarWidth) {
-            if(this.browser.msie) {
-                var $textarea1 = $('<textarea cols="10" rows="2"></textarea>')
-                        .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body'),
-                    $textarea2 = $('<textarea cols="10" rows="2" style="overflow: hidden;"></textarea>')
-                        .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body');
-                this.scrollbarWidth = $textarea1.width() - $textarea2.width();
-                $textarea1.add($textarea2).remove();
+            if(offset < 0) {
+                container.scrollTop(scroll + offset);
+            }
+            else if((offset + itemHeight) > elementHeight) {
+                container.scrollTop(scroll + offset - elementHeight + itemHeight);
+            }
+        },
+        
+        generateRandomId: function() {
+            var id = '';
+            for (var i = 1; i <= 10; i++) {
+                var randPos = Math.floor(Math.random() * this.charSet.length);
+                id += this.charSet[randPos];
+            }
+            return id;
+        },
+        
+        isIE: function(version) {
+            return (this.browser.msie && parseInt(this.browser.version, 10) === version);
+        },
+        
+        escapeRegExp: function(text) {
+            return text.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+        },
+
+        escapeHTML: function(value) {
+            return value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        },
+        
+        escapeClientId: function(id) {
+            return "#" + id.replace(/:/g,"\\:");
+        },
+        
+        clearSelection: function() {
+            if(window.getSelection) {
+                if(window.getSelection().empty) {
+                    window.getSelection().empty();
+                } else if(window.getSelection().removeAllRanges) {
+                    window.getSelection().removeAllRanges();
+                }
+            } else if(document.selection && document.selection.empty) {
+                    document.selection.empty();
+            }
+        },
+                
+        inArray: function(arr, item) {
+            for(var i = 0; i < arr.length; i++) {
+                if(arr[i] === item) {
+                    return true;
+                }
+            }
+
+            return false;
+        },
+        
+        calculateScrollbarWidth: function() {
+            if(!this.scrollbarWidth) {
+                if(this.browser.msie) {
+                    var $textarea1 = $('<textarea cols="10" rows="2"></textarea>')
+                            .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body'),
+                        $textarea2 = $('<textarea cols="10" rows="2" style="overflow: hidden;"></textarea>')
+                            .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body');
+                    this.scrollbarWidth = $textarea1.width() - $textarea2.width();
+                    $textarea1.add($textarea2).remove();
+                }
+                else {
+                    var $div = $('<div />')
+                        .css({ width: 100, height: 100, overflow: 'auto', position: 'absolute', top: -1000, left: -1000 })
+                        .prependTo('body').append('<div />').find('div')
+                            .css({ width: '100%', height: 200 });
+                    this.scrollbarWidth = 100 - $div.width();
+                    $div.parent().remove();
+                }
+            }
+
+            return this.scrollbarWidth;
+        },
+        
+        //adapted from jquery browser plugin
+        resolveUserAgent: function(jQuery) {
+            var matched, browser;
+
+            jQuery.uaMatch = function( ua ) {
+              ua = ua.toLowerCase();
+
+              var match = /(opr)[\/]([\w.]+)/.exec( ua ) ||
+                  /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
+                  /(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec( ua ) ||
+                  /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
+                  /(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
+                  /(msie) ([\w.]+)/.exec( ua ) ||
+                  ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec( ua ) ||
+                  ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
+                  [];
+
+              var platform_match = /(ipad)/.exec( ua ) ||
+                  /(iphone)/.exec( ua ) ||
+                  /(android)/.exec( ua ) ||
+                  /(windows phone)/.exec( ua ) ||
+                  /(win)/.exec( ua ) ||
+                  /(mac)/.exec( ua ) ||
+                  /(linux)/.exec( ua ) ||
+                  /(cros)/i.exec( ua ) ||
+                  [];
+
+              return {
+                  browser: match[ 3 ] || match[ 1 ] || "",
+                  version: match[ 2 ] || "0",
+                  platform: platform_match[ 0 ] || ""
+              };
+            };
+
+            matched = jQuery.uaMatch( window.navigator.userAgent );
+            browser = {};
+
+            if ( matched.browser ) {
+              browser[ matched.browser ] = true;
+              browser.version = matched.version;
+              browser.versionNumber = parseInt(matched.version);
+            }
+
+            if ( matched.platform ) {
+              browser[ matched.platform ] = true;
+            }
+
+            // These are all considered mobile platforms, meaning they run a mobile browser
+            if ( browser.android || browser.ipad || browser.iphone || browser[ "windows phone" ] ) {
+              browser.mobile = true;
+            }
+
+            // These are all considered desktop platforms, meaning they run a desktop browser
+            if ( browser.cros || browser.mac || browser.linux || browser.win ) {
+              browser.desktop = true;
+            }
+
+            // Chrome, Opera 15+ and Safari are webkit based browsers
+            if ( browser.chrome || browser.opr || browser.safari ) {
+              browser.webkit = true;
+            }
+
+            // IE11 has a new token so we will assign it msie to avoid breaking changes
+            if ( browser.rv )
+            {
+              var ie = "msie";
+
+              matched.browser = ie;
+              browser[ie] = true;
+            }
+
+            // Opera 15+ are identified as opr
+            if ( browser.opr )
+            {
+              var opera = "opera";
+
+              matched.browser = opera;
+              browser[opera] = true;
+            }
+
+            // Stock Android browsers are marked as Safari on Android.
+            if ( browser.safari && browser.android )
+            {
+              var android = "android";
+
+              matched.browser = android;
+              browser[android] = true;
+            }
+
+            // Assign the name and platform variable
+            browser.name = matched.browser;
+            browser.platform = matched.platform;
+
+            this.browser = browser;
+            $.browser = browser;
+        },
+        
+        getGridColumn: function(number) {
+            return this.gridColumns[number + ''];
+        },
+        
+        executeFunctionByName: function(functionName /*, args */) {
+            var args = [].slice.call(arguments).splice(1),
+            context = window,
+            namespaces = functionName.split("."),
+            func = namespaces.pop();
+            for(var i = 0; i < namespaces.length; i++) {
+              context = context[namespaces[i]];
+            }
+            return context[func].apply(this, args);
+        },
+        
+        resolveObjectByName: function(name) {
+            if(name) {
+                var parts = name.split(".");
+                for(var i = 0, len = parts.length, obj = window; i < len; ++i) {
+                    obj = obj[parts[i]];
+                }
+                return obj;
             }
             else {
-                var $div = $('<div />')
-                    .css({ width: 100, height: 100, overflow: 'auto', position: 'absolute', top: -1000, left: -1000 })
-                    .prependTo('body').append('<div />').find('div')
-                        .css({ width: '100%', height: 200 });
-                this.scrollbarWidth = 100 - $div.width();
-                $div.parent().remove();
+                return null;
             }
+        },
+
+        getCookie : function(name) {
+            return $.cookie(name);
+        },
+
+        setCookie : function(name, value, cfg) {
+            $.cookie(name, value, cfg);
+        },
+
+        deleteCookie: function(name, cfg) {
+            $.removeCookie(name, cfg);
         }
 
-        return this.scrollbarWidth;
-    },
+    };
+
+    PUI.resolveUserAgent($);
     
-    //adapted from jquery browser plugin
-    resolveUserAgent: function() {
-        var matched, browser;
-
-        jQuery.uaMatch = function( ua ) {
-          ua = ua.toLowerCase();
-
-          var match = /(opr)[\/]([\w.]+)/.exec( ua ) ||
-              /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
-              /(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec( ua ) ||
-              /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
-              /(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
-              /(msie) ([\w.]+)/.exec( ua ) ||
-              ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec( ua ) ||
-              ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
-              [];
-
-          var platform_match = /(ipad)/.exec( ua ) ||
-              /(iphone)/.exec( ua ) ||
-              /(android)/.exec( ua ) ||
-              /(windows phone)/.exec( ua ) ||
-              /(win)/.exec( ua ) ||
-              /(mac)/.exec( ua ) ||
-              /(linux)/.exec( ua ) ||
-              /(cros)/i.exec( ua ) ||
-              [];
-
-          return {
-              browser: match[ 3 ] || match[ 1 ] || "",
-              version: match[ 2 ] || "0",
-              platform: platform_match[ 0 ] || ""
-          };
-        };
-
-        matched = jQuery.uaMatch( window.navigator.userAgent );
-        browser = {};
-
-        if ( matched.browser ) {
-          browser[ matched.browser ] = true;
-          browser.version = matched.version;
-          browser.versionNumber = parseInt(matched.version);
-        }
-
-        if ( matched.platform ) {
-          browser[ matched.platform ] = true;
-        }
-
-        // These are all considered mobile platforms, meaning they run a mobile browser
-        if ( browser.android || browser.ipad || browser.iphone || browser[ "windows phone" ] ) {
-          browser.mobile = true;
-        }
-
-        // These are all considered desktop platforms, meaning they run a desktop browser
-        if ( browser.cros || browser.mac || browser.linux || browser.win ) {
-          browser.desktop = true;
-        }
-
-        // Chrome, Opera 15+ and Safari are webkit based browsers
-        if ( browser.chrome || browser.opr || browser.safari ) {
-          browser.webkit = true;
-        }
-
-        // IE11 has a new token so we will assign it msie to avoid breaking changes
-        if ( browser.rv )
-        {
-          var ie = "msie";
-
-          matched.browser = ie;
-          browser[ie] = true;
-        }
-
-        // Opera 15+ are identified as opr
-        if ( browser.opr )
-        {
-          var opera = "opera";
-
-          matched.browser = opera;
-          browser[opera] = true;
-        }
-
-        // Stock Android browsers are marked as Safari on Android.
-        if ( browser.safari && browser.android )
-        {
-          var android = "android";
-
-          matched.browser = android;
-          browser[android] = true;
-        }
-
-        // Assign the name and platform variable
-        browser.name = matched.browser;
-        browser.platform = matched.platform;
-
-        this.browser = browser;
-        $.browser = browser;
-    },
+    window.PUI = PUI;
     
-    getGridColumn: function(number) {
-        return this.gridColumns[number + ''];
-    },
-    
-    executeFunctionByName: function(functionName /*, args */) {
-        var args = [].slice.call(arguments).splice(1),
-        context = window,
-        namespaces = functionName.split("."),
-        func = namespaces.pop();
-        for(var i = 0; i < namespaces.length; i++) {
-          context = context[namespaces[i]];
-        }
-        return context[func].apply(this, args);
-    },
-    
-    resolveObjectByName: function(name) {
-        if(name) {
-            var parts = name.split(".");
-            for(var i = 0, len = parts.length, obj = window; i < len; ++i) {
-                obj = obj[parts[i]];
-            }
-            return obj;
-        }
-        else {
-            return null;
-        }
-    },
-
-    getCookie : function(name) {
-        return $.cookie(name);
-    },
-
-    setCookie : function(name, value, cfg) {
-        $.cookie(name, value, cfg);
-    },
-
-    deleteCookie: function(name, cfg) {
-        $.removeCookie(name, cfg);
-    }
-
-};
-
-PUI.resolveUserAgent();
+}));
 /**
  * PrimeUI Accordion widget
  */
-(function() {
-
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        // Node/CommonJS
+        module.exports = function( root, jQuery ) {
+            factory(jQuery);
+            return jQuery;
+        };
+    } else {
+        // Browser globals
+        factory(jQuery);
+    }
+}(function ($) {
+    
     $.widget("primeui.puiaccordion", {
        
         options: {
@@ -418,11 +452,26 @@ PUI.resolveUserAgent();
         }
         
     });
-})();
+    
+}));
 /**
  * PrimeUI autocomplete widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puiautocomplete", {
        
@@ -862,11 +911,25 @@ PUI.resolveUserAgent();
         }
     });
     
-})();
+}));
 /**
  * PrimeFaces Button Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puibutton", {
        
@@ -980,11 +1043,26 @@ PUI.resolveUserAgent();
         }
         
     });
-})();
+    
+}));
 /**
  * PrimeUI Carousel widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puicarousel", {
        
@@ -1352,11 +1430,25 @@ PUI.resolveUserAgent();
 
     });
     
-})();
+}));
 /**
  * PrimeUI checkbox widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puicheckbox", {
        
@@ -1500,11 +1592,25 @@ PUI.resolveUserAgent();
 
     });
     
-})();
+}));
 /**
  * PrimeUI Datagrid Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puidatagrid", {
        
@@ -1716,11 +1822,26 @@ PUI.resolveUserAgent();
         }
         
     });
-})();
+    
+}));
 /**
  * PrimeUI Datascroller Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puidatascroller", {
        
@@ -1911,11 +2032,25 @@ PUI.resolveUserAgent();
         
     });
     
-})();
+}));
 /**
  * PrimeUI Datatable Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puidatatable", {
 
@@ -3242,7 +3377,13 @@ PUI.resolveUserAgent();
                 start: function(event, ui) {
                     ui.helper.data('originalposition', ui.helper.offset());
 
-                    var height = $this.options.scrollable ? $this.scrollBody.height() : $this.thead.parent().height() - $this.thead.height() - 1;
+                    var header = $this.options.stickyHeader ? $this.clone : $this.thead,
+                        height = $this.options.scrollable ? $this.scrollBody.height() : header.parent().height() - header.height() - 1;
+                    
+                    if($this.options.stickyHeader) {
+                        height = height - $this.relativeHeight;
+                    }
+                    
                     $this.resizerHelper.height(height);
                     $this.resizerHelper.show();
                 },
@@ -3272,11 +3413,7 @@ PUI.resolveUserAgent();
                     }
 
                     if($this.options.stickyHeader) {
-                        $this.thead.find('.ui-column-filter').prop('disabled', false);
-                        $this.clone = $this.thead.clone(true);
-                        $this.cloneContainer.find('thead').remove();
-                        $this.cloneContainer.children('table').append($this.clone);
-                        $this.thead.find('.ui-column-filter').prop('disabled', true);
+                        $this.reclone();
                     }
                 },
                 containment: this.element
@@ -3554,49 +3691,69 @@ PUI.resolveUserAgent();
             stickyNS = 'scroll.' + this.id,
             resizeNS = 'resize.sticky-' + this.id;
 
-            this.cloneContainer = $('<div class="ui-datatable ui-datatable-sticky ui-widget"><table></table></div>');
-            this.clone = this.thead.clone(true);
-            this.cloneContainer.children('table').append(this.clone);
-
-            this.cloneContainer.css({
-                position: 'absolute',
-                width: table.outerWidth(),
-                top: offset.top,
-                left: offset.left,
-                'z-index': ++PUI.zindex
-            })
-            .appendTo(this.element);
+            this.stickyContainer = $('<div class="ui-datatable ui-datatable-sticky ui-widget"><table></table></div>');
+            this.clone = this.thead.clone(false);
+            this.stickyContainer.children('table').append(this.thead);
+            table.prepend(this.clone);
+            
+            setTimeout(function() {
+                $this.stickyContainer.css({
+                    position: 'absolute',
+                    width: table.outerWidth(),
+                    top: offset.top,
+                    left: offset.left,
+                    'z-index': ++PUI.zindex
+                  });
+            }, 5);
+            
+            this.element.prepend(this.stickyContainer);
+            
+            if(this.options.resizableColumns) {
+                this.relativeHeight = 0;
+            }
 
             win.off(stickyNS).on(stickyNS, function() {
                 var scrollTop = win.scrollTop(),
                 tableOffset = table.offset();
 
                 if(scrollTop > tableOffset.top) {
-                    $this.cloneContainer.css({
+                    $this.stickyContainer.css({
                                             'position': 'fixed',
                                             'top': '0px'
                                         })
                                         .addClass('ui-shadow ui-sticky');
+                                        
+                    if($this.options.resizableColumns) {
+                        $this.relativeHeight = scrollTop - tableOffset.top;
+                    }
 
                     if(scrollTop >= (tableOffset.top + $this.tbody.height()))
-                        $this.cloneContainer.hide();
+                        $this.stickyContainer.hide();
                     else
-                        $this.cloneContainer.show();
+                        $this.stickyContainer.show();
                 }
                 else {
-                    $this.cloneContainer.css({
+                    $this.stickyContainer.css({
                                             'position': 'absolute',
                                             'top': tableOffset.top
                                         })
                                         .removeClass('ui-shadow ui-sticky');
+                                        
+                    if($this.stickyContainer.is(':hidden')) {
+                        $this.stickyContainer.show(); 
+                    }
+                
+                    if($this.options.resizableColumns) {
+                        $this.relativeHeight = 0;
+                    }
                 }
             })
             .off(resizeNS).on(resizeNS, function() {
-                $this.cloneContainer.width(table.outerWidth());
+                $this.stickyContainer.width(table.outerWidth());
             });
 
             //filter support
-            this.thead.find('.ui-column-filter').prop('disabled', true);
+            this.clone.find('.ui-column-filter').prop('disabled', true);
         },
 
         _initEditing: function() {
@@ -3716,15 +3873,36 @@ PUI.resolveUserAgent();
             'input': function() {
                 return $('<input type="text" class="ui-cell-editor"/>');
             }
+        },
+        
+        reclone: function() {
+            this.clone.remove();
+            this.clone = this.thead.clone(false);
+            this.element.find('.ui-datatable-tablewrapper > table').prepend(this.clone);
         }
 
     });
-})();
+    
+}));
 
 /**
  * PrimeUI Dialog Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puidialog", {
        
@@ -4325,11 +4503,26 @@ PUI.resolveUserAgent();
             }
         }
     });
-})();
+    
+}));
 /**
  * PrimeUI dropdown widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puidropdown", {
 
@@ -5118,11 +5311,25 @@ PUI.resolveUserAgent();
         }
     });
 
-})();
+}));
 /**
  * PrimeFaces Fieldset Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puifieldset", {
        
@@ -5216,11 +5423,26 @@ PUI.resolveUserAgent();
         }
         
     });
-})();
+    
+}));
 /**
  * PrimeUI Lightbox Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puigalleria", {
        
@@ -5463,11 +5685,26 @@ PUI.resolveUserAgent();
             return this.strip.is(':animated');
         }
     });
-})();
+    
+}));
 /**
  * PrimeFaces Growl Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puigrowl", {
 
@@ -5634,11 +5871,26 @@ PUI.resolveUserAgent();
             }
         }
     });
-})();
+    
+}));
 /**
  * PrimeUI inputtext widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puiinputtext", {
        
@@ -5714,11 +5966,25 @@ PUI.resolveUserAgent();
         
     });
     
-})();
+}));
 /**
  * PrimeUI inputtextarea widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puiinputtextarea", {
        
@@ -6111,11 +6377,25 @@ PUI.resolveUserAgent();
         }
     });
     
-})();
+}));
 /**
  * PrimeUI Lightbox Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puilightbox", {
 
@@ -6483,11 +6763,26 @@ PUI.resolveUserAgent();
             this.show();
         }
     });
-})();
+    
+}));
 /**
  * PrimeUI listvox widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puilistbox", {
 
@@ -6872,95 +7167,26 @@ PUI.resolveUserAgent();
         }
     });
 
-})();
+}));
 
 /**
- * PrimeUI Messages widget
+ * PrimeUI Menu widgets
  */
-(function() {
-
-    $.widget("primeui.puimessages", {
-       
-        options: {
-            closable: true
-        },
-
-        _create: function() {
-            this.element.addClass('ui-messages ui-widget ui-corner-all');
-            if(this.options.closable) {
-                this.closer = $('<a href="#" class="ui-messages-close"><i class="fa fa-close"></i></a>').appendTo(this.element);
-            }
-            this.element.append('<span class="ui-messages-icon fa fa-2x"></span>');
-            
-            this.msgContainer = $('<ul></ul>').appendTo(this.element);
-            
-            this._bindEvents();
-        },
-        
-        _bindEvents: function() {
-            var $this = this;
-            if(this.options.closable) {
-                this.closer.on('click', function(e) {
-                    $this.element.slideUp();
-                    e.preventDefault();
-                });
-            }
-        },
-
-        show: function(severity, msgs) {
-            this.clear();
-            this.element.removeClass('ui-messages-info ui-messages-warn ui-messages-error').addClass('ui-messages-' + severity);
-            
-            this.element.children('.ui-messages-icon').removeClass('fa-info-circle fa-close fa-warning').addClass(this._getIcon(severity));
-            
-            if($.isArray(msgs)) {
-                for(var i = 0; i < msgs.length; i++) {
-                    this._showMessage(msgs[i]);
-                }
-            }
-            else {
-                this._showMessage(msgs);
-            }
-            
-            this.element.show();
-        },
-        
-        _showMessage: function(msg) {
-            this.msgContainer.append('<li><span class="ui-messages-summary">' + msg.summary + '</span><span class="ui-messages-detail">' + msg.detail + '</span></li>');
-        },
-        
-        clear: function() {
-            this.msgContainer.children().remove();
-            this.element.hide();
-        },
-        
-        _getIcon: function(severity) {
-            switch(severity) {
-                case 'info':
-                    return 'fa-info-circle';
-                break;
-                
-                case 'warn':
-                    return 'fa-warning';
-                break;
-                
-                case 'error':
-                    return 'fa-close';
-                break;
-                
-                default:
-                    return 'fa-info-circle';
-                break;
-            }
-        }
-        
-    });
-    
-})();
-/**
- * PrimeUI BaseMenu widget
- */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puibasemenu", {
 
@@ -7057,12 +7283,6 @@ PUI.resolveUserAgent();
             }
         }
     });
-})();
-
-/**
- * PrimeUI Menu widget
- */
-(function() {
 
     $.widget("primeui.puimenu", $.primeui.puibasemenu, {
 
@@ -7170,12 +7390,6 @@ PUI.resolveUserAgent();
             }
         }
     });
-})();
-
-/**
- * PrimeUI BreadCrumb Widget
- */
-(function() {
 
     $.widget("primeui.puibreadcrumb", {
 
@@ -7223,12 +7437,6 @@ PUI.resolveUserAgent();
             });
         }
     });
-})();
-
-/*
- * PrimeUI TieredMenu Widget
- */
-(function() {
 
     $.widget("primeui.puitieredmenu", $.primeui.puibasemenu, {
 
@@ -7461,13 +7669,6 @@ PUI.resolveUserAgent();
 
     });
 
-})();
-
-/**
- * PrimeUI Menubar Widget
- */
-(function() {
-
     $.widget("primeui.puimenubar", $.primeui.puitieredmenu, {
 
         options: {
@@ -7515,13 +7716,6 @@ PUI.resolveUserAgent();
             return 'fa-caret-down';
         }
     });
-
-})();
-
-/*
- * PrimeUI SlideMenu Widget
- */
-(function() {
 
     $.widget("primeui.puislidemenu", $.primeui.puibasemenu, {
 
@@ -7733,13 +7927,6 @@ PUI.resolveUserAgent();
         }
     });
 
-})();
-
-/**
- * PrimeUI Context Menu Widget
- */
-(function() {
-
     $.widget("primeui.puicontextmenu", $.primeui.puitieredmenu, {
 
         options: {
@@ -7894,14 +8081,6 @@ PUI.resolveUserAgent();
         }
 
     });
-
-})();
-
-
-/*
- * PrimeUI MegaMenu Widget
- */
-(function() {
 
     $.widget("primeui.puimegamenu", $.primeui.puibasemenu, {
 
@@ -8366,13 +8545,6 @@ PUI.resolveUserAgent();
         }
 
     });
-
-})();
-
-/**
- * PrimeUI PanelMenu Widget
- */
-(function() {
 
     $.widget("primeui.puipanelmenu", $.primeui.puibasemenu, {
 
@@ -8911,12 +9083,122 @@ PUI.resolveUserAgent();
 
     });
 
-})();
+}));
+/**
+ * PrimeUI Messages widget
+ */
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
+    $.widget("primeui.puimessages", {
+       
+        options: {
+            closable: true
+        },
+
+        _create: function() {
+            this.element.addClass('ui-messages ui-widget ui-corner-all');
+            if(this.options.closable) {
+                this.closer = $('<a href="#" class="ui-messages-close"><i class="fa fa-close"></i></a>').appendTo(this.element);
+            }
+            this.element.append('<span class="ui-messages-icon fa fa-2x"></span>');
+            
+            this.msgContainer = $('<ul></ul>').appendTo(this.element);
+            
+            this._bindEvents();
+        },
+        
+        _bindEvents: function() {
+            var $this = this;
+            if(this.options.closable) {
+                this.closer.on('click', function(e) {
+                    $this.element.slideUp();
+                    e.preventDefault();
+                });
+            }
+        },
+
+        show: function(severity, msgs) {
+            this.clear();
+            this.element.removeClass('ui-messages-info ui-messages-warn ui-messages-error').addClass('ui-messages-' + severity);
+            
+            this.element.children('.ui-messages-icon').removeClass('fa-info-circle fa-close fa-warning').addClass(this._getIcon(severity));
+            
+            if($.isArray(msgs)) {
+                for(var i = 0; i < msgs.length; i++) {
+                    this._showMessage(msgs[i]);
+                }
+            }
+            else {
+                this._showMessage(msgs);
+            }
+            
+            this.element.show();
+        },
+        
+        _showMessage: function(msg) {
+            this.msgContainer.append('<li><span class="ui-messages-summary">' + msg.summary + '</span><span class="ui-messages-detail">' + msg.detail + '</span></li>');
+        },
+        
+        clear: function() {
+            this.msgContainer.children().remove();
+            this.element.hide();
+        },
+        
+        _getIcon: function(severity) {
+            switch(severity) {
+                case 'info':
+                    return 'fa-info-circle';
+                break;
+                
+                case 'warn':
+                    return 'fa-warning';
+                break;
+                
+                case 'error':
+                    return 'fa-close';
+                break;
+                
+                default:
+                    return 'fa-info-circle';
+                break;
+            }
+        }
+        
+    });
+    
+}));
 /**
  * PrimeUI MultiSelect Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puimultiselect", {
 
@@ -9476,9 +9758,24 @@ PUI.resolveUserAgent();
                             });
         }
     });
-})();
+    
+}));
 
-(function() {
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        // Node/CommonJS
+        module.exports = function( root, jQuery ) {
+            factory(jQuery);
+            return jQuery;
+        };
+    } else {
+        // Browser globals
+        factory(jQuery);
+    }
+}(function ($) {
 
     $.widget("primeui.puimultiselectlistbox", {
        
@@ -9646,13 +9943,27 @@ PUI.resolveUserAgent();
         }
     });
     
-})();
+}));
 
 
 /**
  * PrimeFaces Notify Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puinotify", {
        
@@ -9727,11 +10038,26 @@ PUI.resolveUserAgent();
             this.content.html(content);
         }
     });
-})();
+    
+}));
 /**
  * PrimeUI picklist widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puiorderlist", {
        
@@ -10162,11 +10488,25 @@ PUI.resolveUserAgent();
         
     });
         
-})();
+}));
 /**
  * PrimeFaces OverlayPanel Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puioverlaypanel", {
        
@@ -10440,33 +10780,48 @@ PUI.resolveUserAgent();
         }
         
     });
-})();
+    
+}));
 /**
  * PrimeUI Paginator Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     var ElementHandlers = {
-        
+
         '{FirstPageLink}': {
             markup: '<span class="ui-paginator-first ui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-step-backward"></span></span>',
-            
+
             create: function(paginator) {
                 var element = $(this.markup);
-                
+
                 if(paginator.options.page === 0) {
                     element.addClass('ui-state-disabled');
                 }
-                
+
                 element.on('click.puipaginator', function() {
                     if(!$(this).hasClass("ui-state-disabled")) {
                         paginator.option('page', 0);
                     }
                 });
-                                
+
                 return element;
             },
-            
+
             update: function(element, state) {
                 if(state.page === 0) {
                     element.addClass('ui-state-disabled').removeClass('ui-state-hover ui-state-active');
@@ -10476,26 +10831,26 @@ PUI.resolveUserAgent();
                 }
             }
         },
-                
+
         '{PreviousPageLink}': {
             markup: '<span class="ui-paginator-prev ui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-backward"></span></span>',
-                    
+
             create: function(paginator) {
                 var element = $(this.markup);
-                
+
                 if(paginator.options.page === 0) {
                     element.addClass('ui-state-disabled');
                 }
-                
+
                 element.on('click.puipaginator', function() {
                     if(!$(this).hasClass("ui-state-disabled")) {
                         paginator.option('page', paginator.options.page - 1);
                     }
                 });
-                
+
                 return element;
             },
-                    
+
             update: function(element, state) {
                 if(state.page === 0) {
                     element.addClass('ui-state-disabled').removeClass('ui-state-hover ui-state-active');
@@ -10505,55 +10860,26 @@ PUI.resolveUserAgent();
                 }
             }
         },
-                
+
         '{NextPageLink}': {
             markup: '<span class="ui-paginator-next ui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-forward"></span></span>',
-                    
-            create: function(paginator) {
-                var element = $(this.markup);
-                
-                if(paginator.options.page === (paginator.getPageCount() - 1)) {
-                    element.addClass('ui-state-disabled').removeClass('ui-state-hover ui-state-active');
-                }
-                
-                element.on('click.puipaginator', function() {
-                    if(!$(this).hasClass("ui-state-disabled")) {
-                        paginator.option('page', paginator.options.page + 1);
-                    }
-                });
-                
-                return element;
-            },
-                    
-            update: function(element, state) {
-                if(state.page === (state.pageCount - 1)) {
-                    element.addClass('ui-state-disabled').removeClass('ui-state-hover ui-state-active');
-                }
-                else {
-                    element.removeClass('ui-state-disabled');
-                }
-            }
-        },
-                
-        '{LastPageLink}': {
-            markup: '<span class="ui-paginator-last ui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-step-forward"></span></span>',
-                    
+
             create: function(paginator) {
                 var element = $(this.markup);
 
                 if(paginator.options.page === (paginator.getPageCount() - 1)) {
                     element.addClass('ui-state-disabled').removeClass('ui-state-hover ui-state-active');
                 }
-                
+
                 element.on('click.puipaginator', function() {
                     if(!$(this).hasClass("ui-state-disabled")) {
-                        paginator.option('page', paginator.getPageCount() - 1);
+                        paginator.option('page', paginator.options.page + 1);
                     }
                 });
-                
+
                 return element;
             },
-            
+
             update: function(element, state) {
                 if(state.page === (state.pageCount - 1)) {
                     element.addClass('ui-state-disabled').removeClass('ui-state-hover ui-state-active');
@@ -10563,10 +10889,39 @@ PUI.resolveUserAgent();
                 }
             }
         },
-                
+
+        '{LastPageLink}': {
+            markup: '<span class="ui-paginator-last ui-paginator-element ui-state-default ui-corner-all"><span class="fa fa-step-forward"></span></span>',
+
+            create: function(paginator) {
+                var element = $(this.markup);
+
+                if(paginator.options.page === (paginator.getPageCount() - 1)) {
+                    element.addClass('ui-state-disabled').removeClass('ui-state-hover ui-state-active');
+                }
+
+                element.on('click.puipaginator', function() {
+                    if(!$(this).hasClass("ui-state-disabled")) {
+                        paginator.option('page', paginator.getPageCount() - 1);
+                    }
+                });
+
+                return element;
+            },
+
+            update: function(element, state) {
+                if(state.page === (state.pageCount - 1)) {
+                    element.addClass('ui-state-disabled').removeClass('ui-state-hover ui-state-active');
+                }
+                else {
+                    element.removeClass('ui-state-disabled');
+                }
+            }
+        },
+
         '{PageLinks}': {
             markup: '<span class="ui-paginator-pages"></span>',
-                    
+
             create: function(paginator) {
                 var element = $(this.markup),
                 boundaries = this.calculateBoundaries({
@@ -10576,15 +10931,15 @@ PUI.resolveUserAgent();
                 }),
                 start = boundaries[0],
                 end = boundaries[1];
-                
+
                 for(var i = start; i <= end; i++) {
                     var pageLinkNumber = (i + 1),
                     pageLinkElement = $('<span class="ui-paginator-page ui-paginator-element ui-state-default ui-corner-all">' + pageLinkNumber + "</span>");
-                    
+
                     if(i === paginator.options.page) {
                         pageLinkElement.addClass('ui-state-active');
                     }
-                    
+
                     pageLinkElement.on('click.puipaginator', function(e){
                         var link = $(this);
 
@@ -10592,13 +10947,13 @@ PUI.resolveUserAgent();
                             paginator.option('page', parseInt(link.text(), 10) - 1);
                         }
                     });
-                    
+
                     element.append(pageLinkElement);
                 }
 
                 return element;
             },
-                    
+
             update: function(element, state, paginator) {
                 var pageLinks = element.children(),
                 boundaries = this.calculateBoundaries({
@@ -10608,17 +10963,17 @@ PUI.resolveUserAgent();
                 }),
                 start = boundaries[0],
                 end = boundaries[1];
-                
+
                 pageLinks.remove();
-        
+
                 for(var i = start; i <= end; i++) {
                     var pageLinkNumber = (i + 1),
                     pageLinkElement = $('<span class="ui-paginator-page ui-paginator-element ui-state-default ui-corner-all">' + pageLinkNumber + "</span>");
-                    
+
                     if(i === state.page) {
                         pageLinkElement.addClass('ui-state-active');
                     }
-                    
+
                     pageLinkElement.on('click.puipaginator', function(e){
                         var link = $(this);
 
@@ -10626,19 +10981,19 @@ PUI.resolveUserAgent();
                             paginator.option('page', parseInt(link.text(), 10) - 1);
                         }
                     });
-                    
+
                     paginator._bindHover(pageLinkElement);
-                    
+
                     element.append(pageLinkElement);
                 }
             },
-                    
+
             calculateBoundaries: function(config) {
                 var page = config.page,
                 pageLinks = config.pageLinks,
                 pageCount = config.pageCount,
                 visiblePages = Math.min(pageLinks, pageCount);
-                
+
                 //calculate range, keep current in middle if necessary
                 var start = Math.max(0, parseInt(Math.ceil(page - ((visiblePages) / 2)), 10)),
                 end = Math.min(pageCount - 1, start + visiblePages - 1);
@@ -10646,15 +11001,15 @@ PUI.resolveUserAgent();
                 //check when approaching to last page
                 var delta = pageLinks - (end - start + 1);
                 start = Math.max(0, start - delta);
-                
+
                 return [start, end];
             }
         }
-        
+
     };
 
     $.widget("primeui.puipaginator", {
-       
+
         options: {
             pageLinks: 5,
             totalRecords: 0,
@@ -10662,30 +11017,30 @@ PUI.resolveUserAgent();
             rows: 0,
             template: '{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}'
         },
-        
+
         _create: function() {
             this.element.addClass('ui-paginator ui-widget-header');
             this.paginatorElements = [];
-            
+
             var elementKeys = this.options.template.split(/[ ]+/);
             for(var i = 0; i < elementKeys.length;i++) {
                 var elementKey = elementKeys[i],
                 handler = ElementHandlers[elementKey];
-        
+
                 if(handler) {
                     var paginatorElement = handler.create(this);
                     this.paginatorElements[elementKey] = paginatorElement;
                     this.element.append(paginatorElement);
                 }
             }
-            
+
             this._bindEvents();
         },
-                
+
         _bindEvents: function() {
             this._bindHover(this.element.find('span.ui-paginator-element'));
         },
-        
+
         _bindHover: function(elements) {
             elements.on('mouseover.puipaginator', function() {
                         var el = $(this);
@@ -10700,7 +11055,7 @@ PUI.resolveUserAgent();
                         }
                     });
         },
-        
+
         _setOption: function(key, value) {
             if(key === 'page')
                 this.setPage(value);
@@ -10709,7 +11064,7 @@ PUI.resolveUserAgent();
             else
                 $.Widget.prototype._setOption.apply(this, arguments);
         },
-                
+
         setPage: function(p, silent) {
             var pc = this.getPageCount();
 
@@ -10721,43 +11076,61 @@ PUI.resolveUserAgent();
                     pageCount: pc,
                     pageLinks: this.options.pageLinks
                 };
-                
+
                 this.options.page = p;
 
                 if(!silent) {
                     this._trigger('paginate', null, newState);
                 }
-                
+
                 this.updateUI(newState);
             }
         },
-        
+
         //state contains page and totalRecords
         setState: function(state) {
             this.options.totalRecords = state.totalRecords;
             this.setPage(state.page, true);
         },
-                
+
         updateUI: function(state) {
             for(var paginatorElementKey in this.paginatorElements) {
-                ElementHandlers[paginatorElementKey].update(this.paginatorElements[paginatorElementKey], state, this);
+                if(this.paginatorElements.hasOwnProperty(paginatorElementKey)) {
+                    ElementHandlers[paginatorElementKey].update(this.paginatorElements[paginatorElementKey], state, this);
+                }
             }
         },
-                
+
         getPageCount: function() {
             return Math.ceil(this.options.totalRecords / this.options.rows)||1;
         },
-        
+
         setTotalRecords: function(value) {
             this.options.totalRecords = value;
             this.setPage(0, true);
         }
     });
-})();
+
+}));
+
 /**
  * PrimeUI Panel Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puipanel", {
 
@@ -10968,12 +11341,27 @@ PUI.resolveUserAgent();
             anchor.append(facetValue);
         }
     });
-})();
+    
+}));
 
 /**
  * PrimeUI password widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puipassword", {
         
@@ -11163,11 +11551,25 @@ PUI.resolveUserAgent();
 
     });
     
-})();
+}));
 /**
  * PrimeUI picklist widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puipicklist", {
        
@@ -11734,11 +12136,25 @@ PUI.resolveUserAgent();
         }
     });
         
-})();
+}));
 /**
  * PrimeUI progressbar widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puiprogressbar", {
        
@@ -11826,11 +12242,25 @@ PUI.resolveUserAgent();
         
     });
     
-})();
+}));
 /**
  * PrimeUI radiobutton widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     var checkedRadios = {};
 
@@ -11946,11 +12376,25 @@ PUI.resolveUserAgent();
         }
     });
     
-})();
+}));
 /**
  * PrimeUI rating widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puirating", {
        
@@ -12081,11 +12525,25 @@ PUI.resolveUserAgent();
         }
     });
     
-})();
+}));
 /**
  * PrimeUI SelectButton Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puiselectbutton", {
 
@@ -12310,11 +12768,25 @@ PUI.resolveUserAgent();
 
     });
 
-})();
+}));
 /**
  * PrimeUI spinner widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puispinner", {
        
@@ -12580,11 +13052,26 @@ PUI.resolveUserAgent();
             }
         }
     });
-})();
+    
+}));
 /**
  * PrimeFaces SplitButton Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puisplitbutton", {
        
@@ -12720,11 +13207,26 @@ PUI.resolveUserAgent();
             this.menuButton.puibutton('enable');
         }
     });
-})();
+    
+}));
 /**
  * PrimeUI sticky widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puisticky", {
        
@@ -12793,11 +13295,25 @@ PUI.resolveUserAgent();
         
     });
     
-})();
+}));
 /**
  * PrimeUI Switch Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puiswitch", {
 
@@ -12978,11 +13494,25 @@ PUI.resolveUserAgent();
         },
     });
 
-})();
+}));
 /**
  * PrimeUI tabview widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puitabview", {
        
@@ -13187,11 +13717,26 @@ PUI.resolveUserAgent();
         }
 
     });
-})();
+    
+}));
 /**
  * PrimeUI Terminal widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puiterminal", {
        
@@ -13282,11 +13827,26 @@ PUI.resolveUserAgent();
             this.input.val('');
         }                       
     });
-})();
+    
+}));
 /**
  * PrimeUI togglebutton widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puitogglebutton", {
        
@@ -13457,11 +14017,25 @@ PUI.resolveUserAgent();
         
     });
     
-})();
+}));
 /**
  * PrimeFaces Tooltip Widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puitooltip", {
        
@@ -13582,12 +14156,26 @@ PUI.resolveUserAgent();
             });
         }
     });
-})();
+    
+}));
 /**
  * PrimeUI Tree widget
  */
-(function() {
-
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
     $.widget("primeui.puitree", {
        
         options: {
@@ -13871,11 +14459,25 @@ PUI.resolveUserAgent();
         }
     });
     
-})();
+}));
 /**
  * PrimeUI TreeTable widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puitreetable", {
        
@@ -14193,12 +14795,23 @@ PUI.resolveUserAgent();
         }
     });
     
-})();
+}));
             
-/**
- * PrimeUI ColResize widget
- */
-(function() {
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        // Node/CommonJS
+        module.exports = function( root, jQuery ) {
+            factory(jQuery);
+            return jQuery;
+        };
+    } else {
+        // Browser globals
+        factory(jQuery);
+    }
+}(function ($) {
 
     $.widget("primeui.puicolresize", {
 
@@ -14310,12 +14923,6 @@ PUI.resolveUserAgent();
             this.thead.find('> tr > th > span.ui-column-resizer').draggable('destroy').remove();
         }
     });
-})();
-
-/**
- * PrimeUI ColReorder widget
- */
-(function() {
 
     $.widget("primeui.puicolreorder", {
 
@@ -14420,14 +15027,6 @@ PUI.resolveUserAgent();
         }
     });
 
-})();
-
-
-/**
- * PrimeUI TableScroll widget
- */
-(function() {
-
     $.widget("primeui.puitablescroll", {
 
         options: {
@@ -14527,4 +15126,5 @@ PUI.resolveUserAgent();
             return this.scrollbarWidth;
         }
     });
-})();
+
+}));

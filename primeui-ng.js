@@ -1,254 +1,288 @@
 /**
- * PUI Object 
+ * PrimeUI Object 
  */
-var PUI = {
-    
-    zindex : 1000,
-    
-    gridColumns: {
-        '1': 'ui-grid-col-12',
-        '2': 'ui-grid-col-6',
-        '3': 'ui-grid-col-4',
-        '4': 'ui-grid-col-3',
-        '6': 'ui-grid-col-2',
-        '12': 'ui-grid-col-11'
-    },
-    
-    charSet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
+     
+    var PUI = {
         
-    /**
-     *  Aligns container scrollbar to keep item in container viewport, algorithm copied from jquery-ui menu widget
-     */
-    scrollInView: function(container, item) {        
-        var borderTop = parseFloat(container.css('borderTopWidth')) || 0,
-        paddingTop = parseFloat(container.css('paddingTop')) || 0,
-        offset = item.offset().top - container.offset().top - borderTop - paddingTop,
-        scroll = container.scrollTop(),
-        elementHeight = container.height(),
-        itemHeight = item.outerHeight(true);
-
-        if(offset < 0) {
-            container.scrollTop(scroll + offset);
-        }
-        else if((offset + itemHeight) > elementHeight) {
-            container.scrollTop(scroll + offset - elementHeight + itemHeight);
-        }
-    },
-    
-    generateRandomId: function() {
-        var id = '';
-        for (var i = 1; i <= 10; i++) {
-            var randPos = Math.floor(Math.random() * this.charSet.length);
-            id += this.charSet[randPos];
-        }
-        return id;
-    },
-    
-    isIE: function(version) {
-        return (this.browser.msie && parseInt(this.browser.version, 10) === version);
-    },
-    
-    escapeRegExp: function(text) {
-        return text.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-    },
-
-    escapeHTML: function(value) {
-        return value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    },
-    
-    escapeClientId: function(id) {
-        return "#" + id.replace(/:/g,"\\:");
-    },
-    
-    clearSelection: function() {
-        if(window.getSelection) {
-            if(window.getSelection().empty) {
-                window.getSelection().empty();
-            } else if(window.getSelection().removeAllRanges) {
-                window.getSelection().removeAllRanges();
-            }
-        } else if(document.selection && document.selection.empty) {
-                document.selection.empty();
-        }
-    },
+        zindex : 1000,
+        
+        gridColumns: {
+            '1': 'ui-grid-col-12',
+            '2': 'ui-grid-col-6',
+            '3': 'ui-grid-col-4',
+            '4': 'ui-grid-col-3',
+            '6': 'ui-grid-col-2',
+            '12': 'ui-grid-col-11'
+        },
+        
+        charSet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
             
-    inArray: function(arr, item) {
-        for(var i = 0; i < arr.length; i++) {
-            if(arr[i] === item) {
-                return true;
-            }
-        }
+        /**
+         *  Aligns container scrollbar to keep item in container viewport, algorithm copied from jquery-ui menu widget
+         */
+        scrollInView: function(container, item) {        
+            var borderTop = parseFloat(container.css('borderTopWidth')) || 0,
+            paddingTop = parseFloat(container.css('paddingTop')) || 0,
+            offset = item.offset().top - container.offset().top - borderTop - paddingTop,
+            scroll = container.scrollTop(),
+            elementHeight = container.height(),
+            itemHeight = item.outerHeight(true);
 
-        return false;
-    },
-    
-    calculateScrollbarWidth: function() {
-        if(!this.scrollbarWidth) {
-            if(this.browser.msie) {
-                var $textarea1 = $('<textarea cols="10" rows="2"></textarea>')
-                        .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body'),
-                    $textarea2 = $('<textarea cols="10" rows="2" style="overflow: hidden;"></textarea>')
-                        .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body');
-                this.scrollbarWidth = $textarea1.width() - $textarea2.width();
-                $textarea1.add($textarea2).remove();
+            if(offset < 0) {
+                container.scrollTop(scroll + offset);
+            }
+            else if((offset + itemHeight) > elementHeight) {
+                container.scrollTop(scroll + offset - elementHeight + itemHeight);
+            }
+        },
+        
+        generateRandomId: function() {
+            var id = '';
+            for (var i = 1; i <= 10; i++) {
+                var randPos = Math.floor(Math.random() * this.charSet.length);
+                id += this.charSet[randPos];
+            }
+            return id;
+        },
+        
+        isIE: function(version) {
+            return (this.browser.msie && parseInt(this.browser.version, 10) === version);
+        },
+        
+        escapeRegExp: function(text) {
+            return text.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+        },
+
+        escapeHTML: function(value) {
+            return value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        },
+        
+        escapeClientId: function(id) {
+            return "#" + id.replace(/:/g,"\\:");
+        },
+        
+        clearSelection: function() {
+            if(window.getSelection) {
+                if(window.getSelection().empty) {
+                    window.getSelection().empty();
+                } else if(window.getSelection().removeAllRanges) {
+                    window.getSelection().removeAllRanges();
+                }
+            } else if(document.selection && document.selection.empty) {
+                    document.selection.empty();
+            }
+        },
+                
+        inArray: function(arr, item) {
+            for(var i = 0; i < arr.length; i++) {
+                if(arr[i] === item) {
+                    return true;
+                }
+            }
+
+            return false;
+        },
+        
+        calculateScrollbarWidth: function() {
+            if(!this.scrollbarWidth) {
+                if(this.browser.msie) {
+                    var $textarea1 = $('<textarea cols="10" rows="2"></textarea>')
+                            .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body'),
+                        $textarea2 = $('<textarea cols="10" rows="2" style="overflow: hidden;"></textarea>')
+                            .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body');
+                    this.scrollbarWidth = $textarea1.width() - $textarea2.width();
+                    $textarea1.add($textarea2).remove();
+                }
+                else {
+                    var $div = $('<div />')
+                        .css({ width: 100, height: 100, overflow: 'auto', position: 'absolute', top: -1000, left: -1000 })
+                        .prependTo('body').append('<div />').find('div')
+                            .css({ width: '100%', height: 200 });
+                    this.scrollbarWidth = 100 - $div.width();
+                    $div.parent().remove();
+                }
+            }
+
+            return this.scrollbarWidth;
+        },
+        
+        //adapted from jquery browser plugin
+        resolveUserAgent: function(jQuery) {
+            var matched, browser;
+
+            jQuery.uaMatch = function( ua ) {
+              ua = ua.toLowerCase();
+
+              var match = /(opr)[\/]([\w.]+)/.exec( ua ) ||
+                  /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
+                  /(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec( ua ) ||
+                  /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
+                  /(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
+                  /(msie) ([\w.]+)/.exec( ua ) ||
+                  ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec( ua ) ||
+                  ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
+                  [];
+
+              var platform_match = /(ipad)/.exec( ua ) ||
+                  /(iphone)/.exec( ua ) ||
+                  /(android)/.exec( ua ) ||
+                  /(windows phone)/.exec( ua ) ||
+                  /(win)/.exec( ua ) ||
+                  /(mac)/.exec( ua ) ||
+                  /(linux)/.exec( ua ) ||
+                  /(cros)/i.exec( ua ) ||
+                  [];
+
+              return {
+                  browser: match[ 3 ] || match[ 1 ] || "",
+                  version: match[ 2 ] || "0",
+                  platform: platform_match[ 0 ] || ""
+              };
+            };
+
+            matched = jQuery.uaMatch( window.navigator.userAgent );
+            browser = {};
+
+            if ( matched.browser ) {
+              browser[ matched.browser ] = true;
+              browser.version = matched.version;
+              browser.versionNumber = parseInt(matched.version);
+            }
+
+            if ( matched.platform ) {
+              browser[ matched.platform ] = true;
+            }
+
+            // These are all considered mobile platforms, meaning they run a mobile browser
+            if ( browser.android || browser.ipad || browser.iphone || browser[ "windows phone" ] ) {
+              browser.mobile = true;
+            }
+
+            // These are all considered desktop platforms, meaning they run a desktop browser
+            if ( browser.cros || browser.mac || browser.linux || browser.win ) {
+              browser.desktop = true;
+            }
+
+            // Chrome, Opera 15+ and Safari are webkit based browsers
+            if ( browser.chrome || browser.opr || browser.safari ) {
+              browser.webkit = true;
+            }
+
+            // IE11 has a new token so we will assign it msie to avoid breaking changes
+            if ( browser.rv )
+            {
+              var ie = "msie";
+
+              matched.browser = ie;
+              browser[ie] = true;
+            }
+
+            // Opera 15+ are identified as opr
+            if ( browser.opr )
+            {
+              var opera = "opera";
+
+              matched.browser = opera;
+              browser[opera] = true;
+            }
+
+            // Stock Android browsers are marked as Safari on Android.
+            if ( browser.safari && browser.android )
+            {
+              var android = "android";
+
+              matched.browser = android;
+              browser[android] = true;
+            }
+
+            // Assign the name and platform variable
+            browser.name = matched.browser;
+            browser.platform = matched.platform;
+
+            this.browser = browser;
+            $.browser = browser;
+        },
+        
+        getGridColumn: function(number) {
+            return this.gridColumns[number + ''];
+        },
+        
+        executeFunctionByName: function(functionName /*, args */) {
+            var args = [].slice.call(arguments).splice(1),
+            context = window,
+            namespaces = functionName.split("."),
+            func = namespaces.pop();
+            for(var i = 0; i < namespaces.length; i++) {
+              context = context[namespaces[i]];
+            }
+            return context[func].apply(this, args);
+        },
+        
+        resolveObjectByName: function(name) {
+            if(name) {
+                var parts = name.split(".");
+                for(var i = 0, len = parts.length, obj = window; i < len; ++i) {
+                    obj = obj[parts[i]];
+                }
+                return obj;
             }
             else {
-                var $div = $('<div />')
-                    .css({ width: 100, height: 100, overflow: 'auto', position: 'absolute', top: -1000, left: -1000 })
-                    .prependTo('body').append('<div />').find('div')
-                        .css({ width: '100%', height: 200 });
-                this.scrollbarWidth = 100 - $div.width();
-                $div.parent().remove();
+                return null;
             }
+        },
+
+        getCookie : function(name) {
+            return $.cookie(name);
+        },
+
+        setCookie : function(name, value, cfg) {
+            $.cookie(name, value, cfg);
+        },
+
+        deleteCookie: function(name, cfg) {
+            $.removeCookie(name, cfg);
         }
 
-        return this.scrollbarWidth;
-    },
+    };
+
+    PUI.resolveUserAgent($);
     
-    //adapted from jquery browser plugin
-    resolveUserAgent: function() {
-        var matched, browser;
-
-        jQuery.uaMatch = function( ua ) {
-          ua = ua.toLowerCase();
-
-          var match = /(opr)[\/]([\w.]+)/.exec( ua ) ||
-              /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
-              /(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec( ua ) ||
-              /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
-              /(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
-              /(msie) ([\w.]+)/.exec( ua ) ||
-              ua.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec( ua ) ||
-              ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
-              [];
-
-          var platform_match = /(ipad)/.exec( ua ) ||
-              /(iphone)/.exec( ua ) ||
-              /(android)/.exec( ua ) ||
-              /(windows phone)/.exec( ua ) ||
-              /(win)/.exec( ua ) ||
-              /(mac)/.exec( ua ) ||
-              /(linux)/.exec( ua ) ||
-              /(cros)/i.exec( ua ) ||
-              [];
-
-          return {
-              browser: match[ 3 ] || match[ 1 ] || "",
-              version: match[ 2 ] || "0",
-              platform: platform_match[ 0 ] || ""
-          };
-        };
-
-        matched = jQuery.uaMatch( window.navigator.userAgent );
-        browser = {};
-
-        if ( matched.browser ) {
-          browser[ matched.browser ] = true;
-          browser.version = matched.version;
-          browser.versionNumber = parseInt(matched.version);
-        }
-
-        if ( matched.platform ) {
-          browser[ matched.platform ] = true;
-        }
-
-        // These are all considered mobile platforms, meaning they run a mobile browser
-        if ( browser.android || browser.ipad || browser.iphone || browser[ "windows phone" ] ) {
-          browser.mobile = true;
-        }
-
-        // These are all considered desktop platforms, meaning they run a desktop browser
-        if ( browser.cros || browser.mac || browser.linux || browser.win ) {
-          browser.desktop = true;
-        }
-
-        // Chrome, Opera 15+ and Safari are webkit based browsers
-        if ( browser.chrome || browser.opr || browser.safari ) {
-          browser.webkit = true;
-        }
-
-        // IE11 has a new token so we will assign it msie to avoid breaking changes
-        if ( browser.rv )
-        {
-          var ie = "msie";
-
-          matched.browser = ie;
-          browser[ie] = true;
-        }
-
-        // Opera 15+ are identified as opr
-        if ( browser.opr )
-        {
-          var opera = "opera";
-
-          matched.browser = opera;
-          browser[opera] = true;
-        }
-
-        // Stock Android browsers are marked as Safari on Android.
-        if ( browser.safari && browser.android )
-        {
-          var android = "android";
-
-          matched.browser = android;
-          browser[android] = true;
-        }
-
-        // Assign the name and platform variable
-        browser.name = matched.browser;
-        browser.platform = matched.platform;
-
-        this.browser = browser;
-        $.browser = browser;
-    },
+    window.PUI = PUI;
     
-    getGridColumn: function(number) {
-        return this.gridColumns[number + ''];
-    },
-    
-    executeFunctionByName: function(functionName /*, args */) {
-        var args = [].slice.call(arguments).splice(1),
-        context = window,
-        namespaces = functionName.split("."),
-        func = namespaces.pop();
-        for(var i = 0; i < namespaces.length; i++) {
-          context = context[namespaces[i]];
-        }
-        return context[func].apply(this, args);
-    },
-    
-    resolveObjectByName: function(name) {
-        if(name) {
-            var parts = name.split(".");
-            for(var i = 0, len = parts.length, obj = window; i < len; ++i) {
-                obj = obj[parts[i]];
-            }
-            return obj;
-        }
-        else {
-            return null;
-        }
-    },
-
-    getCookie : function(name) {
-        return $.cookie(name);
-    },
-
-    setCookie : function(name, value, cfg) {
-        $.cookie(name, value, cfg);
-    },
-
-    deleteCookie: function(name, cfg) {
-        $.removeCookie(name, cfg);
-    }
-
-};
-
-PUI.resolveUserAgent();
+}));
 /**
  * PrimeUI Carousel widget
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puicarousel", {
        
@@ -616,1299 +650,25 @@ PUI.resolveUserAgent();
 
     });
     
-})();
-/**
- * PrimeUI Dialog Widget
- */
-(function() {
-
-    $.widget("primeui.puidialog", {
-       
-        options: {
-            draggable: true,
-            resizable: true,
-            location: 'center',
-            minWidth: 150,
-            minHeight: 25,
-            height: 'auto',
-            width: '300px',
-            visible: false,
-            modal: false,
-            showEffect: null,
-            hideEffect: null,
-            effectOptions: {},
-            effectSpeed: 'normal',
-            closeOnEscape: true,
-            rtl: false,
-            closable: true,
-            minimizable: false,
-            maximizable: false,
-            appendTo: null,
-            buttons: null,
-            responsive: false,
-            title: null,
-            enhanced: false
-        },
-        
-        _create: function() {
-            this.id = this.element.attr('id');
-            if(!this.id) {
-                this.id = this.element.uniqueId().attr('id');
-            }
-            
-            //container
-            if(!this.options.enhanced) {
-                this.element.addClass('ui-dialog ui-widget ui-widget-content ui-helper-hidden ui-corner-all ui-shadow')
-                        .contents().wrapAll('<div class="ui-dialog-content ui-widget-content" />');
-
-                //header
-                var title = this.options.title||this.element.attr('title');
-                this.element.prepend('<div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top">' +
-                                '<span id="' + this.element.attr('id') + '_label" class="ui-dialog-title">' + title + '</span>')
-                                .removeAttr('title');
-
-                //footer
-                if(this.options.buttons) {
-                    this.footer = $('<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"></div>').appendTo(this.element);
-                    for(var i = 0; i < this.options.buttons.length; i++) {
-                        var buttonMeta = this.options.buttons[i],
-                        button = $('<button type="button"></button>').appendTo(this.footer);
-                        if(buttonMeta.text) {
-                            button.text(buttonMeta.text);
-                        }
-                        
-                        button.puibutton(buttonMeta);
-                    }  
-                }
-
-                if(this.options.rtl) {
-                    this.element.addClass('ui-dialog-rtl');
-                }
-            }
-            
-            //elements
-            this.content = this.element.children('.ui-dialog-content');
-            this.titlebar = this.element.children('.ui-dialog-titlebar');
-            
-            if(!this.options.enhanced) {
-                if(this.options.closable) {
-                    this._renderHeaderIcon('ui-dialog-titlebar-close', 'fa-close');
-                }
-                
-                if(this.options.maximizable) {
-                    this._renderHeaderIcon('ui-dialog-titlebar-maximize', 'fa-sort');
-                }
-                
-                if(this.options.minimizable) {
-                    this._renderHeaderIcon('ui-dialog-titlebar-minimize', 'fa-minus');
-                }
-            }
-            
-            //icons
-            this.icons = this.titlebar.children('.ui-dialog-titlebar-icon');
-            this.closeIcon = this.titlebar.children('.ui-dialog-titlebar-close');
-            this.minimizeIcon = this.titlebar.children('.ui-dialog-titlebar-minimize');
-            this.maximizeIcon = this.titlebar.children('.ui-dialog-titlebar-maximize');
-            
-            this.blockEvents = 'focus.puidialog mousedown.puidialog mouseup.puidialog keydown.puidialog keyup.puidialog';            
-            this.parent = this.element.parent();
-            
-            //size
-            this.element.css({'width': this.options.width, 'height': 'auto'});
-            this.content.height(this.options.height);
-
-            //events
-            this._bindEvents();
-
-            if(this.options.draggable) {
-                this._setupDraggable();
-            }
-
-            if(this.options.resizable) {
-                this._setupResizable();
-            }
-
-            if(this.options.appendTo) {
-                this.element.appendTo(this.options.appendTo);
-            }
-            
-            if(this.options.responsive) {
-                this.resizeNS = 'resize.' + this.id;
-            }
-
-            //docking zone
-            if($(document.body).children('.ui-dialog-docking-zone').length === 0) {
-                $(document.body).append('<div class="ui-dialog-docking-zone"></div>');
-            }
-
-            //aria
-            this._applyARIA();
-
-            if(this.options.visible) {
-                this.show();
-            }
-        },
-
-        _destroy: function() {
-            //restore dom
-            if(!this.options.enhanced) {
-                this.element.removeClass('ui-dialog ui-widget ui-widget-content ui-helper-hidden ui-corner-all ui-shadow');
-
-                if(this.options.buttons) {
-                    this.footer.children('button').puibutton('destroy');
-                    this.footer.remove();
-                }
-
-                if(this.options.rtl) {
-                    this.element.removeClass('ui-dialog-rtl');
-                }
-
-                var title = this.titlebar.children('.ui-dialog-title').text()||this.options.title;
-                if(title) {
-                    this.element.attr('title', title);
-                }
-                this.titlebar.remove();
-
-                this.content.contents().unwrap();
-            }
-
-            //remove events
-            this._unbindEvents();
-
-            if(this.options.draggable) {
-                this.element.draggable('destroy');
-            }
-
-            if(this.options.resizable) {
-                this.element.resizable('destroy');
-            }
-
-            if(this.options.appendTo) {
-                this.element.appendTo(this.parent);
-            }
-            
-            this._unbindResizeListener();
-
-            if(this.options.modal) {
-                this._disableModality();
-            }
-
-            this._removeARIA();
-            this.element.css({
-                'width': 'auto',
-                'height': 'auto'
-            });
-        },
-        
-        _renderHeaderIcon: function(styleClass, icon) {
-            this.titlebar.append('<a class="ui-dialog-titlebar-icon ' + styleClass + ' ui-corner-all" href="#" role="button">' +
-                                '<span class="fa fa-fw ' + icon + '"></span></a>');
-        },
-        
-        _enableModality: function() {
-            var $this = this,
-            doc = $(document);
-
-            this.modality = $('<div id="' + this.element.attr('id') + '_modal" class="ui-widget-overlay ui-dialog-mask"></div>').appendTo(document.body)
-                                .css('z-index', this.element.css('z-index') - 1);
-
-            //Disable tabbing out of modal dialog and stop events from targets outside of dialog
-            doc.on('keydown.puidialog',
-                    function(event) {
-                        if(event.keyCode == $.ui.keyCode.TAB) {
-                            var tabbables = $this.content.find(':tabbable'), 
-                            first = tabbables.filter(':first'), 
-                            last = tabbables.filter(':last');
-
-                            if(event.target === last[0] && !event.shiftKey) {
-                                first.focus(1);
-                                return false;
-                            } 
-                            else if (event.target === first[0] && event.shiftKey) {
-                                last.focus(1);
-                                return false;
-                            }
-                        }
-                    })
-                    .bind(this.blockEvents, function(event) {
-                        if ($(event.target).zIndex() < $this.element.zIndex()) {
-                            return false;
-                        }
-                    });
-        },
-
-        _disableModality: function() {
-            if(this.modality) {
-                this.modality.remove();
-                this.modality = null;
-            }
-            
-            $(document).off(this.blockEvents).off('keydown.dialog');
-        },
-
-        show: function() {
-            if(this.element.is(':visible')) {
-                return;
-            }
-
-            if(!this.positionInitialized) {
-                this._initPosition();
-            }
-            
-            this._trigger('beforeShow', null);
-
-            if(this.options.showEffect) {
-                var $this = this;
-
-                this.element.show(this.options.showEffect, this.options.effectOptions, this.options.effectSpeed, function() {
-                    $this._postShow();
-                });
-            }    
-            else {
-                this.element.show();
-
-                this._postShow();
-            }
-
-            this._moveToTop();
-
-            if(this.options.modal) {
-                this._enableModality();
-            }
-        },
-
-        _postShow: function() {   
-            //execute user defined callback
-            this._trigger('afterShow', null);
-
-            this.element.attr({
-                'aria-hidden': false,
-                'aria-live': 'polite'
-            });
-
-            this._applyFocus();
-            
-            if(this.options.responsive) {
-                this._bindResizeListener();
-            }
-        },
-
-        hide: function() {   
-            if(this.element.is(':hidden')) {
-                return;
-            }
-            
-            this._trigger('beforeHide', null);
-
-            if(this.options.hideEffect) {
-                var _self = this;
-
-                this.element.hide(this.options.hideEffect, this.options.effectOptions, this.options.effectSpeed, function() {
-                    _self._postHide();
-                });
-            }
-            else {
-                this.element.hide();
-
-                this._postHide();
-            }
-
-            if(this.options.modal) {
-                this._disableModality();
-            }
-        },
-        
-        _postHide: function() {
-            //execute user defined callback
-            this._trigger('afterHide', null);
-
-            this.element.attr({
-                'aria-hidden': true,
-                'aria-live': 'off'
-            });
-            
-            if(this.options.responsive) {
-                this._unbindResizeListener();
-            }
-        },
-
-        _applyFocus: function() {
-            this.element.find(':not(:submit):not(:button):input:visible:enabled:first').focus();
-        },
-
-        _bindEvents: function() {   
-            var $this = this;
-            this.element.on('mousedown.puidialog', function(e) {
-                if(!$(e.target).data('ui-widget-overlay')) { 
-                  $this._moveToTop();
-                }
-             });
-
-            this.icons.mouseover(function() {
-                $(this).addClass('ui-state-hover');
-            }).mouseout(function() {
-                $(this).removeClass('ui-state-hover');
-            });
-
-            this.closeIcon.on('click.puidialog', function(e) {
-                $this.hide();
-                $this._trigger('clickClose');
-                e.preventDefault();
-            });
-
-            this.maximizeIcon.click(function(e) {
-                $this.toggleMaximize();
-                e.preventDefault();
-            });
-
-            this.minimizeIcon.click(function(e) {
-                $this.toggleMinimize();
-                e.preventDefault();
-            });
-
-            if(this.options.closeOnEscape) {
-                $(document).on('keydown.dialog_' + this.id, function(e) {
-                    var keyCode = $.ui.keyCode,
-                    active = parseInt($this.element.css('z-index'), 10) === PUI.zindex;
-
-                    if(e.which === keyCode.ESCAPE && $this.element.is(':visible') && active) {
-                        $this.hide();
-                        $this._trigger('hideWithEscape');
-                    }
-                });
-            }
-        },
-
-        _unbindEvents: function() {
-            this.element.off('mousedown.puidialog');
-            this.icons.off();
-            $(document).off('keydown.dialog_' + this.id);
-        },
-
-        _setupDraggable: function() {    
-            this.element.draggable({
-                cancel: '.ui-dialog-content, .ui-dialog-titlebar-close',
-                handle: '.ui-dialog-titlebar',
-                containment : 'document'
-            });
-        },
-
-        _setupResizable: function() {
-            var $this = this;
-            
-            this.element.resizable({
-                minWidth : this.options.minWidth,
-                minHeight : this.options.minHeight,
-                alsoResize : this.content,
-                containment: 'document',
-                start: function(event, ui) {
-                    $this.element.data('offset', $this.element.offset());
-                },
-                stop: function(event, ui) {
-                    var offset = $this.element.data('offset');
-
-                    $this.element.css('position', 'fixed');
-                    $this.element.offset(offset);
-                }
-            });
-
-            this.resizers = this.element.children('.ui-resizable-handle');
-        },
-
-        _initPosition: function() {
-            //reset
-            this.element.css({left:0,top:0});
-
-            if(/(center|left|top|right|bottom)/.test(this.options.location)) {
-                this.options.location = this.options.location.replace(',', ' ');
-
-                this.element.position({
-                            my: 'center',
-                            at: this.options.location,
-                            collision: 'fit',
-                            of: window,
-                            //make sure dialog stays in viewport
-                            using: function(pos) {
-                                var l = pos.left < 0 ? 0 : pos.left,
-                                t = pos.top < 0 ? 0 : pos.top;
-
-                                $(this).css({
-                                    left: l,
-                                    top: t
-                                });
-                            }
-                        });
-            }
-            else {
-                var coords = this.options.position.split(','),
-                x = $.trim(coords[0]),
-                y = $.trim(coords[1]);
-
-                this.element.offset({
-                    left: x,
-                    top: y
-                });
-            }
-
-            this.positionInitialized = true;
-        },
-
-        _moveToTop: function() {
-            this.element.css('z-index',++PUI.zindex);
-        },
-
-        toggleMaximize: function() {
-            if(this.minimized) {
-                this.toggleMinimize();
-            }
-
-            if(this.maximized) {
-                this.element.removeClass('ui-dialog-maximized');
-                this._restoreState();
-
-                this.maximizeIcon.removeClass('ui-state-hover');
-                this.maximized = false;
-            }
-            else {
-                this._saveState();
-
-                var win = $(window);
-
-                this.element.addClass('ui-dialog-maximized').css({
-                    'width': win.width() - 6,
-                    'height': win.height()
-                }).offset({
-                    top: win.scrollTop(),
-                    left: win.scrollLeft()
-                });
-
-                //maximize content
-                this.content.css({
-                    width: 'auto',
-                    height: 'auto'
-                });
-
-                this.maximizeIcon.removeClass('ui-state-hover');
-                this.maximized = true;
-                this._trigger('maximize');
-            }
-        },
-
-        toggleMinimize: function() {
-            var animate = true,
-            dockingZone = $(document.body).children('.ui-dialog-docking-zone');
-
-            if(this.maximized) {
-                this.toggleMaximize();
-                animate = false;
-            }
-
-            var $this = this;
-
-            if(this.minimized) {
-                this.element.appendTo(this.parent).removeClass('ui-dialog-minimized').css({'position':'fixed', 'float':'none'});
-                this._restoreState();
-                this.content.show();
-                this.minimizeIcon.removeClass('ui-state-hover').children('.fa').removeClass('fa-plus').addClass('fa-minus');
-                this.minimized = false;
-
-                if(this.options.resizable) {
-                    this.resizers.show();
-                }
-                
-                if(this.footer) {
-                    this.footer.show();
-                }
-            }
-            else {
-                this._saveState();
-
-                if(animate) {
-                    this.element.effect('transfer', {
-                                    to: dockingZone,
-                                    className: 'ui-dialog-minimizing'
-                                 }, 500,
-                                    function() {
-                                        $this._dock(dockingZone);
-                                        $this.element.addClass('ui-dialog-minimized');
-                                    });
-                } 
-                else {
-                    this._dock(dockingZone);
-                }
-            }
-        },
-
-        _dock: function(zone) {
-            this.element.appendTo(zone).css('position', 'static');
-            this.element.css({'height':'auto', 'width':'auto', 'float': 'left'});
-            this.content.hide();
-            this.minimizeIcon.removeClass('ui-state-hover').children('.fa').removeClass('fa-minus').addClass('fa-plus');
-            this.minimized = true;
-
-            if(this.options.resizable) {
-                this.resizers.hide();
-            }
-            
-            if(this.footer) {
-                this.footer.hide();
-            }
-            
-            zone.css('z-index',++PUI.zindex);
-
-            this._trigger('minimize');
-        },
-
-        _saveState: function() {
-            this.state = {
-                width: this.element.width(),
-                height: this.element.height()
-            };
-
-            var win = $(window);
-            this.state.offset = this.element.offset();
-            this.state.windowScrollLeft = win.scrollLeft();
-            this.state.windowScrollTop = win.scrollTop();
-        },
-
-        _restoreState: function() {
-            this.element.width(this.state.width).height(this.state.height);
-            
-            var win = $(window);
-            this.element.offset({
-                    top: this.state.offset.top + (win.scrollTop() - this.state.windowScrollTop),
-                    left: this.state.offset.left + (win.scrollLeft() - this.state.windowScrollLeft)
-            });
-        },
-
-        _applyARIA: function() {
-            this.element.attr({
-                'role': 'dialog',
-                'aria-labelledby': this.element.attr('id') + '_title',
-                'aria-hidden': !this.options.visible
-            });
-
-            this.titlebar.children('a.ui-dialog-titlebar-icon').attr('role', 'button');
-        },
-
-        _removeARIA: function() {
-            this.element.removeAttr('role').removeAttr('aria-labelledby').removeAttr('aria-hidden')
-                            .removeAttr('aria-live').removeAttr('aria-hidden');
-        },
-        
-        _bindResizeListener: function() {
-            var $this = this;
-            $(window).on(this.resizeNS, function(e) {
-                if(e.target === window) {
-                    $this._initPosition();
-                }
-            });
-        },
-
-        _unbindResizeListener: function() {
-            $(window).off(this.resizeNS);
-        },
-
-        _setOption: function(key, value) {
-            if(key === 'visible') {
-                if(value)
-                    this.show();
-                else
-                    this.hide();
-            }
-            else {
-                $.Widget.prototype._setOption.apply(this, arguments);
-            }
-        }
-    });
-})();
+}));
 /**
  * PrimeUI Lightbox Widget
  */
-(function() {
-
-    $.widget("primeui.puigalleria", {
-       
-        options: {
-            panelWidth: 600,
-            panelHeight: 400,
-            frameWidth: 60,
-            frameHeight: 40,
-            activeIndex: 0,
-            showFilmstrip: true,
-            autoPlay: true,
-            transitionInterval: 4000,
-            effect: 'fade',
-            effectSpeed: 250,
-            effectOptions: {},
-            showCaption: true,
-            customContent: false
-        },
-        
-        _create: function() {
-            this.element.addClass('ui-galleria ui-widget ui-widget-content ui-corner-all');
-            this.panelWrapper = this.element.children('ul');
-            this.panelWrapper.addClass('ui-galleria-panel-wrapper');
-            this.panels = this.panelWrapper.children('li');
-            this.panels.addClass('ui-galleria-panel ui-helper-hidden');
-                        
-            this.element.width(this.options.panelWidth);
-            this.panelWrapper.width(this.options.panelWidth).height(this.options.panelHeight);
-            this.panels.width(this.options.panelWidth).height(this.options.panelHeight);
-
-            if(this.options.showFilmstrip) {
-                this._renderStrip();
-                this._bindEvents();
-            }
-            
-            if(this.options.customContent) {
-                this.panels.children('img').hide();
-                this.panels.children('div').addClass('ui-galleria-panel-content');
-            }
-            
-            //show first
-            var activePanel = this.panels.eq(this.options.activeIndex);
-            activePanel.removeClass('ui-helper-hidden');
-            if(this.options.showCaption) {
-                this._showCaption(activePanel);
-            }
-            
-            this.element.css('visibility', 'visible');
-
-            if(this.options.autoPlay) {
-                this.startSlideshow();
-            }
-        },
-
-        _destroy: function() {
-            this.stopSlideshow();
-            this._unbindEvents();
-            this.element.removeClass('ui-galleria ui-widget ui-widget-content ui-corner-all').removeAttr('style');
-            this.panelWrapper.removeClass('ui-galleria-panel-wrapper').removeAttr('style');
-            this.panels.removeClass('ui-galleria-panel ui-helper-hidden').removeAttr('style');
-            this.strip.remove();
-            this.stripWrapper.remove();
-            this.element.children('.fa').remove();
-            if(this.options.showCaption) {
-                this.caption.remove();
-            }
-            this.panels.children('img').show();
-        },
-        
-        _renderStrip: function() {
-            var frameStyle = 'style="width:' + this.options.frameWidth + "px;height:" + this.options.frameHeight + 'px;"';
-
-            this.stripWrapper = $('<div class="ui-galleria-filmstrip-wrapper"></div>')
-                    .width(this.element.width() - 50)
-                    .height(this.options.frameHeight)
-                    .appendTo(this.element);
-
-            this.strip = $('<ul class="ui-galleria-filmstrip"></div>').appendTo(this.stripWrapper);
-
-            for(var i = 0; i < this.panels.length; i++) {
-                var image = this.panels.eq(i).children('img'),
-                frameClass = (i == this.options.activeIndex) ? 'ui-galleria-frame ui-galleria-frame-active' : 'ui-galleria-frame',
-                frameMarkup = '<li class="'+ frameClass + '" ' + frameStyle + '>' +
-                '<div class="ui-galleria-frame-content" ' + frameStyle + '>' +
-                '<img src="' + image.attr('src') + '" class="ui-galleria-frame-image" ' + frameStyle + '/>' +
-                '</div></li>';
-
-                this.strip.append(frameMarkup);
-            }
-
-            this.frames = this.strip.children('li.ui-galleria-frame');
-
-            //navigators
-            this.element.append('<div class="ui-galleria-nav-prev fa fa-fw fa-chevron-circle-left" style="bottom:' + (this.options.frameHeight / 2) + 'px"></div>' + 
-                '<div class="ui-galleria-nav-next fa fa-fw fa-chevron-circle-right" style="bottom:' + (this.options.frameHeight / 2) + 'px"></div>');
-
-            //caption
-            if(this.options.showCaption) {
-                this.caption = $('<div class="ui-galleria-caption"></div>').css({
-                    'bottom': this.stripWrapper.outerHeight() + 10,
-                    'width': this.panelWrapper.width()
-                    }).appendTo(this.element);
-            }
-        },
-        
-        _bindEvents: function() {
-            var $this = this;
-
-            this.element.children('div.ui-galleria-nav-prev').on('click.puigalleria', function() {
-                if($this.slideshowActive) {
-                    $this.stopSlideshow();
-                }
-
-                if(!$this.isAnimating()) {
-                    $this.prev();
-                }
-            });
-
-            this.element.children('div.ui-galleria-nav-next').on('click.puigalleria', function() {
-                if($this.slideshowActive) {
-                    $this.stopSlideshow();
-                }
-
-                if(!$this.isAnimating()) {
-                    $this.next();
-                }
-            });
-
-            this.strip.children('li.ui-galleria-frame').on('click.puigalleria', function() {
-                if($this.slideshowActive) {
-                    $this.stopSlideshow();
-                }
-
-                $this.select($(this).index(), false);
-            });
-        },
-
-        _unbindEvents: function() {
-            this.element.children('div.ui-galleria-nav-prev').off('click.puigalleria');
-            this.element.children('div.ui-galleria-nav-next').off('click.puigalleria');
-            this.strip.children('li.ui-galleria-frame').off('click.puigalleria');
-        },
-
-        startSlideshow: function() {
-            var $this = this;
-
-            this.interval = window.setInterval(function() {
-                $this.next();
-            }, this.options.transitionInterval);
-
-            this.slideshowActive = true;
-        },
-
-        stopSlideshow: function() {
-            if(this.interval) {
-                window.clearInterval(this.interval);
-            }
-
-            this.slideshowActive = false;
-        },
-
-        isSlideshowActive: function() {
-            return this.slideshowActive;
-        },
-
-        select: function(index, reposition) {
-            if(index !== this.options.activeIndex) {
-                if(this.options.showCaption) {
-                    this._hideCaption();
-                }
-
-                var oldPanel = this.panels.eq(this.options.activeIndex),
-                newPanel = this.panels.eq(index);
-
-                //content
-                oldPanel.hide(this.options.effect, this.options.effectOptions, this.options.effectSpeed);
-                newPanel.show(this.options.effect, this.options.effectOptions, this.options.effectSpeed);
-
-                if (this.options.showFilmstrip) {
-                    var oldFrame = this.frames.eq(this.options.activeIndex),
-                        newFrame = this.frames.eq(index);
-
-                    //frame
-                    oldFrame.removeClass('ui-galleria-frame-active').css('opacity', '');
-                    newFrame.animate({opacity:1.0}, this.options.effectSpeed, null, function() {
-                       $(this).addClass('ui-galleria-frame-active');
-                    });
-
-                    //viewport
-                    if( (reposition === undefined || reposition === true) ) {
-                        var frameLeft = newFrame.position().left,
-                            stepFactor = this.options.frameWidth + parseInt(newFrame.css('margin-right'), 10),
-                            stripLeft = this.strip.position().left,
-                            frameViewportLeft = frameLeft + stripLeft,
-                            frameViewportRight = frameViewportLeft + this.options.frameWidth;
-
-                        if(frameViewportRight > this.stripWrapper.width()) {
-                            this.strip.animate({left: '-=' + stepFactor}, this.options.effectSpeed, 'easeInOutCirc');
-                        } else if(frameViewportLeft < 0) {
-                            this.strip.animate({left: '+=' + stepFactor}, this.options.effectSpeed, 'easeInOutCirc');
-                        }
-                    }
-                }
-
-                //caption
-                if(this.options.showCaption) {
-                    this._showCaption(newPanel);
-                }
-
-                this.options.activeIndex = index;
-            }
-        },
-        
-        _hideCaption: function() {
-            this.caption.slideUp(this.options.effectSpeed);
-        },
-        
-        _showCaption: function(panel) {
-            var image = panel.children('img');
-            this.caption.html('<h4>' + image.attr('title') + '</h4><p>' + image.attr('alt') + '</p>').slideDown(this.options.effectSpeed);
-        },
-
-        prev: function() {
-            if(this.options.activeIndex !== 0) {
-                this.select(this.options.activeIndex - 1);
-            }
-        },
-
-        next: function() {
-            if(this.options.activeIndex !== (this.panels.length - 1)) {
-                this.select(this.options.activeIndex + 1);
-            } 
-            else {
-                this.select(0, false);
-                this.strip.animate({left: 0}, this.options.effectSpeed, 'easeInOutCirc');
-            }
-        },
-
-        isAnimating: function() {
-            return this.strip.is(':animated');
-        }
-    });
-})();
-/**
- * PrimeFaces Growl Widget
- */
-(function() {
-
-    $.widget("primeui.puigrowl", {
-
-        options: {
-            sticky: false,
-            life: 3000,
-            messages: null,
-            appendTo: document.body
-        },
-
-        _create: function() {
-            var container = this.element;
-            this.originalParent = this.element.parent();
-
-            container.addClass("ui-growl ui-widget");
-
-            if(this.options.appendTo) {
-                container.appendTo(this.options.appendTo);
-            }
-
-            if(this.options.messages) {
-                this.show(this.options.messages);
-            }
-        },
-
-        show: function(msgs) {
-            var $this = this;
-
-            this.element.css('z-index', ++PUI.zindex);
-
-            this.clear();
-
-            if(msgs && msgs.length) {
-                $.each(msgs, function(i, msg) {
-                    $this._renderMessage(msg);
-                });
-            }
-        },
-
-        clear: function() {
-            var messageElements = this.element.children('div.ui-growl-item-container');
-            for(var i = 0; i < messageElements.length; i++) {
-                this._unbindMessageEvents(messageElements.eq(i));
-            }
-
-            messageElements.remove();
-        },
-
-        _renderMessage: function(msg) {
-            var markup = '<div class="ui-growl-item-container ui-state-highlight ui-corner-all ui-helper-hidden" aria-live="polite">';
-            markup += '<div class="ui-growl-item ui-shadow">';
-            markup += '<div class="ui-growl-icon-close fa fa-close" style="display:none"></div>';
-            markup += '<span class="ui-growl-image fa fa-2x ' + this._getIcon(msg.severity) + ' ui-growl-image-' + msg.severity + '"/>';
-            markup += '<div class="ui-growl-message">';
-            markup += '<span class="ui-growl-title">' + msg.summary + '</span>';
-            markup += '<p>' + (msg.detail||'') + '</p>';
-            markup += '</div><div style="clear: both;"></div></div></div>';
-
-            var message = $(markup);
-            
-            message.addClass('ui-growl-message-' + msg.severity);
-
-            this._bindMessageEvents(message);
-            
-            message.appendTo(this.element).fadeIn();
-        },
-
-        _removeMessage: function(message) {
-            message.fadeTo('normal', 0, function() {
-                message.slideUp('normal', 'easeInOutCirc', function() {
-                    message.remove();
-                });
-            });
-        },
-
-        _bindMessageEvents: function(message) {
-            var $this = this,
-                sticky = this.options.sticky;
-
-            message.on('mouseover.puigrowl', function() {
-                    var msg = $(this);
-
-                    if(!msg.is(':animated')) {
-                        msg.find('div.ui-growl-icon-close:first').show();
-                    }
-                })
-                .on('mouseout.puigrowl', function() {
-                    $(this).find('div.ui-growl-icon-close:first').hide();
-                });
-
-            //remove message on click of close icon
-            message.find('div.ui-growl-icon-close').on('click.puigrowl',function() {
-                $this._removeMessage(message);
-
-                if(!sticky) {
-                    window.clearTimeout(message.data('timeout'));
-                }
-            });
-
-            if(!sticky) {
-                this._setRemovalTimeout(message);
-            }
-        },
-
-        _unbindMessageEvents: function(message) {
-            var $this = this,
-                sticky = this.options.sticky;
-
-            message.off('mouseover.puigrowl mouseout.puigrowl');
-            message.find('div.ui-growl-icon-close').off('click.puigrowl');
-            if(!sticky) {
-                var timeout = message.data('timeout');
-                if(timeout) {
-                    window.clearTimeout(timeout);
-                }
-            }
-        },
-
-        _setRemovalTimeout: function(message) {
-            var $this = this;
-
-            var timeout = window.setTimeout(function() {
-                $this._removeMessage(message);
-            }, this.options.life);
-
-            message.data('timeout', timeout);
-        },
-
-        _getIcon: function(severity) {
-            switch(severity) {
-                case 'info':
-                    return 'fa-info-circle';
-                    break;
-
-                case 'warn':
-                    return 'fa-warning';
-                    break;
-
-                case 'error':
-                    return 'fa-close';
-                    break;
-
-                default:
-                    return 'fa-info-circle';
-                    break;
-            }
-        },
-
-        _setOption: function(key, value) {
-            if(key === 'value' || key === 'messages') {
-                this.show(value);
-            }
-            else {
-                $.Widget.prototype._setOption.apply(this, arguments);
-            }
-        },
-
-        _destroy: function() {
-            this.clear();
-            this.element.removeClass("ui-growl ui-widget");
-
-            if(this.options.appendTo) {
-                this.element.appendTo(this.originalParent);
-            }
-        }
-    });
-})();
-/**
- * PrimeUI Switch Widget
- */
-(function() {
-
-    $.widget("primeui.puiswitch", {
-
-        options: {
-            onLabel: 'On',
-            offLabel: 'Off',
-            checked: false,
-            change: null,
-            enhanced: false
-        },
-
-        _create: function() {
-            if(!this.options.enhanced) {
-                this.element.wrap('<div class="ui-inputswitch ui-widget ui-widget-content ui-corner-all"></div>');
-                this.container = this.element.parent();
-
-                this.element.wrap('<div class="ui-helper-hidden-accessible"></div>');
-                this.container.prepend('<div class="ui-inputswitch-off"></div>' +
-                    '<div class="ui-inputswitch-on ui-state-active"></div>' +
-                    '<div class="ui-inputswitch-handle ui-state-default"></div>');
-
-                this.onContainer = this.container.children('.ui-inputswitch-on');
-                this.offContainer = this.container.children('.ui-inputswitch-off');
-                this.onContainer.append('<span>'+ this.options.onLabel +'</span>');
-                this.offContainer.append('<span>'+ this.options.offLabel +'</span>');
-            }
-            else {
-                this.container = this.element.closest('.ui-inputswitch');
-                this.onContainer = this.container.children('.ui-inputswitch-on');
-                this.offContainer = this.container.children('.ui-inputswitch-off');
-            }
-
-            this.onLabel = this.onContainer.children('span');
-            this.offLabel = this.offContainer.children('span');
-            this.handle = this.container.children('.ui-inputswitch-handle');
-
-            var	onContainerWidth = this.onContainer.width(),
-                offContainerWidth = this.offContainer.width(),
-                spanPadding	= this.offLabel.innerWidth() - this.offLabel.width(),
-                handleMargins = this.handle.outerWidth() - this.handle.innerWidth();
-
-            var containerWidth = (onContainerWidth > offContainerWidth) ? onContainerWidth : offContainerWidth,
-                handleWidth = containerWidth;
-
-            this.handle.css({'width':handleWidth});
-            handleWidth = this.handle.width();
-
-            containerWidth = containerWidth + handleWidth + 6;
-
-            var labelWidth = containerWidth - handleWidth - spanPadding - handleMargins;
-
-            this.container.css({'width': containerWidth });
-            this.onLabel.width(labelWidth);
-            this.offLabel.width(labelWidth);
-
-            //position
-            this.offContainer.css({ width: this.container.width() - 5 });
-            this.offset = this.container.width() - this.handle.outerWidth();
-
-            //default value
-            if(this.element.prop('checked')||this.options.checked) {
-                this.handle.css({ 'left': this.offset});
-                this.onContainer.css({ 'width': this.offset});
-                this.offLabel.css({ 'margin-right': -this.offset});
-            }
-            else {
-                this.onContainer.css({ 'width': 0 });
-                this.onLabel.css({'margin-left': -this.offset});
-            }
-
-            if(!this.element.prop('disabled')) {
-                this._bindEvents();
-            }
-        },
-
-        _bindEvents: function() {
-            var $this = this;
-
-            this.container.on('click.puiswitch', function(e) {
-                $this.toggle();
-                $this.element.trigger('focus');
-            });
-
-            this.element.on('focus.puiswitch', function(e) {
-                    $this.handle.addClass('ui-state-focus');
-                })
-                .on('blur.puiswitch', function(e) {
-                    $this.handle.removeClass('ui-state-focus');
-                })
-                .on('keydown.puiswitch', function(e) {
-                    var keyCode = $.ui.keyCode;
-                    if(e.which === keyCode.SPACE) {
-                        e.preventDefault();
-                    }
-                })
-                .on('keyup.puiswitch', function(e) {
-                    var keyCode = $.ui.keyCode;
-                    if(e.which === keyCode.SPACE) {
-                        $this.toggle();
-
-                        e.preventDefault();
-                    }
-                })
-                .on('change.puiswitch', function(e) {
-                    if($this.element.prop('checked')||$this.options.checked)
-                        $this._checkUI();
-                    else
-                        $this._uncheckUI();
-
-                    $this._trigger('change', e, {checked: $this.options.checked});
-                });
-        },
-
-        _unbindEvents: function() {
-            this.container.off('click.puiswitch');
-            this.element.off('focus.puiswitch blur.puiswitch keydown.puiswitch keyup.puiswitch change.puiswitch');
-        },
-
-        _destroy: function() {
-            this._unbindEvents();
-
-            if(!this.options.enhanced) {
-                this.onContainer.remove();
-                this.offContainer.remove();
-                this.handle.remove();
-                this.element.unwrap().unwrap();
-            }
-            else {
-                this.container.css('width', 'auto');
-                this.onContainer.css('width', 'auto');
-                this.onLabel.css('width', 'auto').css('margin-left', 0);
-                this.offContainer.css('width', 'auto');
-                this.offLabel.css('width', 'auto').css('margin-left', 0);
-            }
-        },
-
-        toggle: function() {
-            if(this.element.prop('checked')||this.options.checked)
-                this.uncheck();
-            else
-                this.check();
-        },
-
-        check: function() {
-            this.options.checked = true;
-            this.element.prop('checked', true).trigger('change');
-        },
-
-        uncheck: function() {
-            this.options.checked = false;
-            this.element.prop('checked', false).trigger('change');
-        },
-
-        _checkUI: function() {
-            this.onContainer.animate({width:this.offset}, 200);
-            this.onLabel.animate({marginLeft:0}, 200);
-            this.offLabel.animate({marginRight:-this.offset}, 200);
-            this.handle.animate({left:this.offset}, 200);
-        },
-
-        _uncheckUI: function() {
-            this.onContainer.animate({width:0}, 200);
-            this.onLabel.animate({marginLeft:-this.offset}, 200);
-            this.offLabel.animate({marginRight:0}, 200);
-            this.handle.animate({left:0}, 200);
-        },
-
-        _setOption: function(key, value) {
-            if(key === 'checked') {
-                if(value)
-                    this.check();
-                else
-                    this.uncheck();
-            }
-            else {
-                $.Widget.prototype._setOption.apply(this, arguments);
-            }
-        },
-    });
-
-})();
-/**
- * PrimeUI inputtext widget
- */
-(function() {
-
-    $.widget("primeui.puiinputtext", {
-       
-        options: {
-            disabled: false
-        },
-       
-        _create: function() {
-            var input = this.element,
-            disabled = input.prop('disabled');
-
-            //visuals
-            input.addClass('ui-inputtext ui-widget ui-state-default ui-corner-all');
-            
-            if(input.prop('disabled'))
-                input.addClass('ui-state-disabled');
-            else if(this.options.disabled)
-                this.disable();
-            else
-                this._enableMouseEffects();
-        },
-        
-        _destroy: function() {
-            this.element.removeClass('ui-inputtext ui-widget ui-state-default ui-state-disabled ui-state-hover ui-state-focus ui-corner-all');
-            this._disableMouseEffects();
-        },
-
-        _enableMouseEffects: function () {
-            var input = this.element;
-
-            input.on('mouseover.puiinputtext', function() {
-                input.addClass('ui-state-hover');
-            })
-            .on('mouseout.puiinputtext', function() {
-                input.removeClass('ui-state-hover');
-            })
-            .on('focus.puiinputtext', function() {
-                input.addClass('ui-state-focus');
-            })
-            .on('blur.puiinputtext', function() {
-                input.removeClass('ui-state-focus');
-            });
-        },
-
-        _disableMouseEffects: function () {
-            this.element.off('mouseover.puiinputtext mouseout.puiinputtext focus.puiinputtext blur.puiinputtext');
-        },
-
-        disable: function () {
-            this.element.prop('disabled', true);
-            this.element.addClass('ui-state-disabled');
-            this.element.removeClass('ui-state-focus ui-state-hover');
-            this._disableMouseEffects();
-        },
-
-        enable: function () {
-            this.element.prop('disabled', false);
-            this.element.removeClass('ui-state-disabled');
-            this._enableMouseEffects();
-        },
-
-        _setOption: function(key, value) {
-            if(key === 'disabled') {
-                if(value)
-                    this.disable();
-                else
-                    this.enable();
-            }
-            else {
-                $.Widget.prototype._setOption.apply(this, arguments);
-            }
-        }
-        
-    });
-    
-})();
-/**
- * PrimeUI Lightbox Widget
- */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puilightbox", {
 
@@ -2276,11 +1036,26 @@ PUI.resolveUserAgent();
             this.show();
         }
     });
-})();
+    
+}));
 /**
- * PrimeUI BaseMenu widget
+ * PrimeUI Menu widgets
  */
-(function() {
+ (function (factory) {
+     if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(['jquery'], factory);
+     } else if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = function( root, jQuery ) {
+             factory(jQuery);
+             return jQuery;
+         };
+     } else {
+         // Browser globals
+         factory(jQuery);
+     }
+ }(function ($) {
 
     $.widget("primeui.puibasemenu", {
 
@@ -2377,12 +1152,6 @@ PUI.resolveUserAgent();
             }
         }
     });
-})();
-
-/**
- * PrimeUI Menu widget
- */
-(function() {
 
     $.widget("primeui.puimenu", $.primeui.puibasemenu, {
 
@@ -2490,12 +1259,6 @@ PUI.resolveUserAgent();
             }
         }
     });
-})();
-
-/**
- * PrimeUI BreadCrumb Widget
- */
-(function() {
 
     $.widget("primeui.puibreadcrumb", {
 
@@ -2543,12 +1306,6 @@ PUI.resolveUserAgent();
             });
         }
     });
-})();
-
-/*
- * PrimeUI TieredMenu Widget
- */
-(function() {
 
     $.widget("primeui.puitieredmenu", $.primeui.puibasemenu, {
 
@@ -2781,13 +1538,6 @@ PUI.resolveUserAgent();
 
     });
 
-})();
-
-/**
- * PrimeUI Menubar Widget
- */
-(function() {
-
     $.widget("primeui.puimenubar", $.primeui.puitieredmenu, {
 
         options: {
@@ -2835,13 +1585,6 @@ PUI.resolveUserAgent();
             return 'fa-caret-down';
         }
     });
-
-})();
-
-/*
- * PrimeUI SlideMenu Widget
- */
-(function() {
 
     $.widget("primeui.puislidemenu", $.primeui.puibasemenu, {
 
@@ -3053,13 +1796,6 @@ PUI.resolveUserAgent();
         }
     });
 
-})();
-
-/**
- * PrimeUI Context Menu Widget
- */
-(function() {
-
     $.widget("primeui.puicontextmenu", $.primeui.puitieredmenu, {
 
         options: {
@@ -3214,14 +1950,6 @@ PUI.resolveUserAgent();
         }
 
     });
-
-})();
-
-
-/*
- * PrimeUI MegaMenu Widget
- */
-(function() {
 
     $.widget("primeui.puimegamenu", $.primeui.puibasemenu, {
 
@@ -3686,13 +2414,6 @@ PUI.resolveUserAgent();
         }
 
     });
-
-})();
-
-/**
- * PrimeUI PanelMenu Widget
- */
-(function() {
 
     $.widget("primeui.puipanelmenu", $.primeui.puibasemenu, {
 
@@ -4231,206 +2952,22 @@ PUI.resolveUserAgent();
 
     });
 
-})();
-
-/**
- * PrimeUI password widget
- */
-(function() {
-
-    $.widget("primeui.puipassword", {
-        
-        options: {
-            promptLabel: 'Please enter a password',
-            weakLabel: 'Weak',
-            mediumLabel: 'Medium',
-            strongLabel: 'Strong',
-            inline: false
-        },
-       
-        _create: function() {
-            this.id = this.element.attr('id');
-            if(!this.id) {
-                this.id = this.element.uniqueId().attr('id');
-            }
-
-            this.element.puiinputtext().addClass('ui-password');
-            
-            if(!this.element.prop(':disabled')) {
-                var panelMarkup = '<div class="ui-password-panel ui-widget ui-state-highlight ui-corner-all ui-helper-hidden">';
-                panelMarkup += '<div class="ui-password-meter" style="background-position:0pt 0pt">&nbsp;</div>';
-                panelMarkup += '<div class="ui-password-info">' + this.options.promptLabel + '</div>';
-                panelMarkup += '</div>';
-
-                this.panel = $(panelMarkup).insertAfter(this.element);
-                this.meter = this.panel.children('div.ui-password-meter');
-                this.infoText = this.panel.children('div.ui-password-info');
-
-                if(this.options.inline) {
-                    this.panel.addClass('ui-password-panel-inline');
-                } else {
-                    this.panel.addClass('ui-password-panel-overlay').appendTo('body');
-                }
-
-                this._bindEvents();
-            }
-        },
-        
-        _destroy: function() {
-            this.element.puiinputtext('destroy').removeClass('ui-password');
-            this._unbindEvents();
-            this.panel.remove();
-            $(window).off('resize.' + this.id);
-        },
-        
-        _bindEvents: function() {
-            var $this = this;
-            
-            this.element.on('focus.puipassword', function() {
-                $this.show();
-            })
-            .on('blur.puipassword', function() {
-                $this.hide();
-            })
-            .on('keyup.puipassword', function() {
-                var value = $this.element.val(),
-                label = null,
-                meterPos = null;
-
-                if(value.length === 0) {
-                    label = $this.options.promptLabel;
-                    meterPos = '0px 0px';
-                }
-                else {
-                    var score = $this._testStrength($this.element.val());
-
-                    if(score < 30) {
-                        label = $this.options.weakLabel;
-                        meterPos = '0px -10px';
-                    }
-                    else if(score >= 30 && score < 80) {
-                        label = $this.options.mediumLabel;
-                        meterPos = '0px -20px';
-                    } 
-                    else if(score >= 80) {
-                        label = $this.options.strongLabel;
-                        meterPos = '0px -30px';
-                    }
-                }
-
-                $this.meter.css('background-position', meterPos);
-                $this.infoText.text(label);
-            });
-
-            if(!this.options.inline) {
-                var resizeNS = 'resize.' + this.id;
-                $(window).off(resizeNS).on(resizeNS, function() {
-                    if($this.panel.is(':visible')) {
-                        $this.align();
-                    }
-                });
-            }
-        },
-
-        _unbindEvents: function() {
-            this.element.off('focus.puipassword blur.puipassword keyup.puipassword');
-        },
-        
-        _testStrength: function(str) {
-            var grade = 0, 
-            val = 0, 
-            $this = this;
-
-            val = str.match('[0-9]');
-            grade += $this._normalize(val ? val.length : 1/4, 1) * 25;
-
-            val = str.match('[a-zA-Z]');
-            grade += $this._normalize(val ? val.length : 1/2, 3) * 10;
-
-            val = str.match('[!@#$%^&*?_~.,;=]');
-            grade += $this._normalize(val ? val.length : 1/6, 1) * 35;
-
-            val = str.match('[A-Z]');
-            grade += $this._normalize(val ? val.length : 1/6, 1) * 30;
-
-            grade *= str.length / 8;
-
-            return grade > 100 ? 100 : grade;
-        },
-
-        _normalize: function(x, y) {
-            var diff = x - y;
-
-            if(diff <= 0) {
-                return x / y;
-            }
-            else {
-                return 1 + 0.5 * (x / (x + y/4));
-            }
-        },
-
-        align: function() {
-            this.panel.css({
-                left:'', 
-                top:'',
-                'z-index': ++PUI.zindex
-            })
-            .position({
-                my: 'left top',
-                at: 'right top',
-                of: this.element
-            });
-        },
-
-        show: function() {
-            if(!this.options.inline) {
-                this.align();
-
-                this.panel.fadeIn();
-            }
-            else {
-                this.panel.slideDown(); 
-            }        
-        },
-
-        hide: function() {
-            if(this.options.inline) {
-                this.panel.slideUp();
-            }
-            else {
-                this.panel.fadeOut();
-            }
-        },
-
-        disable: function () {
-            this.element.puiinputtext('disable');
-            this._unbindEvents();
-        },
-
-        enable: function () {
-            this.element.puiinputtext('enable');
-            this._bindEvents();
-        },
-
-        _setOption: function(key, value) {
-            if(key === 'disabled') {
-                if(value)
-                    this.disable();
-                else
-                    this.enable();
-            }
-            else {
-                $.Widget.prototype._setOption.apply(this, arguments);
-            }
-        }
-
-    });
-    
-})();
-/**
- * PrimeUI ColResize widget
- */
-(function() {
+}));
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        // Node/CommonJS
+        module.exports = function( root, jQuery ) {
+            factory(jQuery);
+            return jQuery;
+        };
+    } else {
+        // Browser globals
+        factory(jQuery);
+    }
+}(function ($) {
 
     $.widget("primeui.puicolresize", {
 
@@ -4542,12 +3079,6 @@ PUI.resolveUserAgent();
             this.thead.find('> tr > th > span.ui-column-resizer').draggable('destroy').remove();
         }
     });
-})();
-
-/**
- * PrimeUI ColReorder widget
- */
-(function() {
 
     $.widget("primeui.puicolreorder", {
 
@@ -4652,14 +3183,6 @@ PUI.resolveUserAgent();
         }
     });
 
-})();
-
-
-/**
- * PrimeUI TableScroll widget
- */
-(function() {
-
     $.widget("primeui.puitablescroll", {
 
         options: {
@@ -4759,4 +3282,5 @@ PUI.resolveUserAgent();
             return this.scrollbarWidth;
         }
     });
-})();
+
+}));
