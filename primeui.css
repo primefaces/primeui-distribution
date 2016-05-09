@@ -333,6 +333,7 @@ button.ui-button::-moz-focus-inner {
     margin: 1px;
     padding: 0;
     float: left;
+    box-sizing: border-box;
 }
 
 .ui-carousel .ui-carousel-viewport {
@@ -852,7 +853,7 @@ button.ui-button::-moz-focus-inner {
 @media ( max-width: 35em ) {
     .ui-datatable-reflow thead th,
     .ui-datatable-reflow tfoot td {
-        display: none;
+        display: none !important;
     }
 
     .ui-datatable-reflow .ui-datatable-data td {
@@ -887,7 +888,7 @@ button.ui-button::-moz-focus-inner {
 
 .ui-datatable-stacked thead th,
 .ui-datatable-stacked tfoot td {
-    display: none;
+    display: none !important;
 }
 
 .ui-datatable-stacked .ui-datatable-data td {
