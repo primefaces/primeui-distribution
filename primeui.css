@@ -1462,6 +1462,14 @@ button.ui-button::-moz-focus-inner {
 .ui-lightbox-close.ui-state-hover {
     padding: 0;
 }
+
+.ui-lightbox-nav-left, .ui-lightbox-nav-right {
+    opacity: .5;
+}
+
+.ui-lightbox-nav-left:hover, .ui-lightbox-nav-right:hover{
+    opacity: 1;
+}
 .ui-listbox {
     overflow:auto;
     padding:2px;
@@ -1581,6 +1589,7 @@ button.ui-button::-moz-focus-inner {
 
 .ui-menu .ui-menu-parent .ui-submenu-icon {
     float:right;
+    margin-right: -5px;
 }
 
 .ui-menubutton {
@@ -1857,9 +1866,53 @@ button.ui-button::-moz-focus-inner {
     margin-left: 20px;
 }
 
+/** MegaMenu and TieredMenus **/
+.ui-menuitem-active > .ui-submenu > ul,
+.ui-menuitem-active > .ui-megamenu-panel {
+    display: block !important;
+}
+
 .ui-menuitem-outline {
     outline: 1px dotted;
     z-index: 1;
+}
+
+/** TabMenu **/
+.ui-tabmenu { 
+    position: relative; 
+    zoom: 1; 
+}
+
+.ui-tabmenu .ui-tabmenu-nav { 
+    margin: 0;
+    padding: .2em .2em 0; 
+}
+
+.ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem { 
+    list-style: none; 
+    float: left; 
+    position: relative; 
+    margin: 0 .2em 1px 0;  
+    padding: 0; 
+    white-space: nowrap;
+    display: block;
+    border-bottom: 0;
+    top: 1px; 
+}
+
+.ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem a { 
+    float: left; 
+    padding: 0.5em 1em;
+    text-decoration: none; 
+}
+
+.ui-tabmenu .ui-tabmenu-nav a { 
+    padding: 0.5em 1em;
+}
+
+.ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem .ui-icon { 
+    float: left; 
+    cursor: pointer; 
 }
 .ui-messages {
     border: 1px solid;
@@ -2964,11 +3017,6 @@ button.ui-button::-moz-focus-inner {
 .ui-toolbar-group-right {
     float:right
 }
-.ui-tooltip {
-    position:absolute;
-    display:none;
-    padding:3px 5px;
-}
 .ui-tree {
     width: 300px;
 }
@@ -3052,6 +3100,71 @@ button.ui-button::-moz-focus-inner {
     width: 100%;
 }
 
+.ui-tooltip {
+    position:absolute;
+    display:none;
+    padding:3px 5px;
+}
+
+.ui-tooltip.ui-tooltip-right,
+.ui-tooltip.ui-tooltip-left {
+    padding: 0 5px;
+}
+
+.ui-tooltip.ui-tooltip-top,
+.ui-tooltip.ui-tooltip-bottom {
+    padding: 5px 0px;
+}
+
+.ui-tooltip .ui-tooltip-text {
+   padding: 3px 10px;
+   background-color: rgb(76, 76, 76);
+   color: #ffffff;
+}
+
+.ui-tooltip-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+}
+
+.ui-tooltip-right .ui-tooltip-arrow {
+    top: 50%;
+    left: 0;
+    margin-top: -5px;
+    border-width: 5px 5px 5px 0;
+    border-right-color: rgb(76, 76, 76);
+}
+
+.ui-tooltip-left .ui-tooltip-arrow {
+    top: 50%;
+    right: 0;
+    margin-top: -5px;
+    border-width: 5px 0 5px 5px;
+    border-left-color: rgb(76, 76, 76);
+}
+
+.ui-tooltip.ui-tooltip-top {
+    padding: 5px 0;
+}
+
+.ui-tooltip-top .ui-tooltip-arrow {
+    bottom: 0;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px 5px 0;
+    border-top-color: rgb(76, 76, 76);
+}
+
+.ui-tooltip-bottom .ui-tooltip-arrow {
+    top: 0;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 0 5px 5px;
+    border-bottom-color: rgb(76, 76, 76);
+}
 .ui-treetable table {
 	border-collapse:collapse;
     width: 100%;
