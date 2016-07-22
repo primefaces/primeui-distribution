@@ -54,42 +54,6 @@ if(!xtag.tags['p-accordion']) {
     });
     
 }
-if(!xtag.tags['p-button']) {
-
-    xtag.register('p-button', {
-
-        extends: 'button',
-
-        accessors: {
-            icon: {
-                attribute: {}
-            },
-            iconPos: {
-                attribute: {}
-            }
-        },
-
-        lifecycle: {
-            created: function () {
-                $(this).puibutton({
-                    icon: this.icon,
-                    iconPos: this.iconPos || 'left'
-                });
-            }
-        },
-
-        methods: {
-            disable: function () {
-                $(this).puibutton('disable');
-            },
-            enable: function () {
-                $(this).puibutton('enable');
-            }
-        }
-
-    });
-
-}
 if(!xtag.tags['p-autocomplete']) {
 
     xtag.register('p-autocomplete', {
@@ -169,6 +133,42 @@ if(!xtag.tags['p-autocomplete']) {
         
     });
     
+}
+if(!xtag.tags['p-button']) {
+
+    xtag.register('p-button', {
+
+        extends: 'button',
+
+        accessors: {
+            icon: {
+                attribute: {}
+            },
+            iconPos: {
+                attribute: {}
+            }
+        },
+
+        lifecycle: {
+            created: function () {
+                $(this).puibutton({
+                    icon: this.icon,
+                    iconPos: this.iconPos || 'left'
+                });
+            }
+        },
+
+        methods: {
+            disable: function () {
+                $(this).puibutton('disable');
+            },
+            enable: function () {
+                $(this).puibutton('enable');
+            }
+        }
+
+    });
+
 }
 if(!xtag.tags['p-carousel']) {
 

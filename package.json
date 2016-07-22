@@ -1,6 +1,6 @@
 {
   "name": "primeui",
-  "version": "v4.1.12",
+  "version": "v4.1.13",
   "description": "'PrimeUI is a collection of rich javascript widgets and web components based on jQuery UI API'",
   "main": "primeui.min.js",
   "scripts": {
