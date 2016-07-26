@@ -729,6 +729,7 @@ button.ui-button::-moz-focus-inner {
 .ui-chkbox {
     display: inline-block;
     cursor: pointer;
+    vertical-align: middle;
 }
 
 .ui-chkbox .ui-chkbox-box {
@@ -746,13 +747,8 @@ button.ui-button::-moz-focus-inner {
     margin-left: -1px;
 }
 
-.ui-chkbox .ui-chkbox-label {
-    cursor: pointer;
-    display: block;
-    margin: 0 3px;
-    outline: medium none;
-    z-index: 1;
-    float: left;
+.ui-chkbox-label {
+    vertical-align: middle;    
 }
 
 
@@ -1247,6 +1243,20 @@ button.ui-button::-moz-focus-inner {
     display: inline-block;
     margin: -.4em 1em -.4em -.4em;
     font-weight: bold;
+}
+
+.ui-datatable .ui-selection-column .ui-chkbox,
+.ui-datatable .ui-selection-column .ui-radiobutton {
+     margin: 0;
+     display: block;
+}
+
+.ui-datatable .ui-selection-column .ui-chkbox-box,
+.ui-datatable .ui-selection-column .ui-radiobutton-box {
+    display: block;
+    box-sizing: border-box;
+    height: 17px;
+    width: 17px;
 }
 
 .ui-dialog { position: fixed; padding: 0; overflow: hidden; width: 300px;}
@@ -3354,7 +3364,15 @@ button.ui-button::-moz-focus-inner {
     margin-left: 2px;
     display: block;
 }
-  
+ 
+.ui-radiobutton, .ui-radiobutton-label {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.ui-radiobutton-label {
+    margin-left: 3px;
+}
 .ui-rating-star,
 .ui-rating-cancel {
     float: left;
