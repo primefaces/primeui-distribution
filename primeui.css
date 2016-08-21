@@ -575,33 +575,6 @@ button.ui-button::-moz-focus-inner {
 }
 
 
-.ui-datalist .ui-datalist-header,
-.ui-datalist .ui-datalist-footer {
-    text-align:center;
-    padding:4px 10px;
-}
-
-.ui-datalist .ui-datalist-header {
-    border-bottom: 0px none;
-}
-
-.ui-datalist .ui-datalist-footer {
-    border-top: 0px none;
-}
-
-.ui-datalist .ui-paginator {
-    border-top: 0px none;
-}
-
-.ui-datalist .ui-datalist-data {
-    margin: 0;
-    padding: 0;
-}
-
-.ui-datalist .ui-datalist-data > li {
-    list-style-type: none;
-    
-}
 .ui-datascroller {
 }
 
@@ -647,6 +620,33 @@ button.ui-button::-moz-focus-inner {
     padding: 0;
     margin: 0;
     display: inline-block;
+}
+.ui-datalist .ui-datalist-header,
+.ui-datalist .ui-datalist-footer {
+    text-align:center;
+    padding:4px 10px;
+}
+
+.ui-datalist .ui-datalist-header {
+    border-bottom: 0px none;
+}
+
+.ui-datalist .ui-datalist-footer {
+    border-top: 0px none;
+}
+
+.ui-datalist .ui-paginator {
+    border-top: 0px none;
+}
+
+.ui-datalist .ui-datalist-data {
+    margin: 0;
+    padding: 0;
+}
+
+.ui-datalist .ui-datalist-data > li {
+    list-style-type: none;
+    
 }
 .ui-datatable table {
 	border-collapse:collapse;
@@ -785,6 +785,7 @@ button.ui-button::-moz-focus-inner {
 
 /* Resizable */
 .ui-datatable .ui-column-resizer {
+    display: block;
     position: absolute !important;
     top: 0px;
     right: 0px;
@@ -1021,6 +1022,10 @@ button.ui-button::-moz-focus-inner {
     font-weight: normal;
     width: 100%;
     float:left;
+}
+
+.ui-dropdown .ui-dropdown-label-empty {
+    text-indent: -9999px;   
 }
 
 .ui-dropdown.ui-state-disabled .ui-dropdown-trigger,
