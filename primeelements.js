@@ -1878,7 +1878,7 @@ if(!xtag.tags['p-messages']) {
                 this.xtag.container = $(this).append('<div></div>').children('div');
                 
                 $(this.xtag.container).puimessages({
-                    closable: this.closable ? JSON.parse(closable): true
+                    closable: this.closable ? JSON.parse(this.closable): true
                 });
             }
         },
